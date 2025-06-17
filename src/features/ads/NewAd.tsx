@@ -8,12 +8,13 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Avatar,
   TextField,
   Autocomplete,
 } from "@mui/material";
 import FormField from "../../components/form/FormField";
 import theme from "../../styles/mainThem";
+import { SelectChangeEvent } from "@mui/material/Select";
+import { CheckCircle } from "@mui/icons-material";
 
 // Mock data
 const COURSES = [
@@ -57,11 +58,8 @@ const NewAd = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectChange = (
-    e: React.ChangeEvent<{ name?: string; value: unknown }>
-  ) => {
-    const name = e.target.name as string;
-    const value = e.target.value as string;
+  const handleSelectChange = (e: SelectChangeEvent) => {
+    const { name, value } = e.target;
 
     setFormData((prev) => ({
       ...prev,
@@ -110,7 +108,13 @@ const NewAd = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 0, sm: 3 } }}>
+    <Box
+      sx={{
+        width: { xs: "100%", sm: "100%", md: "100%", lg:800 },
+        mx: "auto",
+        p: { xs: 0, sm: 3 },
+      }}
+    >
       <Typography
         variant="h5"
         sx={{ mb: 2, fontWeight: "bold", textAlign: "right" }}
@@ -199,12 +203,12 @@ const NewAd = () => {
               sx={{
                 mt: 2,
                 display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
+                flexDirection: "row",
+                gap: 1,
               }}
             >
               <label htmlFor="image-upload">
-                <Button variant="outlined" component="span" sx={{ mb: 1 }}>
+                <Button variant="outlined" component="span">
                   رفع صورة
                 </Button>
                 <input
@@ -216,12 +220,27 @@ const NewAd = () => {
                 />
               </label>
               {previewImage && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <CheckCircle color="success" sx={{ fontSize: 40 }} />
+                  <Typography variant="body1" color="text.secondary">
+                    تم رفع الصورة بنجاح
+                  </Typography>
+                </Box>
+              )}
+              {/* {previewImage && (
                 <Avatar
                   src={previewImage}
                   sx={{ width: 150, height: 150, mt: 2 }}
                   variant="rounded"
                 />
-              )}
+              )} */}
             </Box>
           </Box>
 

@@ -14,8 +14,8 @@ import SortIcon from "@mui/icons-material/Sort";
 interface ToolbarProps {
   entityType: "student" | "teacher" | "ad" | "course";
   onSearch: (query: string) => void;
-  onSortNewest: () => void;
-  onAdd: () => void;
+  onSortNewest?: () => void;
+  onAdd?: () => void;
   selectedNewest?: boolean;
 }
 
@@ -77,40 +77,42 @@ const EntityToolbar = ({
       {/* Action Buttons */}
       <Box sx={{ display: "flex", gap: 2 }}>
         {/* Newest Button */}
-
-        <Button
-          variant="contained"
-          color={selectedNewest ? "secondary" : "none"}
-          startIcon={<SortIcon sx={{ ml: 2 }} />}
-          onClick={onSortNewest}
-          sx={{
-            fontWeight: "bold",
-            px: 2,
-            py: 1,
-            borderRadius: "20px",
-            border: "2px solid",
-            borderColor: "secondary.main",
-          }}
-        >
-          {!isSmallScreen && "الأحدث"}
-        </Button>
+        {onSortNewest && (
+          <Button
+            variant="contained"
+            color={selectedNewest ? "secondary" : "none"}
+            startIcon={<SortIcon sx={{ ml: 2 }} />}
+            onClick={onSortNewest}
+            sx={{
+              fontWeight: "bold",
+              px: 2,
+              py: 1,
+              borderRadius: "20px",
+              border: "2px solid",
+              borderColor: "secondary.main",
+            }}
+          >
+            {!isSmallScreen && "الأحدث"}
+          </Button>
+        )}
 
         {/* Add Entity Button */}
-
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon sx={{ ml: 2 }} />}
-          onClick={onAdd}
-          sx={{
-            fontWeight: "bold",
-            px: 2,
-            py: 1,
-            borderRadius: 20,
-          }}
-        >
-          {!isSmallScreen && `إضافة ${entityTranslations[entityType]}`}
-        </Button>
+        {onAdd && (
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon sx={{ ml: 2 }} />}
+            onClick={onAdd}
+            sx={{
+              fontWeight: "bold",
+              px: 2,
+              py: 1,
+              borderRadius: 20,
+            }}
+          >
+            {!isSmallScreen && `إضافة ${entityTranslations[entityType]}`}
+          </Button>
+        )}
       </Box>
     </Toolbar>
   );

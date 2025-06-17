@@ -11,7 +11,7 @@ const CoursesPage = () => {
 
   const handleAddStudent = () => {
     console.log("Add new student clicked");
-    navigate(`/manager/ads/new`);
+    navigate(`/manager/course/new`);
   };
 
   const [isNewestSelected, setIsNewestSelected] = React.useState(false);

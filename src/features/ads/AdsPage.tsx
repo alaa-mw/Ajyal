@@ -1,24 +1,14 @@
 import React from "react";
 import AdsCard from "./AdsCard";
-import { Box, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import EntityToolbar from "../../components/ui/EntityToolbar";
-import { useNavigate } from "react-router-dom";
+import NewAd from "./NewAd";
 
 const AdsPage = () => {
-  const navigate = useNavigate();
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
   const handleSearch = () => {
     console.log("Searching for:");
-  };
-
-  const handleAddStudent = () => {
-    console.log("Add new student clicked");
-    navigate(`/manager/ads/new`);
-  };
-
-  const [isNewestSelected, setIsNewestSelected] = React.useState(false);
-  const handleSortNewest = () => {
-    console.log("Sort by newest clicked");
-    setIsNewestSelected(!isNewestSelected);
   };
 
   return (
@@ -32,45 +22,53 @@ const AdsPage = () => {
       >
         الإعلانات
       </Typography>
-
-      <EntityToolbar
-        entityType="ad"
-        onSearch={handleSearch}
-        onAdd={handleAddStudent}
-        selectedNewest={isNewestSelected}
-        onSortNewest={handleSortNewest}
-      />
       <Box
-        component="section"
         sx={{
-          display: "grid",
-          placeItems: "center", //return
-          gap: 1,
-          gridTemplateColumns: {
-            xs: "1fr",
-            s: "repeat(2, 1fr)",
-            sm: "repeat(2, 1fr)",
-            lg: "repeat(3, 1fr)",
-            xl: "repeat(4, 1fr)",
-          },
-          p: 2,
+          display: "flex",
+          flexDirection: { xs: 'column', sm: 'column', md: 'column', lg: 'row' },
+          justifyContent: "space-between",
         }}
       >
-        <AdsCard
-          title="فرصة عمل مميزة"
-          body="مطلوب مدرس رياضيات لطلاب الثانوية\nخبرة لا تقل عن 3 سنوات"
-          creation_date={"11-3-2024"}
-        />
-        <AdsCard
-          title="فرصة عمل مميزة"
-          body="مطلوب مدرس رياضيات لطلاب الثانوية\nخبرة لا تقل عن 3 سنوات"
-          creation_date={"11-3-2024"}
-        />
-        <AdsCard
-          title="فرصة عمل مميزة"
-          body="مطلوب مدرس رياضيات لطلاب الثانوية\nخبرة لا تقل عن 3 سنوات"
-          creation_date={"11-3-2024"}
-        />
+        <NewAd />
+
+        <Box>
+          <EntityToolbar entityType="ad" onSearch={handleSearch} />
+
+          {/* Vertical scroll container */}
+          <Box
+            ref={scrollContainerRef}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              px: 2,
+              gap: 1,
+              height: {
+                xs: "calc(100vh - 200px)", // Adjust 200px based on your header/footer height
+                md: "calc(100vh - 160px)", // Larger offset for desktop
+              },
+              overflowY: "auto",
+              scrollBehavior: "smooth",
+              "&::-webkit-scrollbar": {
+                display: "none",
+              },
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
+            }}
+          >
+            {[...Array(8)].map((_, index) => (
+              <Box key={index} sx={{ minHeight: 110, flexShrink: 0 }}>
+                {" "}
+                {/* Changed from minWidth */}
+                <AdsCard
+                  title="فرصة عمل مميزة"
+                  body="مطلوب مدرس رياضيات لطلاب الثانوية\nخبرة لا تقل عن 3 سنوات"
+                  creation_date={"11-3-2024"}
+                />
+              </Box>
+            ))}
+          </Box>
+        </Box>
+        <Divider />
       </Box>
     </>
   );
