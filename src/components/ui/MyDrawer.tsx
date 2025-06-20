@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import logo from "../../assets/logo.png";
 import { SidebarData } from "../../data/sidebarData";
 import {
@@ -12,12 +12,47 @@ import {
   Toolbar,
   Typography,
   Box,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
-import { Link as RouterLink, useLocation } from "react-router-dom";
 import drawerFrame from "../../assets/drawerFrame.png";
+import { Logout } from "@mui/icons-material";
+import theme from "../../styles/mainThem";
+import NavItem from "./NavItem";
+import useSendData from "../../hooks/useSendData";
+import { useDispatch } from "react-redux";
+import { logoutSuccess } from "../../features/auth/Redux/authSlice";
 
 const MyDrawer = () => {
-  const location = useLocation();
+  const dispatch = useDispatch();
+  const [selectedCourse, setSelectedCourse] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+
+  const { mutate: logout } = useSendData("/logout", undefined);
+  const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        dispatch(logoutSuccess());
+        window.location.href = "/";
+      },
+    });
+  };
+
+  // Sample data
+  const courses = [
+    { id: 1, name: "رياضيات الصف التاسع" },
+    { id: 2, name: "فيزياء الصف العاشر" },
+    { id: 3, name: "رياضيات الصف التاسع" },
+    { id: 2, name: "فيزياء الصف العاشر" },
+    { id: 1, name: "رياضيات الصف التاسع" },
+    { id: 2, name: "فيزياء الصف العاشر" },
+    { id: 1, name: "رياضيات الصف التاسع" },
+    { id: 2, name: "فيزياء الصف العاشر" },
+    { id: 1, name: "رياضيات الصف التاسع" },
+    { id: 2, name: "فيزياء الصف العاشر" },
+  ];
 
   return (
     <Box
@@ -51,47 +86,76 @@ const MyDrawer = () => {
           أجيال التعليمي
         </Typography>
       </Toolbar>
-
       <Divider sx={{ bgcolor: "#fff" }} />
-
       {/* Main Navigation */}
-      <List sx={{ flexGrow: 1 }}>
-        {SidebarData.map((item, index) => {
+      <List>
+        {SidebarData.mainItems.map((item, index) => {
           return (
-            <ListItem key={index} disablePadding>
-              <ListItemButton
-                component={RouterLink}
-                to={`/manager${item.path}`}
-                selected={location.pathname.includes(item.path)}
-                sx={{
-                  "&.Mui-selected": {
-                    backgroundColor: "secondary.main",
-                    borderRadius: "0px 50px 50px 0px ",
-                  },
-                }}
-              >
-                <ListItemIcon>
-                  <Box component={item.icon} sx={{ color: "#fff" }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.title}
-                  sx={{ color: "primary.contrastText" }}
-                />
-              </ListItemButton>
-            </ListItem>
+            <Box key={index}>
+              <NavItem
+                path={`/manager${item.path}`}
+                title={item.title}
+                icon={item.icon}
+              />
+            </Box>
           );
         })}
       </List>
 
       <Divider sx={{ bgcolor: "#fff" }} />
+      <List sx={{ color: "primary.contrastText", flexGrow: 1 }}>
+        {/* Course Selection */}
+        <Autocomplete
+          options={courses}
+          getOptionLabel={(option) => option.name}
+          value={selectedCourse}
+          onChange={(_, newValue) => {
+            setSelectedCourse(newValue);
+          }}
+          sx={{
+            borderLeft: `2px solid ${theme.palette.primary.main}`,
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="اختر الدورة" // make label pr:2
+              variant="outlined"
+              fullWidth
+              sx={{
+                bgcolor: "background.default",
+                borderRadius: "0px 50px 50px 0px ",
+                "& .MuiInputLabel-root": {
+                  right: 50, // RTL support for label positioning
+                },
+                "& .MuiOutlinedInput-root": {
+                  paddingRight: 2,
+                },
+              }}
+            />
+          )}
+        />
 
+        {/* Submenu */}
+        {SidebarData.subItems.map((item, index) => (
+          <Box key={index}>
+            <NavItem
+              path={`/manager${item.path}`}
+              title={item.title}
+              selectedCourse={!!selectedCourse}
+              variant="withIndicator"
+            />
+          </Box>
+        ))}
+      </List>
+
+      <Divider sx={{ bgcolor: "#fff" }} />
       {/* Secondary Navigation */}
       <List>
-        {["All mail", "Trash", "Spam"].map((text) => (
+        {["تسجيل الخروج"].map((text) => (
           <ListItem key={text} disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={handleLogout}>
               <ListItemIcon sx={{ color: "primary.contrastText" }}>
-                {/* {index % 2 === 0 ? <InboxIcon /> : <MailIcon />} */}
+                <Logout />
               </ListItemIcon>
               <ListItemText
                 primary={text}

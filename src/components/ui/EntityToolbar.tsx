@@ -79,8 +79,7 @@ const EntityToolbar = ({
         {/* Newest Button */}
         {onSortNewest && (
           <Button
-            variant="contained"
-            color={selectedNewest ? "secondary" : "none"}
+            variant={selectedNewest ? "contained" : "outlined"}
             startIcon={<SortIcon sx={{ ml: 2 }} />}
             onClick={onSortNewest}
             sx={{
@@ -90,6 +89,9 @@ const EntityToolbar = ({
               borderRadius: "20px",
               border: "2px solid",
               borderColor: "secondary.main",
+              backgroundColor: selectedNewest
+                ? "secondary.main"
+                : "background.paper",
             }}
           >
             {!isSmallScreen && "الأحدث"}

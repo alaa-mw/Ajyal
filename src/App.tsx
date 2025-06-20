@@ -13,33 +13,55 @@ import AdsPage from "./features/ads/AdsPage";
 import CoursesPage from "./features/courses/CoursesPage";
 import NewCourse from "./features/courses/NewCourse";
 import NewAd from "./features/ads/NewAd";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import { SnackbarProvider } from "./contexts/SnackbarContext.tsx";
+import CourseRegisterPage from "./features/courseSpecific/courseRegisterPage.tsx";
+import CourseScientificContentPage from "./features/courseSpecific/courseScientificContentPage.tsx";
 
 function App() {
   return (
     <ThemeProvider theme={arabicThem}>
+      <SnackbarProvider>
       <CssBaseline />
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<AuthPage />} />
         <Route path="/register" element={<AuthPage />} />
+        
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute allowedRoles={['manager']} />}>
+          <Route path="/manager" element={<ManagerDashboard />}>
+            <Route path="*" element={<NotFound />} />
+           {/* <Route index element={<ManagerHome />} /> */}
+            <Route path="students" element={<StudentsPage />} />
+            <Route path="students/new" element={<NewStudent />} />
 
-        <Route path="/teacher" element={<TeacherDashboard />} />
-        <Route path="/manager" element={<ManagerDashboard />}>
-          {/* <Route index element={<ManagerHome />} /> */}
+            <Route path="teachers" element={<TeachersPage />} />
+            <Route path="teachers/new" element={<NewTeacher />} />
 
-          <Route path="students" element={<StudentsPage />} />
-          <Route path="students/new" element={<NewStudent />} />
+            <Route path="courses" element={<CoursesPage />} />
+            <Route path="courses/new" element={<NewCourse />} />
 
-          <Route path="teachers" element={<TeachersPage />} />
-          <Route path="teachers/new" element={<NewTeacher />} />
+            <Route path="ads" element={<AdsPage />} />
+            <Route path="ads/new" element={<NewAd />} />
 
-          <Route path="courses" element={<CoursesPage />} />
-          <Route path="course/new" element={<NewCourse />} />
-
-          <Route path="ads" element={<AdsPage />} />
-          <Route path="ads/new" element={<NewAd />} />
+            <Route path="course-register" element={<CourseRegisterPage />} />
+            <Route path="course-scientific-content" element={<CourseScientificContentPage />} />
+           
+          </Route>
         </Route>
-        <Route path="/manager/*" element={<NotFound />} />
+
+        <Route element={<ProtectedRoute allowedRoles={['teacher']} />}>
+          <Route path="/teacher" element={<TeacherDashboard />}>
+            {/* Teacher routes here */}
+          </Route>
+        </Route>
+
+        {/* Fallback routes */}
+        <Route path="/not-authorized" element={<div>غير مصرح بالوصول</div>} />
+       
       </Routes>
+      </SnackbarProvider>
     </ThemeProvider>
   );
 }

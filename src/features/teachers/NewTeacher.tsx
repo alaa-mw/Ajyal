@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -15,82 +15,59 @@ import {
 } from "@mui/material";
 import FormField from "../../components/form/FormField";
 import theme from "../../styles/mainThem";
-
-interface SubjectType {
-  id: number;
-  name: string;
-}
-
-interface ClassType {
-  id: number;
-  name: string;
-  subjects: SubjectType[];
-}
-
-const CLASSES: ClassType[] = [
-  {
-    id: 1,
-    name: "الصف التاسع",
-    subjects: [
-      { id: 101, name: "رياضيات" },
-      { id: 102, name: "فيزياء" },
-      { id: 103, name: "كيمياء" },
-    ],
-  },
-  {
-    id: 2,
-    name: "الصف العاشر",
-    subjects: [
-      { id: 201, name: "رياضيات" },
-      { id: 202, name: "أحياء" },
-      { id: 203, name: "علوم" },
-    ],
-  },
-  {
-    id: 3,
-    name: "الصف الحادي عشر علمي",
-    subjects: [
-      { id: 301, name: "رياضيات" },
-      { id: 302, name: "فيزياء" },
-      { id: 303, name: "كيمياء" },
-    ],
-  },
-  {
-    id: 4,
-    name: "الصف الثاني عشر علمي",
-    subjects: [
-      { id: 401, name: "رياضيات" },
-      { id: 402, name: "فيزياء" },
-      { id: 403, name: "أحياء" },
-    ],
-  },
-];
-
-interface SelectedClass {
-  id: number;
-  selectedSubjects: number[];
-}
+import useSendData from "../../hooks/useSendData";
+import { Teacher } from "../../interfaces/Teacher";
+import { useSnackbar } from "../../contexts/SnackbarContext";
+import { SubjectsByGradeDynamic } from "../../interfaces/Subject";
+import useFetchData from "../../hooks/useFetchData";
+import { classNames } from "../../data/classNames";
 
 interface FormData {
   name: string;
   phone_number: string;
   email: string;
-  description: string;
-  profileImage: File | null;
-  selectedClasses: SelectedClass[]; // Changed to array of objects
+  bio: string;
+  avatar: File | null;
+  date_of_contract: string;
+  subjects: string[];
 }
 
 const NewTeacher = () => {
-  const [formData, setFormData] = React.useState<FormData>({
+  const { showSnackbar } = useSnackbar();
+
+  const { mutate: createTeacher } = useSendData<Teacher>("/teachers");
+  const { data: subjectsData } = useFetchData<SubjectsByGradeDynamic>(
+    "/subjects/all-subjects"
+  );
+
+  // ==== states ===
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     phone_number: "",
     email: "",
-    description: "",
-    profileImage: null,
-    selectedClasses: [],
+    bio: "",
+    avatar: null,
+    date_of_contract: new Date().toISOString().split("T")[0],
+    subjects: [],
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [selectedClasses, setSelectedClasses] = useState<
+    Record<string, boolean>
+  >({
+    LiteraryBaccalaureate: false,
+    ScientificBaccalaureate: false,
+    NinthGrade: false,
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [classSubjects, setClassSubjects] = useState<Record<string, string[]>>({
+    LiteraryBaccalaureate: [],
+    ScientificBaccalaureate: [],
+    NinthGrade: [],
+  });
+
+  // ==== handle ===
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -98,48 +75,66 @@ const NewTeacher = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, profileImage: file }));
+      setFormData((prev) => ({ ...prev, avatar: file }));
     }
   };
 
-  const handleClassCheck = (classId: number, isChecked: boolean) => {
-    setFormData((prev) => {
-      if (isChecked) {
-        return {
-          ...prev,
-          selectedClasses: [
-            ...prev.selectedClasses,
-            { id: classId, selectedSubjects: [] }, // Add new class with empty subjects
-          ],
-        };
-      } else {
-        return {
-          ...prev,
-          selectedClasses: prev.selectedClasses.filter((c) => c.id !== classId), // Remove the class
-        };
-      }
-    });
+  const toggleClassSelection = (className: string, isChecked: boolean) => {
+    setSelectedClasses((prev) => ({
+      ...prev,
+      [className]: isChecked,
+    }));
+    // remove class with its subjects
+    if (!isChecked) {
+      setClassSubjects((prev) => ({
+        ...prev,
+        [className]: [],
+      }));
+
+      setFormData((prev) => ({
+        ...prev,
+        subjects: prev.subjects.filter(
+          (subj) => !subjectsData?.data?.[className]?.some((s) => s.id === subj)
+        ),
+      }));
+    }
   };
 
-  const handleSubjectSelect = (
-    classId: number,
-    selectedSubjectIds: number[]
-  ) => {
-    setFormData((prev) => ({
+  const updateClassSubjects = (className: string, subjectIds: string[]) => {
+    setClassSubjects((prev) => ({
       ...prev,
-      selectedClasses: prev.selectedClasses.map((c) =>
-        c.id === classId ? { ...c, selectedSubjects: selectedSubjectIds } : c
-      ),
+      [className]: subjectIds,
     }));
+
+    setFormData((prev) => {
+      // Remove existing subjects for this class
+      const filtered = prev.subjects.filter(
+        (subjId) =>
+          !subjectsData?.data?.[className]?.some((s) => s.id === subjId)
+      );
+
+      // Add new selections
+      return {
+        ...prev,
+        subjects: [...filtered, ...subjectIds],
+      };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    createTeacher(formData, {
+      onSuccess: () => showSnackbar("تم تسجيل بيانات المعلم بنجاح", "success"),
+      onError: () =>
+        showSnackbar("خطأ ما ! تأكد من صحة البيانات المدخلة", "error"),
+    });
   };
 
+  useEffect(() => {
+    console.log("formData", formData);
+  }, [formData]);
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: {xs:0 , sm:3} }}>
+    <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 0, sm: 3 } }}>
       <Typography
         variant="h5"
         sx={{ mb: 2, fontWeight: "bold", textAlign: "right" }}
@@ -147,8 +142,8 @@ const NewTeacher = () => {
         تسجيل معلم جديد
       </Typography>
 
-      <Paper elevation={3} sx={{ p: {xs:2 , sm:4}, borderRadius: 2  }}>
-        <form onSubmit={handleSubmit} >
+      <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 2 }}>
+        <form onSubmit={handleSubmit}>
           {/* Personal Information Section */}
           <Typography
             variant="h6"
@@ -163,24 +158,17 @@ const NewTeacher = () => {
               background: theme.palette.gradient.primary,
             }}
           />
-          {/* Responsive Grid Layout */}
+
           <Box
             sx={{
               display: "flex",
               flexDirection: { xs: "column", sm: "row" },
-              justifyContent: { xs: "space-between" },
-              alignItems: "center",
-              mb: 3,
               gap: 3,
+              mb: 3,
             }}
           >
-            <Box
-              sx={{
-                order: { xs: 1, sm: 2 },
-                mx: 4,
-              }}
-            >
-              <label htmlFor="profile-image" style={{ display: "block" }}>
+            <Box sx={{ order: { xs: 1, sm: 2 }, mx: 4 }}>
+              <label htmlFor="profile-image">
                 <Avatar
                   sx={{
                     width: 150,
@@ -189,7 +177,7 @@ const NewTeacher = () => {
                     border: `2px dashed ${theme.palette.secondary.dark}`,
                     borderRadius: 2,
                     mx: "auto",
-                    backgroundColor: `${theme.palette.secondary.main}80`, // Added 50% opacity (hex 80)
+                    backgroundColor: `${theme.palette.secondary.main}80`,
                   }}
                 />
                 <input
@@ -201,18 +189,15 @@ const NewTeacher = () => {
                 />
               </label>
             </Box>
-            {/* Form Fields - Bottom on mobile, left on desktop */}
+
             <Box
-              sx={{
-                order: { xs: 2, sm: 1 },
-                width: { xs: "100%", sm: "60%" },
-              }}
+              sx={{ order: { xs: 2, sm: 1 }, width: { xs: "100%", sm: "60%" } }}
             >
               <FormField
                 label="الاسم الكامل"
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
                 placeholder="أحمد محمد"
               />
@@ -220,7 +205,7 @@ const NewTeacher = () => {
                 label="رقم الهاتف"
                 name="phone_number"
                 value={formData.phone_number}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
                 placeholder="09XXXXXXXX"
               />
@@ -228,7 +213,7 @@ const NewTeacher = () => {
                 label="البريد الإلكتروني"
                 name="email"
                 value={formData.email}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
                 placeholder="example@domain.com"
               />
@@ -249,16 +234,18 @@ const NewTeacher = () => {
               background: theme.palette.gradient.primary,
             }}
           />
+
           <Box sx={{ mb: 3 }}>
             <FormField
               label="الوصف"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder={"خريج جامعة دمشق - كلية العلوم \nخبرة 4 سنوات"}
+              name="bio"
+              value={formData.bio}
+              onChange={handleInputChange}
+              placeholder="خريج جامعة دمشق - كلية العلوم \nخبرة 4 سنوات"
               multiline
             />
           </Box>
+
           {/* Teaching Information Section */}
           <Typography
             variant="h6"
@@ -274,57 +261,48 @@ const NewTeacher = () => {
             }}
           />
 
-          <Box sx={{ flex: 1 }}>
+          <Box>
             <InputLabel>الصفوف</InputLabel>
-            {CLASSES.map((cls) => {
-              const selectedClass = formData.selectedClasses.find(
-                (c) => c.id === cls.id
-              );
-              const isClassSelected = !!selectedClass;
+            {Object.entries(classNames).map(([key, arabicName]) => (
+              <Box key={key} sx={{ mb: 2 }}>
+                <FormControlLabel
+                  label={arabicName}
+                  control={
+                    <Checkbox
+                      checked={selectedClasses[key] || false}
+                      onChange={(e) =>
+                        toggleClassSelection(key, e.target.checked)
+                      }
+                    />
+                  }
+                />
 
-              return (
-                <Box key={cls.id} sx={{ mb: 2 }}>
-                  <FormControlLabel
-                    label={cls.name}
-                    control={
-                      <Checkbox
-                        checked={isClassSelected}
-                        onChange={(e) =>
-                          handleClassCheck(cls.id, e.target.checked)
-                        }
-                      />
-                    }
-                  />
-
-                  {isClassSelected && (
-                    <FormControl fullWidth sx={{ mt: 1 }}>
-                      <InputLabel>مواد {cls.name}</InputLabel>
-                      <Select
-                        multiple
-                        value={selectedClass?.selectedSubjects || []}
-                        onChange={(e) =>
-                          handleSubjectSelect(
-                            cls.id,
-                            e.target.value as number[]
-                          )
-                        }
-                        label={`مواد ${cls.name}`}
-                      >
-                        {cls.subjects.map((subject) => (
-                          <MenuItem key={subject.id} value={subject.id}>
-                            {subject.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  )}
-                </Box>
-              );
-            })}
+                {selectedClasses[key] && (
+                  <FormControl fullWidth sx={{ mt: 1 }}>
+                    <InputLabel>مواد {arabicName}</InputLabel>
+                    <Select
+                      multiple
+                      value={formData.subjects.filter((subjId) =>
+                        subjectsData?.data?.[key]?.some((s) => s.id === subjId)
+                      )}
+                      onChange={(e) =>
+                        updateClassSubjects(key, e.target.value as string[])
+                      }
+                      label={`مواد ${arabicName}`}
+                    >
+                      {subjectsData?.data?.[key]?.map((subject) => (
+                        <MenuItem key={subject.id} value={subject.id}>
+                          {subject.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              </Box>
+            ))}
           </Box>
 
           <Button
-            // fullWidth
             type="submit"
             variant="contained"
             size="large"

@@ -3,10 +3,16 @@ import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import EntityToolbar from "../../components/ui/EntityToolbar";
 import TeacherCard from "./TeacherCard";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 const TeachersPage = () => {
   const navigate = useNavigate();
 
+  const { userEndpoint, userRole } = useSelector( // fix - test
+    (state: RootState) => state.auth
+  );
+  
   const handleSearch = () => {
     console.log("Searching for:");
   };
@@ -31,6 +37,8 @@ const TeachersPage = () => {
         }}
       >
         المعلمون
+        {userEndpoint}-
+        {userRole}-
       </Typography>
       <EntityToolbar
         entityType="teacher"

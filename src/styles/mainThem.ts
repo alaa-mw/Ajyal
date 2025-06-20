@@ -8,6 +8,12 @@ declare module '@mui/material/styles' {
       tertiary: string;
     };
     tertiary: Palette['primary']; // Add tertiary to main palette
+    snackbar: { 
+      success: string;
+      error: string;
+      warning: string;
+      info: string;
+    };
   }
   interface PaletteOptions {
     gradient?: {
@@ -16,6 +22,12 @@ declare module '@mui/material/styles' {
       tertiary?: string;
     };
     tertiary: Palette['primary']; // Add tertiary to main palette
+    snackbar?: { 
+      success: string;
+      error: string;
+      warning: string;
+      info: string;
+    };
   }
   interface BreakpointOverrides {
     xs: true;
@@ -60,6 +72,12 @@ const theme = createTheme({
     text: {
       primary: '#1e2524',
       secondary: '#5a6369',
+    },
+    snackbar: {  // Define your snackbar colors
+      success:'#76bb7d', // Green
+      error:'#ff9695',   // Red
+      warning: '#ff9800', // Orange
+      info: '#2196f3'     // Blue
     },
   },
   typography: {

@@ -2,14 +2,20 @@ import React from "react";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import FormField from "../../components/form/FormField";
 import theme from "../../styles/mainThem";
+import useSendData from "../../hooks/useSendData";
+import { useSnackbar } from "../../contexts/SnackbarContext";
+import { Student } from "../../interfaces/Student";
 
 const NewStudent = () => {
+  const { showSnackbar } = useSnackbar();
+  const { mutate: newStudent } = useSendData<Student>("/student/add");
   const [formData, setFormData] = React.useState({
     first_name: "",
     last_name: "",
     father_name: "",
     mother_name: "",
     address: "",
+    number_civial: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,7 +26,11 @@ const NewStudent = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    newStudent(formData, {
+      onSuccess: () => showSnackbar("تم تسجيل بيانات الطالب بنجاح", "success"),
+      onError: () =>
+        showSnackbar("خطأ ما ! تأكد من صحة البيانات المدخلة", "error"),
+    });
   };
 
   return (
@@ -85,20 +95,33 @@ const NewStudent = () => {
             </Box>
           </Box>
 
-          {/* حقل العنوان (عرض كامل) */}
-          <Box sx={{ mb: 3 }}>
-            <FormField
-              label="العنوان"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              // textFieldProps={{
-              //   multiline: true,
-              //   rows: 4,
-              // }}
-            />
+          <Box sx={{ display: "flex", gap: 3, mb: 3 }}>
+            <Box sx={{ flex: 1 }}>
+              <FormField
+                label="العنوان"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="الروضة"
+                required
+                // textFieldProps={{
+                //   multiline: true,
+                //   rows: 4,
+                // }}
+              />
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <FormField
+                label="الرقم المدني"
+                name="number_civial"
+                value={formData.number_civial}
+                onChange={handleChange}
+                placeholder="XXXXXXXXXX"
+              />
+            </Box>
           </Box>
+          {/* حقل العنوان (عرض كامل) */}
+          <Box sx={{ mb: 3 }}></Box>
 
           <Button
             fullWidth

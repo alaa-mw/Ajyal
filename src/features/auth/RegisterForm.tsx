@@ -60,7 +60,7 @@ const RegisterForm = ({ onNextStep }: RegisterFormProps) => {
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible">
       <motion.div variants={itemVariants}>
-        <Box sx={{ textAlign: "center", mb: 3 }}>
+        <Box sx={{ textAlign: "center", mb: 4 }}>
           <Box
             component={motion.img}
             src={logo}
@@ -86,7 +86,7 @@ const RegisterForm = ({ onNextStep }: RegisterFormProps) => {
           variant="outlined"
           value={formData.email}
           onChange={handleChange}
-          sx={{ mb: 2 }}
+          sx={{ mb: 3 }}
           required
         />
 
@@ -98,7 +98,7 @@ const RegisterForm = ({ onNextStep }: RegisterFormProps) => {
           variant="outlined"
           value={formData.password}
           onChange={handleChange}
-          sx={{ mb: 2 }}
+          sx={{ mb: 3 }}
           required
           InputProps={{
             endAdornment: (
@@ -121,7 +121,7 @@ const RegisterForm = ({ onNextStep }: RegisterFormProps) => {
           variant="outlined"
           value={formData.confirm_password}
           onChange={handleChange}
-          sx={{ mb: 2 }}
+          sx={{ mb: 3 }}
           required
           InputProps={{
             endAdornment: (

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import ResponsiveDrawer, {
   drawerWidth,
 } from "../components/ui/ResponsiveDrawer";
@@ -21,7 +21,7 @@ const ManagerDashboard = () => {
             marginRight: { sm: `${drawerWidth}px` },
           }}
         >
-          <Outlet/>
+          <Outlet />
         </Box>
       </Box>
     </>

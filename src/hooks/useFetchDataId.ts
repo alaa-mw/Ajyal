@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import APIClient from "../services/api-client";
+import APIClient, { FetchResponse } from "../services/api-client";
 
 
 export const useFetchDataId = <TData>(
@@ -7,9 +7,9 @@ export const useFetchDataId = <TData>(
     id?: string
 ) => {
     const apiClient = new APIClient<TData>(endpoint); 
-    return useQuery<TData, Error>({
+    return useQuery<FetchResponse<TData>, Error>({
         queryKey: [endpoint, id], 
-        queryFn: apiClient.getAll,
+        queryFn: apiClient.get,
         enabled: !!id, // Only enable the query if id is truthy
     });
 };
