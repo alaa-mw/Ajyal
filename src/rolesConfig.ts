@@ -1,8 +1,14 @@
 export const rolesConfig ={
   manager:{
-    endpoint:"/admin"
+    apiPrefix:"/admin",
+    webPrefix:"/manager"
+  },
+  secretariat:{
+    apiPrefix:"/admin",
+     webPrefix:"/manager"
   },
   teacher:{
-    endpoint:"/teacher"
+    apiPrefix:"/teacher",
+    webPrefix:"/teacher"
   }
 }

@@ -14,8 +14,9 @@ import logo from "../../assets/logo.png";
 import React, { useEffect, useState } from "react";
 import theme from "../../styles/mainThem";
 import { motion } from "framer-motion";
-import SchoolIcon from "@mui/icons-material/School"; // Teacher icon
-import ManageAccountsIcon from "@mui/icons-material/ManageAccounts"; // Manager icon
+import SchoolIcon from "@mui/icons-material/School";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import PersonIcon from '@mui/icons-material/Person';
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import useSendDataNoToken from "../../hooks/useSendDataNoToken";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,16 +27,13 @@ import {
   loginStart,
   loginSuccess,
   printState,
-  setUserEndpoint,
 } from "./Redux/authSlice";
 import { RootState } from "../../store";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { userEndpoint, userRole, isLoading } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { isLoading } = useSelector((state: RootState) => state.auth);
 
   const [finalEndpoint, setFinalEndpoint] = useState("false");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,22 +44,13 @@ const LoginForm = () => {
   });
 
   useEffect(() => {
-    const endpoint = rolesConfig[formData.role].endpoint;
-    if (endpoint) {
-      dispatch(setUserEndpoint(endpoint));
-    }
     setFinalEndpoint(
-      formData.role == "manager"
-        ? `${userEndpoint}/login`
-        : `${userEndpoint}/teacherLogin`
+      formData.role == "teacher"
+        ? `${rolesConfig[formData.role].apiPrefix}/teacherLogin`
+        : `${rolesConfig[formData.role].apiPrefix}/login`
     );
-  }, [formData.role, userEndpoint]);
-
-  useEffect(() => {
-    if (!isLoading && userRole) {
-      navigate(`${userRole}/`);
-    }
-  }, [isLoading, userRole, navigate]);
+    console.log("role", formData.role);
+  }, [formData.role]);
 
   const { mutate: loginUser } = useSendDataNoToken(finalEndpoint);
 
@@ -87,11 +76,11 @@ const LoginForm = () => {
         dispatch(
           loginSuccess({
             token: response.token,
-            role: formData.role,
-            endpoint: rolesConfig[formData.role]?.endpoint,
+            role: response.role?.[0].toLowerCase(),
           })
         );
         dispatch(printState());
+        navigate(`${rolesConfig[formData.role].webPrefix}/`);
       },
       onError: (error) => {
         dispatch(loginFailure(error.message));
@@ -171,9 +160,6 @@ const LoginForm = () => {
                   },
                   "&:not(.Mui-selected)": {
                     color: theme.palette.primary.main,
-                    "&:hover": {
-                      backgroundColor: "rgba(0, 0, 0, 0.04)",
-                    },
                   },
                 },
                 // RTL group container
@@ -185,18 +171,26 @@ const LoginForm = () => {
               <ToggleButton
                 value="teacher"
                 aria-label="Teacher"
-                sx={{ width: 100 }}
+                sx={{ width: 90 }}
               >
-                <SchoolIcon sx={{ mr: 1 }} />
+                <SchoolIcon sx={{ ml: 0.5 }} />
                 معلم
               </ToggleButton>
               <ToggleButton
                 value="manager"
                 aria-label="Manager"
-                sx={{ width: 100 }}
+                sx={{ width: 90 }}
               >
-                <ManageAccountsIcon sx={{ mr: 1 }} />
+                <ManageAccountsIcon sx={{ ml: 0.5 }} />
                 مدير
+              </ToggleButton>
+              <ToggleButton
+                value="secretariat"
+                aria-label="Secretariat"
+                sx={{ width: 90 }}
+              >
+                <PersonIcon sx={{ ml:0.5 }} />
+                سكرتاريا
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>

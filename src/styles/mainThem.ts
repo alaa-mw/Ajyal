@@ -56,17 +56,18 @@ const theme = createTheme({
     },
     tertiary: {           // New color group
       main: '#76C0CF',    // Light blue
-      light: '#A3D9E5',   // Lighter blue
+      light:'#e0f5fa',   // Lighter blue
       dark: '#4A8B9D',    // Darker light blue
       contrastText: '#1e2524',
     },
     gradient: {
       primary: 'linear-gradient(135deg, #17284B 0%,#213d83 100%)',
       secondary: 'linear-gradient(135deg, #A38097 0%,#604a5b 100%)',
-      tertiary: 'linear-gradient(135deg, #76C0CF 0%,rgb(62, 124, 141) 100%)',
+      tertiary: 'linear-gradient(135deg, rgb(213, 229, 231) 0%,#e0f5fa 100%)',
     },
     background: {
-      default: '#f8f9f9',
+       default:'#f0f0f0',
+      // default: '#f8f9f9',
       paper: '#ffffff',
     },
     text: {
@@ -77,7 +78,7 @@ const theme = createTheme({
       success:'#76bb7d', // Green
       error:'#ff9695',   // Red
       warning: '#ff9800', // Orange
-      info: '#2196f3'     // Blue
+      info:'#21bff3'     // Blue
     },
   },
   typography: {

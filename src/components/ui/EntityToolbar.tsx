@@ -41,7 +41,7 @@ const EntityToolbar = ({
       sx={{
         borderBottom: 1,
         borderColor: "divider",
-        p: 2,
+        p: 1,
         justifyContent: "space-between",
       }}
       disableGutters

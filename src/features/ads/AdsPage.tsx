@@ -1,74 +1,180 @@
-import React from "react";
+import React, { SetStateAction, useRef, useState } from "react";
 import AdsCard from "./AdsCard";
-import { Box, Divider, Typography } from "@mui/material";
-import EntityToolbar from "../../components/ui/EntityToolbar";
+import { Box, Button, Typography, CircularProgress } from "@mui/material";
 import NewAd from "./NewAd";
+import { useLazyFetch } from "../../hooks/useLazyFetch";
+import { Advertisement } from "../../interfaces/Advertisement ";
+import { PaginatedResponse } from "../../interfaces/PaginatedResponse";
 
 const AdsPage = () => {
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<
+    "teachers" | "courses" | "general"
+  >("teachers");
+  const [page, setPage] = useState(1);
+  // استخدم useLazyFetch مع تعطيل الجلب التلقائي
+  const {
+    data: tAd,
+    refetch: fetchTAd,
+    isFetching: isFetchingTeachers,
+  } = useLazyFetch<PaginatedResponse<Advertisement[]>>(
+    "/advertisement/teacherAdvertisements"
+  );
 
-  const handleSearch = () => {
-    console.log("Searching for:");
+  const {
+    data: cAd,
+    refetch: fetchCAd,
+    isFetching: isFetchingCourses,
+  } = useLazyFetch<PaginatedResponse<Advertisement[]>>(
+    "/advertisement/courseAdvertisements"
+  );
+
+  const {
+    data: gAd,
+    refetch: fetchGAd,
+    isFetching: isFetchingGeneral,
+  } = useLazyFetch<PaginatedResponse<Advertisement[]>>(
+    "/advertisement/generalAdvertisements"
+  );
+
+  // تحديد البيانات المعروضة بناءً على التبويب النشط
+  const adsData = React.useMemo(() => {
+    if (activeTab === "teachers") return tAd?.data.data || [];
+    if (activeTab === "courses") return cAd?.data.data || [];
+    return gAd?.data.data || [];
+  }, [activeTab, tAd, cAd, gAd]);
+
+  const paginationData = React.useMemo(() => {
+    if (activeTab === "teachers") return tAd;
+    if (activeTab === "courses") return cAd;
+    return gAd;
+  }, [activeTab, tAd, cAd, gAd]);
+
+  // Fetch data when tab or page changes
+  React.useEffect(() => {
+    const fetchData = () => {
+      if (activeTab === "teachers") {
+        fetchTAd({ queryParams: { page } });
+      } else if (activeTab === "courses") {
+        fetchCAd({ queryParams: { page } });
+      } else {
+        fetchGAd({ queryParams: { page } });
+      }
+    };
+    fetchData();
+  }, [activeTab, page, fetchTAd, fetchCAd, fetchGAd]);
+
+  const isLoading =
+    (activeTab === "teachers" && isFetchingTeachers) ||
+    (activeTab === "courses" && isFetchingCourses) ||
+    (activeTab === "general" && isFetchingGeneral);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
   };
 
   return (
     <>
-      <Typography
-        variant="h5"
-        sx={{
-          mb: 1,
-          fontWeight: "bold",
-        }}
-      >
+      <Typography variant="h5" sx={{ mb: 1, fontWeight: "bold" }}>
         الإعلانات
       </Typography>
+
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: 'column', sm: 'column', md: 'column', lg: 'row' },
+          flexDirection: "row",
+
           justifyContent: "space-between",
         }}
       >
-        <NewAd />
-
-        <Box>
-          <EntityToolbar entityType="ad" onSearch={handleSearch} />
-
-          {/* Vertical scroll container */}
-          <Box
-            ref={scrollContainerRef}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              px: 2,
-              gap: 1,
-              height: {
-                xs: "calc(100vh - 200px)", // Adjust 200px based on your header/footer height
-                md: "calc(100vh - 160px)", // Larger offset for desktop
-              },
-              overflowY: "auto",
-              scrollBehavior: "smooth",
-              "&::-webkit-scrollbar": {
-                display: "none",
-              },
-              msOverflowStyle: "none",
-              scrollbarWidth: "none",
-            }}
-          >
-            {[...Array(8)].map((_, index) => (
-              <Box key={index} sx={{ minHeight: 110, flexShrink: 0 }}>
-                {" "}
-                {/* Changed from minWidth */}
-                <AdsCard
-                  title="فرصة عمل مميزة"
-                  body="مطلوب مدرس رياضيات لطلاب الثانوية\nخبرة لا تقل عن 3 سنوات"
-                  creation_date={"11-3-2024"}
-                />
-              </Box>
+        <Box sx={{ width: { xs: "100%", sm: "100%", md: "100%", lg: 1250 } }}>
+          {/* أزرار التبويب */}
+          <Box sx={{ display: "flex", gap: 1, m: 2 }}>
+            {["teachers", "courses", "general"].map((tab) => (
+              <Button
+                key={tab}
+                variant={activeTab === tab ? "contained" : "outlined"}
+                onClick={() => {
+                  setActiveTab(
+                    tab as SetStateAction<"teachers" | "courses" | "general">
+                  );
+                  setPage(1);
+                }}
+                sx={{ flex: 0.5, borderRadius: 10 }}
+              >
+                {tab === "teachers"
+                  ? "معلمين"
+                  : tab === "courses"
+                  ? "دورات"
+                  : "عامة"}
+              </Button>
             ))}
           </Box>
+
+          {/* محتوى الإعلانات */}
+          {isLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Box
+              ref={scrollContainerRef}
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  s: "repeat(2, 1fr)",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(3, 1fr)",
+                },
+                gap: 2,
+                px: 2,
+                height: {
+                  xs: "calc(100vh - 200px)",
+                  md: "calc(100vh - 160px)",
+                },
+              }}
+            >
+              {adsData.map((item) => (
+                <AdsCard key={item.id} advertisement={item} />
+              ))}
+            </Box>
+          )}
+          {paginationData && (
+            <Box
+              sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 1 }}
+            >
+              <Button
+                disabled={!paginationData.data.prev_page_url}
+                onClick={() => handlePageChange(page - 1)}
+              >
+                السابق
+              </Button>
+
+              {Array.from(
+                { length: paginationData.data.last_page },
+                (_, i) => i + 1
+              ).map((pageNum) => (
+                <Button
+                  key={pageNum}
+                  variant={pageNum === page ? "contained" : "outlined"}
+                  onClick={() => handlePageChange(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              ))}
+
+              <Button
+                disabled={!paginationData.data.next_page_url}
+                onClick={() => handlePageChange(page + 1)}
+              >
+                التالي
+              </Button>
+            </Box>
+          )}
         </Box>
-        <Divider />
+
+        <NewAd />
       </Box>
     </>
   );

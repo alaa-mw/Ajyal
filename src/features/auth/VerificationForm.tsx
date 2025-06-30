@@ -1,18 +1,54 @@
-import { TextField, Button, Box, Typography } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import { motion } from "framer-motion";
 import theme from "../../styles/mainThem";
+import { useState } from "react";
+import useSendDataNoToken from "../../hooks/useSendDataNoToken";
+import { loginFailure, loginSuccess } from "./Redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useSnackbar } from "../../contexts/SnackbarContext";
+import { RootState } from "../../store";
 
 const VerificationForm = () => {
+  const { mutate: verify } = useSendDataNoToken<{ token: string }>( // fix
+    "/teacher/teacherverifycode"
+  );
+
+  const dispatch = useDispatch();
+  const { showSnackbar } = useSnackbar();
+  const { isLoading } = useSelector((state: RootState) => state.auth);
+
+  const [formData, setFormData] = useState({
+    verifyCode: "",
+  });
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e);
-    // const { name, value } = e.target;
-    // setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmitVerification = (e: React.FormEvent) => {
     e.preventDefault();
-    // console.log("Verification submitted:", formData);
-    // Add your verification logic here
+    verify(formData, {
+      onSuccess: (response) => {
+        dispatch(
+          loginSuccess({
+            token: response.data?.token,
+            role: "teacher",
+          })
+        );
+        showSnackbar(response.message, "success");
+      },
+      onError: (error) => {
+        dispatch(loginFailure(error.message));
+        showSnackbar(error.message, "error");
+      },
+    });
   };
   const handleResendCode = () => {
     console.log("Resend verification code");
@@ -59,8 +95,9 @@ const VerificationForm = () => {
               mb: 2,
               background: `${theme.palette.gradient.primary}`,
             }}
+            disabled={isLoading}
           >
-            تأكيد
+            {isLoading ? <CircularProgress size={24} color="inherit" /> :"تأكيد"}
           </Button>
 
           <Typography variant="body2" sx={{ textAlign: "center", mt: 2 }}>

@@ -1,120 +1,159 @@
-import React from "react";
-import logo from "../../../public/logo.png";
-import { Card, CardContent, Typography, Box } from "@mui/material";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Card, Typography, Box } from "@mui/material";
 import theme from "../../styles/mainThem";
+import { Advertisement } from "../../interfaces/Advertisement ";
+import getImageUrl from "../../services/image-url";
+import { Image } from "../../interfaces/Image";
 
 interface AdsCardProps {
-  title: string;
-  body: string;
-  creation_date: string;
+  advertisement: Advertisement;
 }
 
-const AdsCard: React.FC<AdsCardProps> = ({ title, body, creation_date }) => {
+const AdsCard = ({ advertisement }: AdsCardProps) => {
+  const mainImage = getImageUrl(advertisement.images[0].path);
+  const otherImages: Image[] =
+    advertisement.images?.length > 1 ? advertisement.images.slice(1) : [];
+
+  const formattedDate = new Date(advertisement.created_at).toLocaleDateString(
+    "ar-EG"
+  );
+
   return (
     <Card
       sx={{
-        maxWidth: 400,
-        mb: 2,
-        boxShadow: 3,
+        position: "relative",
+        width: 270,
+        height: 540,
         borderRadius: 2,
+        overflow: "hidden",
+        boxShadow: 3,
         "&:hover": {
           boxShadow: 6,
         },
-        borderRight: `12px solid ${theme.palette.secondary.main}`,
       }}
     >
-      <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography gutterBottom variant="h6" m={0} component="div">
-            {title}
-          </Typography>
-          <Box
-            component="span"
-            sx={{
-              display: "inline-block",
-              bgcolor: "secondary.light",
-              color: "primary.contrastText",
-              borderRadius: 5,
-              px: 1,
-            }}
-          >
-            type
-          </Box>
-        </Box>
-        <Accordion
+      {/* Main background image */}
+      {mainImage && (
+        <Box
+          component="img"
+          src={mainImage}
+          alt="Ad background"
           sx={{
-            background: "transparent",
-            boxShadow: "none",
-            "&:before": {
-              display: "none", // Removes the default border
-            },
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "50%",
+            objectFit: "cover",
+            zIndex: 1,
+            p: 1,
+            borderRadius: 5,
           }}
-        >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-            sx={{
-              padding: 0, // Remove default padding
-              minHeight: "auto", // Remove default min-height
-              "&.Mui-expanded": {
-                minHeight: "auto", // Same height when expanded
-              },
-              "& .MuiAccordionSummary-content": {
-                margin: "12px 0", // Adjust content margin
-              },
-            }}
-          />
-          <AccordionDetails
-            sx={{
-              padding: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
-            <Typography
-              sx={{
-                width: "100%",
-                textAlign: "right", // RTL text alignment
-              }}
-            >
-              {body}
-            </Typography>
+        />
+      )}
 
-            <Box
-              component="img"
-              src={logo}
-              alt="Ajyal logo"
-              sx={{
-                height: "150px",
-                borderRadius: 2,
-                alignSelf: "center", // Explicit center alignment
-              }}
-            />
-          </AccordionDetails>
-        </Accordion>
-
+      {/* Gray overlay at bottom */}
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          height: "60%",
+          background: `linear-gradient(to top, ${theme.palette.primary.main} 90%, transparent  )`,
+          zIndex: 2,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          p: 2,
+        }}
+      >
+        {/* Type badge */}
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "flex-end",
+            position: "absolute",
+            top: -15,
+            right: 16,
+            bgcolor: theme.palette.secondary.main,
+            color: "white",
+            borderRadius: 1,
+            px: 1.5,
+            py: 0.5,
+            zIndex: 3,
+            fontSize: 12,
+            fontWeight: "bold",
           }}
         >
-          <Typography
-            variant="caption"
-            color="text.disabled"
-            sx={{ fontWeight: "bold" }}
-          >
-            {creation_date}
-          </Typography>
+          {advertisement?.advertisable_type?.split("\\").pop()}
         </Box>
-      </CardContent>
+
+        {/* Title and body */}
+        <Typography
+          variant="h6"
+          color="white"
+          sx={{
+            fontWeight: "bold",
+            mb: 1,
+            zIndex: 3,
+          }}
+        >
+          {advertisement.title}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color="rgba(255,255,255,0.8)"
+          sx={{
+            mb: 2,
+            zIndex: 3,
+          }}
+        >
+          {advertisement.body}
+        </Typography>
+
+        {/* Additional images row */}
+        {otherImages.length > 0 && (
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              mt: 1,
+              overflowX: "auto",
+              "&::-webkit-scrollbar": {
+                display: "none",
+              },
+            }}
+          >
+            {otherImages.map((image) => (
+              <Box
+                key={image.id}
+                component="img"
+                src={getImageUrl(image.path)}
+                alt="Additional ad content"
+                sx={{
+                  height: 60,
+                  width: 60,
+                  borderRadius: 1,
+                  objectFit: "cover",
+                  border: `1px solid ${theme.palette.divider}`,
+                }}
+              />
+            ))}
+          </Box>
+        )}
+
+        {/* Date */}
+        <Typography
+          variant="caption"
+          color="rgba(255,255,255,0.6)"
+          sx={{
+            alignSelf: "flex-end",
+            mt: 1,
+            zIndex: 3,
+          }}
+        >
+          {formattedDate}
+        </Typography>
+      </Box>
     </Card>
   );
 };

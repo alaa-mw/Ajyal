@@ -35,7 +35,7 @@ interface FormData {
 const NewTeacher = () => {
   const { showSnackbar } = useSnackbar();
 
-  const { mutate: createTeacher } = useSendData<Teacher>("/teachers");
+  const { mutate: createTeacher } = useSendData<Teacher>("/admin/teachers");
   const { data: subjectsData } = useFetchData<SubjectsByGradeDynamic>(
     "/subjects/all-subjects"
   );
@@ -167,7 +167,7 @@ const NewTeacher = () => {
               mb: 3,
             }}
           >
-            <Box sx={{ order: { xs: 1, sm: 2 }, mx: 4 }}>
+            <Box sx={{ order: { xs: 1, sm: 2 }, mx: 4, alignSelf: "center" }}>
               <label htmlFor="profile-image">
                 <Avatar
                   sx={{
@@ -188,6 +188,9 @@ const NewTeacher = () => {
                   style={{ display: "none" }}
                 />
               </label>
+              <Typography variant="body1" color="gray" textAlign={"center"} mt={1}>
+                انقر لتحميل صورة
+              </Typography>
             </Box>
 
             <Box

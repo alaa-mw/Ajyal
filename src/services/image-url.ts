@@ -1,9 +1,9 @@
-import noImage from '../assets/default.png';
+// import noImage from '../assets/default.png';
 
 //optimaize images to speed up image load
 
 const getImageUrl = (url: string) => {
-  if(!url) return noImage;
+  // if(!url) return noImage;
 
   console.log("path", 'http://127.0.0.1:8000/' + url);
   

@@ -1,105 +1,38 @@
-// import axios, { AxiosRequestConfig } from "axios";
-// import { rolesConfig } from "../rolesConfig";
-
-// const userRole = localStorage.getItem("userRole") ;
-// const axiosInstance = axios.create({
-//     baseURL: userRole ? `http://127.0.0.1:8000/api/${rolesConfig[userRole].endpoint}`
-//                      :`http://127.0.0.1:8000/api`,
-// });
-
-// export interface FetchResponse<T>{
-//     message: string;
-//     token?:string;
-//     data?: T;
-// }
-
-// class apiClient <T>{
-    
-//     endpoint: string;
-//     token : string | null;
-    
-//     constructor(endpoint: string){
-//         this.endpoint = endpoint;
-//         this.token = localStorage.getItem("authToken");
-//     }
-//     //arrow func is needed
-
-//     postNoToken = (data?) =>{
-//         return axiosInstance
-//         .post<FetchResponse<T>>(this.endpoint, data)
-//         .then((res)=> res.data)
-//         .catch((error) => {
-//             return Promise.reject(error.response.data); // Propagate the error
-//         });
-//     }
-
-//     get = () => {
-//         return axiosInstance.get<FetchResponse<T>>(this.endpoint,{
-//             headers: {
-//                 Authorization: `Bearer ${this?.token}`, 
-//             },
-//         })
-//         .then((res)=> res.data)
-//         .catch((error => error));
-//     }
-
-//     post = (data?) => {
-        
-//         const axiosConfig: AxiosRequestConfig = {
-//             headers: {
-//                 Authorization: `Bearer ${this?.token}`, 
-//                 'Content-Type': 'multipart/form-data',
-//                 // for upload multi images
-//             }
-//         };
-
-//         console.log("Data sent to server:", data); 
-//         console.log(axiosConfig);
-
-//         return axiosInstance
-//         .post<FetchResponse<T>>(this.endpoint, data, axiosConfig)
-//         .then((res)=> res.data)
-//         .catch((error) => {
-//             console.error("API error:", error);
-//             return Promise.reject(error.response.data); // Propagate the error
-//         });
-        
-//     }
-// }
-// export default apiClient;
-
-import axios, { AxiosRequestConfig } from "axios";
-import { rolesConfig } from "../rolesConfig";
+import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
+import { logoutSuccess } from "../features/auth/Redux/authSlice";
+import store from "../store";
 
 const baseAxios = axios.create({
-  baseURL: "http://127.0.0.1:8000/api", 
+  baseURL: "http://127.0.0.1:8000/api",
 });
 
-const getDynamicBaseURL = () => {
-  const userRole = localStorage.getItem("userRole");
-  return userRole && rolesConfig[userRole]?.endpoint
-    ? `http://127.0.0.1:8000/api${rolesConfig[userRole].endpoint}`
-    : "http://127.0.0.1:8000/api";
-};
+// Interceptor للردود
+baseAxios.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      store.dispatch(logoutSuccess());  // logout when token expired
+    }
+    return Promise.reject(error);
+  }
+);
 
-// Interceptor to dynamically set `baseURL` and `Authorization` before each request
+// Interceptor للطلبات
 baseAxios.interceptors.request.use((config) => {
-  // Update baseURL based on current role
-  config.baseURL = getDynamicBaseURL();
-
-  // Attach latest token (avoid stale token issues)
+  // config.baseURL = getDynamicBaseURL();
   const token = localStorage.getItem("authToken");
   if (token) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
 });
 
 export interface FetchResponse<T> {
   message: string;
   token?: string;
-  data?: T;
+  role?: ["secretariat" | "manager" | "teacher"];
+  data: T;
 }
 
 class APIClient<T> {
@@ -109,25 +42,35 @@ class APIClient<T> {
     this.endpoint = endpoint;
   }
 
-  // Generic request method (reusable for GET/POST/PUT/DELETE)
   private request = <TData>(config: AxiosRequestConfig) => {
     return baseAxios
-      .request<FetchResponse<TData>>(config) //ترسل الطلب إلى السيرفر باستخدام الإعدادات 
+      .request<FetchResponse<TData>>(config)
       .then((res) => res.data)
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         console.error("API Error:", error.response?.data || error.message);
         return Promise.reject(error.response?.data || error);
       });
   };
 
-  get = () => this.request<T>({ method: "GET", url: this.endpoint });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get = (queryParams:Record<string ,any>  = {}) => {
+    const params = new URLSearchParams();
+    for (const key in queryParams) {
+      if (queryParams[key] !== undefined) {
+        params.append(key, queryParams[key]);
+      }
+    }
+    const queryString = params.toString();
+
+    return this.request<T>({ method: "GET", url: queryString ? `${this.endpoint}?${queryString}` : this.endpoint })
+  };
 
   post = (data?: unknown) =>
     this.request<T>({
       method: "POST",
       url: this.endpoint,
       data,
-      headers: { "Content-Type": "multipart/form-data" }, // Adjust as needed
+      headers: { "Content-Type": "multipart/form-data" },
     });
 
   postNoToken = (data?: unknown) =>
@@ -135,8 +78,15 @@ class APIClient<T> {
       method: "POST",
       url: this.endpoint,
       data,
-      headers: { Authorization: undefined }, // Explicitly remove token
+      headers: { Authorization: undefined },
     });
 }
 
 export default APIClient;
+
+// const getDynamicBaseURL = () => {
+//   const userRole = localStorage.getItem("userRole");
+//   return userRole && rolesConfig[userRole]?.apiPrefix
+//     ? `http://127.0.0.1:8000/api${rolesConfig[userRole].apiPrefix}`
+//     : "http://127.0.0.1:8000/api";
+// };

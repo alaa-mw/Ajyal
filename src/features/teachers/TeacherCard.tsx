@@ -1,137 +1,164 @@
-// import { Typography, Paper, Avatar, Box, Stack } from "@mui/material";
-// import MailIcon from "@mui/icons-material/Mail";
-// import { Phone } from "@mui/icons-material";
-// import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-// import InfoIcon from "@mui/icons-material/Info";
-// import { Teacher } from "../../interfaces/Teacher";
-
-// const TeacherCard = ({
-//   name,
-//   email,
-//   date_of_contract,
-//   phone_number,
-//   image,
-//   bio,
-// }: Teacher) => {
-//   return (
-//     <Paper
-//       elevation={3}
-//       sx={{
-//         padding: 3,
-//         width: 300,
-//         textAlign: "center",
-//         borderRadius: 3,
-//         display: "flex",
-//         flexDirection: "column",
-//         alignItems: "center",
-//         gap: 2,
-//       }}
-//     >
-//       <Avatar
-//         src={image?.path}
-//         sx={{
-//           bgcolor: "secondary.light",
-//           width: 100,
-//           height: 100,
-//           fontSize: "2.5rem",
-//           "& img": {
-//             objectFit: "cover",
-//           },
-//         }}
-//       >
-//         {!image && name.charAt(0)}
-//       </Avatar>
-
-//       <Box>
-//         <Typography variant="h5" component="h2" fontWeight="bold">
-//           {name}
-//         </Typography>
-//       </Box>
-
-//       {bio && (
-//         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-//           <InfoIcon color="action" />
-//           <Typography variant="body2">{bio}</Typography>
-//         </Box>
-//       )}
-
-//       <Stack spacing={1} width="100%" alignItems="flex-start">
-//         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-//           <MailIcon color="action" />
-//           <Typography variant="body1">{email}</Typography>
-//         </Box>
-
-//         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-//           <Phone color="action" />
-//           <Typography variant="body1">{phone_number}</Typography>
-//         </Box>
-
-//         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-//           <CalendarTodayIcon color="action" />
-//           <Typography variant="body1">
-//             {new Date(date_of_contract).toLocaleDateString()}
-//           </Typography>
-//         </Box>
-//       </Stack>
-//     </Paper>
-//   );
-// };
-
-// export default TeacherCard;
-import { Typography, Paper, Avatar } from "@mui/material";
+import {
+  Typography,
+  Paper,
+  Avatar,
+  Box,
+  Link,
+  AccordionSummary,
+  Accordion,
+  AccordionDetails,
+  Tooltip,
+} from "@mui/material";
 import MailIcon from "@mui/icons-material/Mail";
 import { Phone } from "@mui/icons-material";
+import { Teacher } from "../../interfaces/Teacher";
+import getImageUrl from "../../services/image-url";
+import theme from "../../styles/mainThem";
 
-const TeacherCard = () => {
-  return (
-    <Paper
-      elevation={1}
+interface TeacherCardProps {
+  teacher: Teacher;
+}
+
+const TeacherCard = ({ teacher }: TeacherCardProps) => (
+  <Paper
+    elevation={1}
+    sx={{
+      width: 300,
+      textAlign: "center",
+      borderRadius: 5,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "flex-start",
+      backgroundColor: theme.palette.tertiary.dark,
+    }}
+  >
+    <Avatar
+      src={teacher.image ? getImageUrl(teacher?.image.path) : ""}
       sx={{
-        padding: 3,
-        minWidth: 250,
-        textAlign: "center",
-        borderRadius: 5,
+        border: "2px solid white",
+        bgcolor: "grey",
+        width: 120,
+        height: 120,
+        fontSize: "2.5rem",
+        boxShadow: "0px -4px 10px rgba(0, 0, 0, 0.1)", // Top shadow
+        zIndex: 1,
+        bottom: -50,
+      }}
+    />
+    <Box
+      sx={{
+        backgroundColor: "white",
+        width: "inherit",
+        borderRadius: "20px ",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        pt: 7,
+        pb: 2,
+        px: 2,
+        boxShadow: "0px -4px 10px rgba(0, 0, 0, 0.1)", // Top shadow
       }}
     >
-      <Avatar
-        sx={{
-          bgcolor: "secondary.light",
-          opacity: 0.6,
-          width: 100,
-          height: 100,
-          fontSize: "2.5rem",
-        }}
-      />
       <Typography
         variant="h6"
         component="h1"
         sx={{
-          mt: 2,
           fontWeight: "bold",
           color: "primary.main",
         }}
       >
-        احمد محمد
+        {teacher.name}
       </Typography>
-
-      <Typography
-        variant="subtitle1"
-        sx={{
-          color: "text.secondary",
-        }}
-      >
-        الفيزياء
-      </Typography>
-    
-        <MailIcon /> 
-        <Phone />
-      
-    </Paper>
-  );
-};
+      <Box display="flex" gap={1} flexWrap="wrap">
+        {teacher.subjects?.map((sub) => (
+          <Box key={sub.id} display="flex" alignItems="center">
+            <Typography variant="subtitle1" sx={{ color: "text.secondary" }}>
+              {sub.name}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+      {/* Accordion */}
+      <Accordion sx={{ width: "100%", boxShadow: "none" }}>
+        <AccordionSummary
+          sx={{
+            minHeight: "auto",
+            padding: 0,
+            "& .MuiAccordionSummary-content": {
+              my: 1,
+              display: "flex",
+              justifyContent: "center",
+              flexGrow: 0,
+            },
+            "&.Mui-expanded": {
+              minHeight: "auto !important",
+              my: 0,
+            },
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            التفاصيل
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+            borderRadius: 1,
+            borderRight: `2px solid ${theme.palette.tertiary.main}`,
+            padding: 0.5,
+          }}
+        >
+          {/* bio */}
+          <Typography variant="body2" textAlign={"right"}>
+            {teacher.bio}
+          </Typography>
+          {/* date */}
+          <Typography variant="body2" color="grey">
+            تاريخ العقد:{" "}
+            {new Date(teacher?.date_of_contract).toLocaleDateString()}
+          </Typography>
+          {/* Email & phone */}
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+            <Tooltip title={`Email: ${teacher.email}`} arrow placement="top">
+              <Link
+                href={`mailto:${teacher.email}`}
+                underline="none"
+                sx={{
+                  "&:hover": {
+                    color: "primary.main",
+                  },
+                }}
+              >
+                <MailIcon color="inherit" />
+              </Link>
+            </Tooltip>
+            <Tooltip
+              title={`Call: ${teacher.phone_number}`}
+              arrow
+              placement="top"
+            >
+              <Link
+                href={`tel:${teacher.phone_number}`}
+                underline="none"
+                sx={{
+                  "&:hover": {
+                    color: "primary.main",
+                  },
+                }}
+              >
+                <Phone color="inherit" />
+              </Link>
+            </Tooltip>
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </Box>
+  </Paper>
+);
 
 export default TeacherCard;

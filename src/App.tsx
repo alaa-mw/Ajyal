@@ -1,6 +1,6 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import arabicThem from "./styles/arabicThem";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import AuthPage from "./features/auth/AuthPage";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
@@ -17,50 +17,72 @@ import ProtectedRoute from "./pages/ProtectedRoute";
 import { SnackbarProvider } from "./contexts/SnackbarContext.tsx";
 import CourseRegisterPage from "./features/courseSpecific/courseRegisterPage.tsx";
 import CourseScientificContentPage from "./features/courseSpecific/courseScientificContentPage.tsx";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "./features/auth/Redux/authSlice.ts";
+import { rolesConfig } from "./rolesConfig.ts";
 
 function App() {
+  const Navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const userToken = localStorage.getItem("authToken");
+  const userRole = localStorage.getItem("userRole");
+  useEffect(() => {
+    if (userToken && userRole) {
+      dispatch(
+        loginSuccess({
+          token: userToken,
+          role: userRole,
+        })
+      );
+      Navigate(`${rolesConfig[userRole].webPrefix}/`);
+    }
+  }, [userToken]);
+
   return (
     <ThemeProvider theme={arabicThem}>
       <SnackbarProvider>
-      <CssBaseline />
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<AuthPage />} />
-        <Route path="/register" element={<AuthPage />} />
-        
-        {/* Protected routes */}
-        <Route element={<ProtectedRoute allowedRoles={['manager']} />}>
-          <Route path="/manager" element={<ManagerDashboard />}>
-            <Route path="*" element={<NotFound />} />
-           {/* <Route index element={<ManagerHome />} /> */}
-            <Route path="students" element={<StudentsPage />} />
-            <Route path="students/new" element={<NewStudent />} />
+        <CssBaseline />
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<AuthPage />} />
+          <Route path="/register" element={<AuthPage />} />
 
-            <Route path="teachers" element={<TeachersPage />} />
-            <Route path="teachers/new" element={<NewTeacher />} />
+          {/* Protected routes */}
+          <Route element={<ProtectedRoute allowedRoles={["manager" ,"secretariat"]} />}>
+            <Route path="/manager" element={<ManagerDashboard />}>
+              <Route path="*" element={<NotFound />} />
+              {/* <Route index element={<ManagerHome />} /> */}
+              <Route path="students" element={<StudentsPage />} />
+              <Route path="students/new" element={<NewStudent />} />
 
-            <Route path="courses" element={<CoursesPage />} />
-            <Route path="courses/new" element={<NewCourse />} />
+              <Route path="teachers" element={<TeachersPage />} />
+              <Route path="teachers/new" element={<NewTeacher />} />
 
-            <Route path="ads" element={<AdsPage />} />
-            <Route path="ads/new" element={<NewAd />} />
+              <Route path="courses" element={<CoursesPage />} />
+              <Route path="courses/new" element={<NewCourse />} />
 
-            <Route path="course-register" element={<CourseRegisterPage />} />
-            <Route path="course-scientific-content" element={<CourseScientificContentPage />} />
-           
+              <Route path="ads" element={<AdsPage />} />
+              <Route path="ads/new" element={<NewAd />} />
+
+              <Route path="course-register" element={<CourseRegisterPage />} />
+              <Route
+                path="course-scientific-content"
+                element={<CourseScientificContentPage />}
+              />
+            </Route>
           </Route>
-        </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['teacher']} />}>
-          <Route path="/teacher" element={<TeacherDashboard />}>
-            {/* Teacher routes here */}
+          <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
+            <Route path="/teacher" element={<TeacherDashboard />}>
+              {/* Teacher routes here */}
+            </Route>
           </Route>
-        </Route>
 
-        {/* Fallback routes */}
-        <Route path="/not-authorized" element={<div>غير مصرح بالوصول</div>} />
-       
-      </Routes>
+          {/* Fallback routes */}
+          <Route path="/not-authorized" element={<div>غير مصرح بالوصول</div>} />
+        </Routes>
       </SnackbarProvider>
     </ThemeProvider>
   );

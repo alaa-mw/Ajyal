@@ -10,48 +10,44 @@ import {
   MenuItem,
   TextField,
   Autocomplete,
+  LinearProgress,
 } from "@mui/material";
 import FormField from "../../components/form/FormField";
 import theme from "../../styles/mainThem";
 import { SelectChangeEvent } from "@mui/material/Select";
-import { CheckCircle } from "@mui/icons-material";
-
-// Mock data
-const COURSES = [
-  { id: 1, name: "الرياضيات للصف التاسع" },
-  { id: 2, name: "الفيزياء للصف العاشر" },
-  { id: 3, name: "الكيمياء للصف الحادي عشر" },
-];
-
-const TEACHERS = [
-  {
-    id: 1,
-    name: "أحمد محمد",
-    info: "خريج جامعة دمشق - كلية الآداب - قسم اللغة العربية",
-  },
-  {
-    id: 2,
-    name: "سارة علي",
-    info: "خريجة جامعة حلب - كلية العلوم - قسم الرياضيات",
-  },
-  {
-    id: 3,
-    name: "محمد خالد",
-    info: "خريج جامعة تشرين - كلية الهندسة - قسم المعلوماتية",
-  },
-];
+import useSendData from "../../hooks/useSendData";
+import { Teacher } from "../../interfaces/Teacher";
+import { Course } from "../../interfaces/Course";
+import { useSnackbar } from "../../contexts/SnackbarContext";
+import { Close } from "@mui/icons-material";
+import { useLazyFetch } from "../../hooks/useLazyFetch";
 
 const NewAd = () => {
+  const { mutate: addAdd } = useSendData("/admin/addAdvertisement");
+
+  const {
+    data: teachers,
+    refetch: fetchTeachers,
+    isLoading: loadingTeachers,
+  } = useLazyFetch<Teacher[]>("/admin/allTeachers");
+
+  const {
+    data: courses,
+    refetch: fetchCourses,
+    isLoading: loadingCourses,
+  } = useLazyFetch<Course[]>("/course/all-courses");
+
+  const { showSnackbar } = useSnackbar();
   const [formData, setFormData] = React.useState({
     title: "",
     body: "",
-    postable_id: "",
-    postable_type: "general",
-    image: null as File | null,
+    advertisable_id: "",
+    advertisable_type: "",
+    images: [] as File[],
   });
 
-  const [previewImage, setPreviewImage] = React.useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [previewImages, setPreviewImages] = React.useState<string[]>([]);
+  const [, setSearchTerm] = React.useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,56 +57,83 @@ const NewAd = () => {
   const handleSelectChange = (e: SelectChangeEvent) => {
     const { name, value } = e.target;
 
+    if (value == "teacher") fetchTeachers();
+    else fetchCourses();
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      postable_id: "", // Reset ID when type changes
-      body: value === "teacher" ? "" : prev.body,
+      advertisable_id: "", // Reset ID when type changes
     }));
   };
 
-  const handleTeacherSelect = (teacherId: number) => {
-    const selectedTeacher = TEACHERS.find((t) => t.id === teacherId);
+  const handleTeacherSelect = (teacherId: string) => {
+    const selectedTeacher = teachers?.data.find((t) => t.id === teacherId);
     setFormData((prev) => ({
       ...prev,
-      postable_id: teacherId.toString(),
-      body: selectedTeacher?.info || "",
+      advertisable_id: teacherId.toString(),
+      body: selectedTeacher?.bio || "",
     }));
   };
 
-  const handleCourseSelect = (courseId: number) => {
+  const handleCourseSelect = (courseId: string) => {
     setFormData((prev) => ({
       ...prev,
-      postable_id: courseId.toString(),
+      advertisable_id: courseId.toString(),
     }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setFormData((prev) => ({ ...prev, image: file }));
-      setPreviewImage(URL.createObjectURL(file));
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...newFiles],
+      }));
+      setPreviewImages((prev) => [...prev, ...newPreviews]);
     }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
+
+    // Revoke the object URL to avoid memory leaks
+    URL.revokeObjectURL(previewImages[index]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
+    addAdd(formData, {
+      onSuccess: (response) => {
+        showSnackbar(response.message, "success");
+        // Clear form data
+        setFormData({
+          title: "",
+          body: "",
+          advertisable_id: "",
+          advertisable_type: "",
+          images: [],
+        });
+        // Clear preview images and revoke URLs
+        previewImages.forEach((url) => URL.revokeObjectURL(url));
+        setPreviewImages([]);
+      },
+      onError: (error) => showSnackbar(error.message, "error"),
+    });
   };
-
-  const filteredTeachers = TEACHERS.filter(
-    (teacher) =>
-      teacher.name.includes(searchTerm) || teacher.info.includes(searchTerm)
-  );
-
-  const filteredCourses = COURSES.filter((course) =>
-    course.name.includes(searchTerm)
-  );
 
   return (
     <Box
       sx={{
-        width: { xs: "100%", sm: "100%", md: "100%", lg:800 },
+        width: { xs: "100%", sm: "100%", md: "100%", lg: 600 },
+        minHeight: 700,
         mx: "auto",
         p: { xs: 0, sm: 3 },
       }}
@@ -122,27 +145,34 @@ const NewAd = () => {
         نشر إعلان
       </Typography>
 
-      <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 2 }}>
+      <Paper
+        elevation={3}
+        sx={{ p: { xs: 2, sm: 4 }, borderRadius: 2, height: "90%" }}
+      >
         <form onSubmit={handleSubmit}>
           <Box sx={{ mb: 3 }}>
             <FormControl fullWidth sx={{ mb: 3 }}>
               <InputLabel>نوع الإعلان</InputLabel>
               <Select
-                name="postable_type"
-                value={formData.postable_type}
+                name="advertisable_type"
+                value={formData.advertisable_type}
                 onChange={handleSelectChange}
                 label="نوع الإعلان"
               >
-                <MenuItem value="general">عام</MenuItem>
+                <MenuItem value="">عام</MenuItem>
                 <MenuItem value="course">دورة</MenuItem>
                 <MenuItem value="teacher">معلم</MenuItem>
               </Select>
             </FormControl>
 
-            {formData.postable_type === "teacher" && (
+            {(loadingTeachers || loadingCourses) && (
+              <LinearProgress sx={{ mb: 2 }} />
+            )}
+
+            {formData.advertisable_type === "teacher" && (
               <FormControl fullWidth sx={{ mb: 3 }}>
                 <Autocomplete
-                  options={filteredTeachers}
+                  options={teachers?.data || []}
                   getOptionLabel={(option) => option.name}
                   onChange={(_, value) =>
                     value && handleTeacherSelect(value.id)
@@ -159,10 +189,11 @@ const NewAd = () => {
               </FormControl>
             )}
 
-            {formData.postable_type === "course" && (
+            {formData.advertisable_type === "" && <TextField disabled fullWidth />}
+            {formData.advertisable_type === "course" && (
               <FormControl fullWidth sx={{ mb: 3 }}>
                 <Autocomplete
-                  options={filteredCourses}
+                  options={courses?.data || []}
                   getOptionLabel={(option) => option.name}
                   onChange={(_, value) => value && handleCourseSelect(value.id)}
                   renderInput={(params) => (
@@ -191,7 +222,7 @@ const NewAd = () => {
               value={formData.body}
               onChange={handleChange}
               placeholder={
-                formData.postable_type === "teacher"
+                formData.advertisable_type === "teacher"
                   ? "سيتم تعبئة المعلومات تلقائياً عند اختيار المعلم"
                   : "أدخل وصف الإعلان هنا..."
               }
@@ -199,17 +230,10 @@ const NewAd = () => {
               required
             />
 
-            <Box
-              sx={{
-                mt: 2,
-                display: "flex",
-                flexDirection: "row",
-                gap: 1,
-              }}
-            >
+            <Box sx={{ mt: 2 }}>
               <label htmlFor="image-upload">
                 <Button variant="outlined" component="span">
-                  رفع صورة
+                  رفع الصور
                 </Button>
                 <input
                   id="image-upload"
@@ -217,30 +241,55 @@ const NewAd = () => {
                   accept="image/*"
                   onChange={handleImageChange}
                   style={{ display: "none" }}
+                  multiple
                 />
               </label>
-              {previewImage && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 1,
-                  }}
-                >
-                  <CheckCircle color="success" sx={{ fontSize: 40 }} />
-                  <Typography variant="body1" color="text.secondary">
-                    تم رفع الصورة بنجاح
+
+              {previewImages.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
+                    الصور المرفوعة:
                   </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {previewImages.map((preview, index) => (
+                      <Box key={index} sx={{ position: "relative" }}>
+                        <Box
+                          component="img"
+                          src={preview}
+                          sx={{
+                            width: 100,
+                            height: 100,
+                            objectFit: "cover",
+                            borderRadius: 1,
+                          }}
+                        />
+                        <Button
+                          size="small"
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            right: 0,
+                            minWidth: 0,
+                            p: 0.5,
+                            bgcolor: "rgba(0,0,0,0.5)",
+                            color: "white",
+                            "&:hover": {
+                              bgcolor: "rgba(0,0,0,0.7)",
+                            },
+                          }}
+                          onClick={() => removeImage(index)}
+                        >
+                          <Close fontSize="small" />
+                        </Button>
+                      </Box>
+                    ))}
+                  </Box>
                 </Box>
               )}
-              {/* {previewImage && (
-                <Avatar
-                  src={previewImage}
-                  sx={{ width: 150, height: 150, mt: 2 }}
-                  variant="rounded"
-                />
-              )} */}
             </Box>
           </Box>
 
@@ -248,14 +297,15 @@ const NewAd = () => {
             type="submit"
             variant="contained"
             size="large"
-            fullWidth
             sx={{
+              mr: "35%",
+              px: 5,
               py: 1.5,
               background: theme.palette.gradient.primary,
               fontSize: "1.1rem",
             }}
           >
-            حفظ البيانات
+            تأكيد
           </Button>
         </form>
       </Paper>

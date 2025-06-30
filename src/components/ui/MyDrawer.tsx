@@ -14,6 +14,7 @@ import {
   Box,
   Autocomplete,
   TextField,
+  alpha,
 } from "@mui/material";
 import drawerFrame from "../../assets/drawerFrame.png";
 import { Logout } from "@mui/icons-material";
@@ -122,7 +123,7 @@ const MyDrawer = () => {
               variant="outlined"
               fullWidth
               sx={{
-                bgcolor: "background.default",
+                bgcolor: (theme) => alpha(theme.palette.background.default, 1),
                 borderRadius: "0px 50px 50px 0px ",
                 "& .MuiInputLabel-root": {
                   right: 50, // RTL support for label positioning

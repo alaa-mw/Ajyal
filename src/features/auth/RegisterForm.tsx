@@ -12,12 +12,51 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import theme from "../../styles/mainThem";
 import { useState } from "react";
 import logo from "../../assets/logo.png";
+import useSendDataNoToken from "../../hooks/useSendDataNoToken";
+import { loginFailure, loginStart, setUserId } from "./Redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { useSnackbar } from "../../contexts/SnackbarContext";
+import { Teacher } from "../../interfaces/Teacher";
 
 interface RegisterFormProps {
   onNextStep: () => void;
 }
 
 const RegisterForm = ({ onNextStep }: RegisterFormProps) => {
+  const { mutate: register } = useSendDataNoToken<{teacher:Teacher}>("/teacher/teacherRegister");
+
+  const { showSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
+  const { isLoading } = useSelector((state: RootState) => state.auth);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    password_confirmation: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmitRegistration = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch(loginStart());
+    register(formData, {
+      onSuccess: (response) => {
+        dispatch(setUserId({userId:response.data.teacher.id}))
+        showSnackbar(response.message, "info");
+        onNextStep();
+      },
+      onError: (error) => {
+        dispatch(loginFailure(error.message));
+        showSnackbar(error.message, "error");
+      },
+    });
+  };
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -30,33 +69,6 @@ const RegisterForm = ({ onNextStep }: RegisterFormProps) => {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
   };
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirm_password: "",
-    verifyCode: "",
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmitRegistration = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate API call for registration
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsLoading(false);
-    onNextStep();
-  };
-
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible">
       <motion.div variants={itemVariants}>
@@ -116,10 +128,10 @@ const RegisterForm = ({ onNextStep }: RegisterFormProps) => {
         <TextField
           fullWidth
           label="تأكيد كلمة المرور"
-          name="confirm_password"
+          name="password_confirmation"
           type={showPassword ? "text" : "password"}
           variant="outlined"
-          value={formData.confirm_password}
+          value={formData.password_confirmation}
           onChange={handleChange}
           sx={{ mb: 3 }}
           required
@@ -148,7 +160,7 @@ const RegisterForm = ({ onNextStep }: RegisterFormProps) => {
           }}
           disabled={isLoading}
         >
-          {isLoading ? <CircularProgress size={24} /> : "تسجيل"}
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : "تسجيل"}
         </Button>
 
         <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>

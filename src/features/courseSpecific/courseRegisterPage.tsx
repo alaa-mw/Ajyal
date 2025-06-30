@@ -1,8 +1,29 @@
-import React from 'react'
-
+import { Box, Typography } from "@mui/material";
+import StudentsTable from "../students/StudentsTable";
+import StudentsWaitList from "../students/StudentsWaitList";
 const courseRegisterPage = () => {
   return (
-    <div>courseRegisterPage</div>
+     <>
+      <Typography
+        variant="h5"
+        sx={{
+          mb: 2,
+          fontWeight: "bold",
+        }}
+      >
+        التسجيل والشعب
+      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "column", md: "column", lg: "row" },
+          gap: 4,
+        }}
+      >
+        <StudentsTable/>
+        <StudentsWaitList/>
+      </Box>
+    </>
   )
 }
 
