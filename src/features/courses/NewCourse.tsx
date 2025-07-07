@@ -6,115 +6,101 @@ import {
   MenuItem,
   Select,
   FormControl,
-  Chip,
   Divider,
   Checkbox,
   Grid,
+  FormControlLabel,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import FormField from "../../components/form/FormField";
-// import arLocale from "date-fns/locale/ar-SA";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
-import theme from "../../styles/mainThem";
+import dayjs, { Dayjs } from "dayjs";
+import { classes } from "../../data/classNames";
+import useSendData from "../../hooks/useSendData";
+import { Course } from "../../interfaces/Course";
+import { Subject } from "../../interfaces/Subject";
+import { useSnackbar } from "../../contexts/SnackbarContext";
+import SubjectItem from "./SubjectItem";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import {
+  addSubject,
+  printCourseState,
+  resetCourse,
+  toggleClassroom,
+  updateField,
+} from "./Redux/courseSlice";
 
-// Mock data for subjects and teachers
-interface Subject {
-  id: number;
-  name: string;
-}
-const SUBJECTS = [
-  { id: 1, name: "الرياضيات" },
-  { id: 2, name: "الفيزياء" },
-  { id: 3, name: "الكيمياء" },
-  { id: 4, name: "الأحياء" },
-  { id: 5, name: "اللغة العربية" },
-];
-
-const TEACHERS = [
-  { id: 1, name: "أحمد محمد", subjectIds: [1, 2] },
-  { id: 2, name: "سارة خالد", subjectIds: [3, 4] },
-  { id: 3, name: "علي حسن", subjectIds: [1, 5] },
-  { id: 4, name: "فاطمة عبدالله", subjectIds: [2, 3] },
-];
-
-const LEVELS = ["9", "12-a", "12-b"];
+const classRooms = ["1", "2", "3", "4", "5"];
 
 const NewCourse = () => {
-  // Basic course info
-  const [courseData, setCourseData] = useState({
-    name: "",
-    cost: "",
-    capacity: "",
-    level: "",
-    start_date: null,
-    end_date: null,
-  });
-  // Subjects and teachers
-  const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([]);
-  const [subjectTeachers, setSubjectTeachers] = useState<
-    Record<number, number[]>
-  >({});
-  // Form handlers
-  const handleChange = (e) => {
+  const { showSnackbar } = useSnackbar();
+
+  const { mutate: addCourse } = useSendData<Course>("/course/create");
+  const { data: subjects, mutate: fetchSubjectType } =
+    useSendData<Subject[]>("/subjects");
+
+  const dispatch = useDispatch();
+  const courseData = useSelector((state: RootState) => state.course);
+
+  // Simplified handlers
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCourseData((prev) => ({ ...prev, [name]: value }));
+    dispatch(updateField({ field: name, value }));
   };
 
-  const handleDateChange = (name, date) => {
-    setCourseData((prev) => ({ ...prev, [name]: date }));
+  const handleTypeChange = (value: string) => {
+    dispatch(updateField({ field: "type", value }));
+    // Clear subjects when type changes
+    dispatch(updateField({ field: "subjects", value: [] }));
   };
 
-  const handleSubjectSelect = (subject) => {
-    if (!selectedSubjects.some((s) => s.id === subject.id)) {
-      setSelectedSubjects([...selectedSubjects, subject]);
-      setSubjectTeachers({ ...subjectTeachers, [subject.id]: [] });
+  const handleDateChange = (name: string, date: Dayjs | null) => {
+    dispatch(
+      updateField({
+        field: name,
+        value: date ? date.format("YYYY-MM-DD") : null, //fix
+      })
+    );
+  };
+
+  const toggleClassRoomSelection = (roomId: string, isChecked: boolean) => {
+    dispatch(toggleClassroom({ roomId, isChecked }));
+  };
+
+  const handleSubjectSelect = (subject: Subject) => {
+    const { id, name } = subject;
+    dispatch(
+      addSubject({
+        subject_id: id,
+        subject_name: name,
+      })
+    );
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted:", courseData);
+    addCourse(courseData, {
+      onSuccess: (response) => {
+        showSnackbar(response.message, "success");
+        // Clear form data
+        dispatch(resetCourse());
+      },
+      onError: (error) => showSnackbar(error.message, "error"),
+    });
+  };
+
+  useEffect(() => {
+    if (courseData.type) {
+      fetchSubjectType({ subjects_type: courseData.type });
     }
-    console.log("selectedSubjects", selectedSubjects);
-
-    console.log("subjectTeachers", subjectTeachers);
-  };
-
-  const handleRemoveSubject = (subjectId) => {
-    setSelectedSubjects(selectedSubjects.filter((s) => s.id !== subjectId));
-    const newSubjectTeachers = { ...subjectTeachers };
-    delete newSubjectTeachers[subjectId];
-    setSubjectTeachers(newSubjectTeachers);
-  };
-
-  const handleTeacherSelect = (subjectId: number, teacherIds: number[]) => {
-    setSubjectTeachers((prev) => ({
-      ...prev,
-      [subjectId]: teacherIds,
-    }));
-
-    console.log("subjectId", subjectId);
-    console.log("teacherId", teacherIds);
-    console.log("subjectTeachers", subjectTeachers);
-  };
-
-  const handleRemoveTeacher = (subjectId, teacherId) => {
-    setSubjectTeachers((prev) => ({
-      ...prev,
-      [subjectId]: prev[subjectId].filter((id) => id !== teacherId),
-    }));
-  };
-
-  // Form submission
-  const handleSave = (publish = false) => {
-    const course = {
-      ...courseData,
-      subjects: selectedSubjects.map((subject) => ({
-        subjectId: subject.id,
-        teachers: subjectTeachers[subject.id] || [],
-      })),
-      isPublished: publish,
-    };
-    console.log("Course data to save:", course);
-    // Add your API call here
-  };
+  }, [courseData.type, fetchSubjectType]);
+  useEffect(() => {
+    dispatch(printCourseState());
+  }, [courseData, dispatch]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -155,9 +141,10 @@ const NewCourse = () => {
                   المستوى *
                 </Typography>
                 <Select
-                  name="level"
-                  value={courseData.level}
-                  onChange={handleChange}
+                  name="type"
+                  value={courseData.type}
+                  fullWidth
+                  onChange={(e) => handleTypeChange(e.target.value)}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       "& fieldset": {
@@ -167,7 +154,7 @@ const NewCourse = () => {
                     },
                   }}
                 >
-                  {LEVELS.map((level) => (
+                  {classes.map((level) => (
                     <MenuItem key={level} value={level}>
                       {level}
                     </MenuItem>
@@ -177,7 +164,7 @@ const NewCourse = () => {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <FormField
-                label="التكلفة (ريال)"
+                label="التكلفة"
                 name="cost"
                 value={courseData.cost}
                 onChange={handleChange}
@@ -206,7 +193,7 @@ const NewCourse = () => {
                 تاريخ البدء *
               </Typography>
               <DatePicker
-                value={courseData.start_date}
+                value={dayjs(courseData.start_date)}
                 onChange={(date) => handleDateChange("start_date", date)}
                 localeText={{
                   okButtonLabel: "موافق", // OK
@@ -244,7 +231,7 @@ const NewCourse = () => {
                 تاريخ الانتهاء *
               </Typography>
               <DatePicker
-                value={courseData.end_date}
+                value={dayjs(courseData.end_date)}
                 onChange={(date) => handleDateChange("end_date", date)}
                 // renderInput={(params) => (
                 //   <TextField
@@ -262,6 +249,27 @@ const NewCourse = () => {
                 // )}
                 minDate={dayjs(courseData.start_date)}
               />
+            </Grid>
+            <Grid size={12}>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                القاعات:
+              </Typography>
+              {classRooms.map((room) => (
+                <FormControlLabel
+                  key={room}
+                  control={
+                    <Checkbox
+                      checked={courseData.classrooms.includes(room)}
+                      onChange={(e) =>
+                        toggleClassRoomSelection(room, e.target.checked)
+                      }
+                      color="primary"
+                    />
+                  }
+                  label={`القاعة ${room}`}
+                  sx={{ ml: 4 }}
+                />
+              ))}
             </Grid>
           </Grid>
         </Box>
@@ -286,29 +294,27 @@ const NewCourse = () => {
             >
               اختر المادة
             </Typography>
+
             <Select
               value=""
               onChange={(e) => {
-                const selectedValue = e.target.value as
-                  | ""
-                  | "select-all"
-                  | number;
+                const selectedValue = e.target.value as "select-all" | string;
                 console.log(typeof selectedValue);
 
                 if (selectedValue === "select-all") {
-                  const newSubjects = SUBJECTS.filter(
-                    (subject) =>
-                      !selectedSubjects.some((s) => s.id === subject.id)
-                  );
-                  setSelectedSubjects([...selectedSubjects, ...newSubjects]);
-                  const newTeachers = { ...subjectTeachers };
-                  newSubjects.forEach((subject) => {
-                    newTeachers[subject.id] = [];
+                  // Select all subjects that aren't already selected
+                  subjects?.data.forEach((subject) => {
+                    if (
+                      !courseData.subjects.some(
+                        (s) => s.subject_id === subject.id
+                      )
+                    ) {
+                      handleSubjectSelect(subject);
+                    }
                   });
-                  setSubjectTeachers(newTeachers);
                 } else {
-                  const subject = SUBJECTS.find(
-                    (s) => s.id == Number(e.target.value)
+                  const subject = subjects?.data.find(
+                    (s) => s.id == selectedValue
                   );
                   if (subject) handleSubjectSelect(subject);
                 }
@@ -322,143 +328,42 @@ const NewCourse = () => {
                 },
               }}
             >
-              {selectedSubjects.length < SUBJECTS.length && (
+              {courseData.subjects.length < (subjects?.data?.length || 0) && (
                 <MenuItem key="select-all" value="select-all">
+                  {" "}
+                  {/*fix later*/}
                   تحديد الكل
                 </MenuItem>
               )}
-              {SUBJECTS.map((subject) => (
-                <MenuItem
-                  key={subject.id}
-                  value={subject.id}
-                  disabled={selectedSubjects.some((s) => s.id === subject.id)}
-                >
-                  {subject.name}
+              {(subjects?.data.length ?? 0) > 0 ? (
+                subjects?.data.map((subject) => (
+                  <MenuItem
+                    key={subject.id}
+                    value={subject.id}
+                    disabled={courseData.subjects.some(
+                      (s) => s.subject_id === subject.id
+                    )}
+                  >
+                    {subject.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled sx={{ justifyContent: "center" }}>
+                  <Typography variant="subtitle1" color="text.secondary">
+                    لا يوجد مواد متاحة
+                  </Typography>
                 </MenuItem>
-              ))}
+              )}
             </Select>
           </FormControl>
 
           {/* Selected Subjects */}
-          {selectedSubjects.length > 0 && (
-            <Box sx={{ mt: 2 }}>
-              {selectedSubjects.map((subject) => (
-                <Box
-                  key={subject.id}
-                  sx={{
-                    mb: 3,
-                    p: 2,
-                    border: `2px solid ${theme.palette.tertiary.main}`,
-                    borderRight: `12px solid ${theme.palette.tertiary.main}`,
-                    borderRadius: 2,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mb: 2,
-                    }}
-                  >
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        color: "#fff",
-                        fontWeight: "bold",
-                        backgroundColor: theme.palette.tertiary.main,
-                        borderRadius: 2,
-                        px: 2,
-                      }}
-                    >
-                      {subject.name}
-                    </Typography>
-                    <Button
-                      size="small"
-                      color="error"
-                      onClick={() => handleRemoveSubject(subject.id)}
-                    >
-                      إزالة
-                    </Button>
-                  </Box>
 
-                  <FormControl fullWidth>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        mb: 0.4,
-                        color: "primary.main",
-                        fontWeight: 600,
-                        fontSize: "0.95rem",
-                      }}
-                    >
-                      اختر المعلم/المعلمين
-                    </Typography>
-                    <Select
-                      sx={{
-                        backgroundColor: "white", // White background for select
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "#e0e0e0", // Default border color
-                            borderRadius: "8px",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "#491B6D", // Purple border on hover
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "#491B6D", // Purple border when focused
-                            borderWidth: "1px",
-                          },
-                        },
-                        "& .MuiSelect-select": {
-                          backgroundColor: "white", // Ensure select area is white
-                        },
-                      }}
-                      multiple
-                      value={subjectTeachers[subject.id] || []}
-                      onChange={(e) => {
-                        // Cast the value to number[] since we know it's a multiple select
-                        const selectedTeacherIds = e.target.value as number[];
-                        handleTeacherSelect(subject.id, selectedTeacherIds);
-                      }}
-                      renderValue={(selected) => (
-                        <Box
-                          sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
-                        >
-                          {selected.map((teacherId) => {
-                            const teacher = TEACHERS.find(
-                              (t) => t.id === teacherId
-                            );
-                            return teacher ? (
-                              <Chip
-                                key={teacherId}
-                                label={teacher.name}
-                                onDelete={() =>
-                                  handleRemoveTeacher(subject.id, teacherId)
-                                }
-                              />
-                            ) : null;
-                          })}
-                        </Box>
-                      )}
-                    >
-                      {TEACHERS.filter((teacher) =>
-                        teacher.subjectIds.includes(subject.id)
-                      ).map((teacher) => (
-                        <MenuItem key={teacher.id} value={teacher.id}>
-                          <Checkbox
-                            checked={(
-                              subjectTeachers[subject.id] || []
-                            ).includes(teacher.id)}
-                          />
-                          {teacher.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Box>
-              ))}
-            </Box>
-          )}
+          <Box sx={{ mt: 2 }}>
+            {courseData.subjects.map((subject) => (
+              <SubjectItem key={subject.subject_id} subject={subject} />
+            ))}
+          </Box>
         </Box>
 
         <Divider sx={{ my: 3 }} />
@@ -468,12 +373,7 @@ const NewCourse = () => {
           <Button
             variant="outlined"
             size="large"
-            onClick={() => handleSave(false)}
-            disabled={
-              !courseData.name ||
-              !courseData.level ||
-              selectedSubjects.length === 0
-            }
+            onClick={handleSubmit}
             sx={{
               borderRadius: "8px",
               py: 1.5,
@@ -485,12 +385,8 @@ const NewCourse = () => {
           <Button
             variant="contained"
             size="large"
-            onClick={() => handleSave(true)}
-            disabled={
-              !courseData.name ||
-              !courseData.level ||
-              selectedSubjects.length === 0
-            }
+            onClick={handleSubmit} //later
+            disabled={true}
             sx={{
               borderRadius: "8px",
               py: 1.5,

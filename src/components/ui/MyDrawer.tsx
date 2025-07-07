@@ -23,6 +23,7 @@ import NavItem from "./NavItem";
 import useSendData from "../../hooks/useSendData";
 import { useDispatch } from "react-redux";
 import { logoutSuccess } from "../../features/auth/Redux/authSlice";
+import { rolesConfig } from "../../rolesConfig";
 
 const MyDrawer = () => {
   const dispatch = useDispatch();
@@ -31,7 +32,10 @@ const MyDrawer = () => {
     name: string;
   } | null>(null);
 
-  const { mutate: logout } = useSendData("/logout", undefined);
+  const { mutate: logout } = useSendData(
+    `${rolesConfig[localStorage.getItem("userRole") || ""].apiPrefix}/logout`,
+    undefined
+  );
   const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {

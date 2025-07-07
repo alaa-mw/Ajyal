@@ -47,6 +47,7 @@ const RegisterForm = ({ onNextStep }: RegisterFormProps) => {
     dispatch(loginStart());
     register(formData, {
       onSuccess: (response) => {
+        console.log(response.data); // temp
         dispatch(setUserId({userId:response.data.teacher.id}))
         showSnackbar(response.message, "info");
         onNextStep();

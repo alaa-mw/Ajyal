@@ -1,10 +1,11 @@
 import React, { SetStateAction, useRef, useState } from "react";
 import AdsCard from "./AdsCard";
-import { Box, Button, Typography, CircularProgress } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import NewAd from "./NewAd";
 import { useLazyFetch } from "../../hooks/useLazyFetch";
 import { Advertisement } from "../../interfaces/Advertisement ";
 import { PaginatedResponse } from "../../interfaces/PaginatedResponse";
+import AdsSkeleton from "./AdsSkeleton";
 
 const AdsPage = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -15,7 +16,7 @@ const AdsPage = () => {
   // استخدم useLazyFetch مع تعطيل الجلب التلقائي
   const {
     data: tAd,
-    refetch: fetchTAd,
+    fetchWithParams: fetchTAd,
     isFetching: isFetchingTeachers,
   } = useLazyFetch<PaginatedResponse<Advertisement[]>>(
     "/advertisement/teacherAdvertisements"
@@ -23,7 +24,7 @@ const AdsPage = () => {
 
   const {
     data: cAd,
-    refetch: fetchCAd,
+    fetchWithParams: fetchCAd,
     isFetching: isFetchingCourses,
   } = useLazyFetch<PaginatedResponse<Advertisement[]>>(
     "/advertisement/courseAdvertisements"
@@ -31,7 +32,7 @@ const AdsPage = () => {
 
   const {
     data: gAd,
-    refetch: fetchGAd,
+    fetchWithParams: fetchGAd,
     isFetching: isFetchingGeneral,
   } = useLazyFetch<PaginatedResponse<Advertisement[]>>(
     "/advertisement/generalAdvertisements"
@@ -52,22 +53,19 @@ const AdsPage = () => {
 
   // Fetch data when tab or page changes
   React.useEffect(() => {
-    const fetchData = () => {
-      if (activeTab === "teachers") {
-        fetchTAd({ queryParams: { page } });
-      } else if (activeTab === "courses") {
-        fetchCAd({ queryParams: { page } });
-      } else {
-        fetchGAd({ queryParams: { page } });
-      }
-    };
-    fetchData();
-  }, [activeTab, page, fetchTAd, fetchCAd, fetchGAd]);
+    const initialParams = { page };
+    console.log(initialParams);
+    if (activeTab === "teachers") {
+      fetchTAd(initialParams);
+    } else if (activeTab === "courses") {
+      fetchCAd(initialParams);
+    } else {
+      fetchGAd(initialParams);
+    }
+  }, [activeTab, page]);
 
   const isLoading =
-    (activeTab === "teachers" && isFetchingTeachers) ||
-    (activeTab === "courses" && isFetchingCourses) ||
-    (activeTab === "general" && isFetchingGeneral);
+    isFetchingTeachers || isFetchingCourses || isFetchingGeneral;
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -82,14 +80,13 @@ const AdsPage = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
-
+          flexDirection: { xs: "column", sm: "column", md: "column", lg: "column", xl: "row" },
           justifyContent: "space-between",
         }}
       >
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "100%", lg: 1250 } }}>
+        <Box sx={{ maxWidth: { xs: "100%", sm: "100%", md: "100%", lg: 1250 } }}>
           {/* أزرار التبويب */}
-          <Box sx={{ display: "flex", gap: 1, m: 2 }}>
+          <Box sx={{ display: "flex",justifyContent:"space-between", gap: 1, my: 1,mx:6 }}>
             {["teachers", "courses", "general"].map((tab) => (
               <Button
                 key={tab}
@@ -100,7 +97,7 @@ const AdsPage = () => {
                   );
                   setPage(1);
                 }}
-                sx={{ flex: 0.5, borderRadius: 10 }}
+                sx={{ flex: .3, borderRadius: 10 }}
               >
                 {tab === "teachers"
                   ? "معلمين"
@@ -112,40 +109,50 @@ const AdsPage = () => {
           </Box>
 
           {/* محتوى الإعلانات */}
-          {isLoading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <Box
-              ref={scrollContainerRef}
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  s: "repeat(2, 1fr)",
-                  sm: "repeat(2, 1fr)",
-                  md: "repeat(3, 1fr)",
-                },
-                gap: 2,
-                px: 2,
-                height: {
-                  xs: "calc(100vh - 200px)",
-                  md: "calc(100vh - 160px)",
-                },
-              }}
-            >
-              {adsData.map((item) => (
+
+          <Box
+            ref={scrollContainerRef}
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                s: "repeat(2, 1fr)",
+                sm: "repeat(2, 1fr)",
+                md: "repeat(2, 1fr)",
+                lg: "repeat(3, 1fr)",
+              },
+              gap: 2,
+              px: 2,
+              minHeight: 550, // "calc(100vh - 160px)",
+            }}
+          >
+            {isLoading ? (
+              <>
+                {[1, 2, 3].map((item) => (
+                  <AdsSkeleton key={item} />
+                ))}
+              </>
+            ) : (
+              adsData.map((item) => (
                 <AdsCard key={item.id} advertisement={item} />
-              ))}
-            </Box>
-          )}
+              ))
+            )}
+            {!isLoading && adsData.length == 0 && (
+              <Typography
+                variant="h6"
+                sx={{ gridColumn: "1/-1", textAlign: "center" }}
+              >
+                لا توجد إعلانات متاحة
+              </Typography>
+            )}
+          </Box>
+
           {paginationData && (
             <Box
               sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 1 }}
             >
               <Button
-                disabled={!paginationData.data.prev_page_url}
+                disabled={page == 1}
                 onClick={() => handlePageChange(page - 1)}
               >
                 السابق
@@ -165,7 +172,7 @@ const AdsPage = () => {
               ))}
 
               <Button
-                disabled={!paginationData.data.next_page_url}
+                disabled={page == paginationData.data.last_page}
                 onClick={() => handlePageChange(page + 1)}
               >
                 التالي

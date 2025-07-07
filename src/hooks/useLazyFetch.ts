@@ -1,30 +1,32 @@
 import { useQuery } from "@tanstack/react-query";
 import APIClient, { FetchResponse } from "../services/api-client";
+import { useCallback, useRef } from "react";
 
-// Implementation
-export const useLazyFetch = <TData>(endpoint: string, options={}) => {
-  const apiClient = new APIClient<TData>(endpoint);
-  
-  return useQuery<FetchResponse<TData>, Error>({
-    queryKey: [endpoint],
-    queryFn: (context) => {
-      const queryParams = context.meta?.queryParams || {};
-      return  apiClient.get(queryParams);
-    },
-    enabled: false,
-    ...options// هذه الطريقة يمكنك تمرير خيارات إضافية مثل onSuccess و onError عند الحاجة.
-  });
-};
-
-{
-    /*
- استخدم useLazyFetch مع تعطيل الجلب التلقائي
-  const { refetch: fetchTAd } = useLazyFetch<Advertisement[]>(
-    "/advertisement/teacherAdvertisements",
-    {
-      onSuccess: (data) => setAdsData(data?.data || []),
-      enabled: false // تعطيل الجلب التلقائي
-    }
-  );
-    */
+interface QueryParams {
+  page?: number;
+  // يمكن إضافة المزيد من البارامترات هنا
 }
+
+export const useLazyFetch = <TData>(endpoint: string, options = {}) => {
+  const apiClient = useRef(new APIClient<TData>(endpoint)).current; //useRef: يضمن إنشاء الـ client مرة واحدة فقط (يحسن الأداء)
+  const enabledRef = useRef(false);
+  const paramsRef = useRef<QueryParams | undefined>();//حفظ آخر بارامترات مُستخدمة في الطلب.
+
+  const query = useQuery<FetchResponse<TData>, Error>({
+    queryKey: [endpoint, paramsRef.current],
+    queryFn: () => apiClient.get(paramsRef.current),
+    enabled: enabledRef.current,
+    ...options
+  });
+
+  const fetchWithParams = useCallback((params?: QueryParams) => { //useCallback: يحفظ الدالة بين الريندرات (يقلل إعادة الإنشاء)
+    paramsRef.current = params;
+    enabledRef.current = true;
+    return query.refetch();
+  }, [query]);
+
+  return {
+    ...query,
+    fetchWithParams
+  };
+};

@@ -3,7 +3,6 @@ import {
   Button,
   Box,
   Typography,
-  CircularProgress,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import theme from "../../styles/mainThem";
@@ -13,6 +12,8 @@ import { loginFailure, loginSuccess } from "./Redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "../../contexts/SnackbarContext";
 import { RootState } from "../../store";
+import { rolesConfig } from "../../rolesConfig";
+import { useNavigate } from "react-router-dom";
 
 const VerificationForm = () => {
   const { mutate: verify } = useSendDataNoToken<{ token: string }>( // fix
@@ -20,11 +21,14 @@ const VerificationForm = () => {
   );
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
-  const { isLoading } = useSelector((state: RootState) => state.auth);
+  const { userId } = useSelector((state: RootState) => state.auth);
 
   const [formData, setFormData] = useState({
+    teacher_id: userId,
     verifyCode: "",
+    role:"teacher"
   });
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e);
@@ -39,10 +43,11 @@ const VerificationForm = () => {
         dispatch(
           loginSuccess({
             token: response.data?.token,
-            role: "teacher",
+            role: formData.role,
           })
         );
         showSnackbar(response.message, "success");
+        navigate(`${rolesConfig[formData.role].webPrefix}/`);
       },
       onError: (error) => {
         dispatch(loginFailure(error.message));
@@ -95,9 +100,11 @@ const VerificationForm = () => {
               mb: 2,
               background: `${theme.palette.gradient.primary}`,
             }}
-            disabled={isLoading}
+            // disabled={isLoading}
           >
-            {isLoading ? <CircularProgress size={24} color="inherit" /> :"تأكيد"}
+            {/* {isLoading ? <CircularProgress size={24} color="inherit" />: */}
+             تأكيد
+             {/* } */}
           </Button>
 
           <Typography variant="body2" sx={{ textAlign: "center", mt: 2 }}>

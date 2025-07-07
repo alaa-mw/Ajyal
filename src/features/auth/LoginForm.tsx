@@ -29,6 +29,7 @@ import {
   printState,
 } from "./Redux/authSlice";
 import { RootState } from "../../store";
+import { Auth } from "../../interfaces/Auth";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
@@ -46,13 +47,13 @@ const LoginForm = () => {
   useEffect(() => {
     setFinalEndpoint(
       formData.role == "teacher"
-        ? `${rolesConfig[formData.role].apiPrefix}/teacherLogin`
-        : `${rolesConfig[formData.role].apiPrefix}/login`
+        ? `/teacher/teacherLogin`
+        : `/admin/login`
     );
     console.log("role", formData.role);
   }, [formData.role]);
 
-  const { mutate: loginUser } = useSendDataNoToken(finalEndpoint);
+  const { mutate: loginUser } = useSendDataNoToken<Auth>(finalEndpoint);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -75,8 +76,8 @@ const LoginForm = () => {
       onSuccess: (response) => {
         dispatch(
           loginSuccess({
-            token: response.token,
-            role: response.role?.[0].toLowerCase(),
+            token: response.data.token,
+            role: response.data?.role?.[0].toLowerCase() || formData.role,
           })
         );
         dispatch(printState());

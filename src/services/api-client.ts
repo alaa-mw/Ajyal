@@ -1,9 +1,10 @@
 import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 import { logoutSuccess } from "../features/auth/Redux/authSlice";
 import store from "../store";
+export const baseUrl =  "http://127.0.0.1:8000/";
 
 const baseAxios = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL:baseUrl+"api",
 });
 
 // Interceptor للردود
@@ -30,8 +31,6 @@ baseAxios.interceptors.request.use((config) => {
 
 export interface FetchResponse<T> {
   message: string;
-  token?: string;
-  role?: ["secretariat" | "manager" | "teacher"];
   data: T;
 }
 
@@ -55,12 +54,17 @@ class APIClient<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get = (queryParams:Record<string ,any>  = {}) => {
     const params = new URLSearchParams();
+    console.log("params",params);
+
     for (const key in queryParams) {
       if (queryParams[key] !== undefined) {
         params.append(key, queryParams[key]);
       }
     }
+    console.log("paramsAfter",params);
+
     const queryString = params.toString();
+    console.log("queryString",queryString);
 
     return this.request<T>({ method: "GET", url: queryString ? `${this.endpoint}?${queryString}` : this.endpoint })
   };
