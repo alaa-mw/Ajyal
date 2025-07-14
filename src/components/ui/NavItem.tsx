@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Theme } from "@mui/material/styles";
+import { rolesConfig } from "../../rolesConfig";
 
 interface NavItemProps {
   path: string;
@@ -27,7 +28,11 @@ const NavItem: React.FC<NavItemProps> = ({
   theme,
 }) => {
   const location = useLocation();
-  const isSelected = location.pathname.includes(path);
+  console.log(path);
+  const isSelected =
+    path === `${rolesConfig[localStorage.getItem('userRole') || ""].webPrefix}/`
+      ? location.pathname === path
+      : location.pathname.includes(path);
 
   return (
     <ListItem disablePadding>

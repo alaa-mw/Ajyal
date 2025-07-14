@@ -31,6 +31,7 @@ export const authSlice = createSlice({
       state.error = action.payload;
     },
     logoutSuccess() {
+      
       localStorage.removeItem('authToken');
       localStorage.removeItem('userRole');
       return initialState; // إعادة تعيين كامل للحالة

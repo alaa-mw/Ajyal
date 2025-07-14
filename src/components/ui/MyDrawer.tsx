@@ -1,6 +1,4 @@
-import { useState } from "react";
 import logo from "../../assets/logo.png";
-import { SidebarData } from "../../data/sidebarData";
 import {
   Divider,
   List,
@@ -12,25 +10,27 @@ import {
   Toolbar,
   Typography,
   Box,
-  Autocomplete,
-  TextField,
-  alpha,
 } from "@mui/material";
 import drawerFrame from "../../assets/drawerFrame.png";
-import { Logout } from "@mui/icons-material";
-import theme from "../../styles/mainThem";
+import { ArrowForwardIos, Logout, SwapHoriz } from "@mui/icons-material";
+// import theme from "../../styles/mainThem";
 import NavItem from "./NavItem";
 import useSendData from "../../hooks/useSendData";
 import { useDispatch } from "react-redux";
 import { logoutSuccess } from "../../features/auth/Redux/authSlice";
 import { rolesConfig } from "../../rolesConfig";
+import { useNavigate } from "react-router-dom";
+import { useSelectedCourse } from "../../contexts/SelectedCourseContext";
+interface MyDrawerProps {
+  handleDrawerClose?: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sidebardata: any;
+}
 
-const MyDrawer = () => {
+const MyDrawer = ({ handleDrawerClose, sidebardata }: MyDrawerProps) => {
   const dispatch = useDispatch();
-  const [selectedCourse, setSelectedCourse] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
+  const navigate = useNavigate();
+  const { selectedCourseId, selectedCourseName } = useSelectedCourse();
 
   const { mutate: logout } = useSendData(
     `${rolesConfig[localStorage.getItem("userRole") || ""].apiPrefix}/logout`,
@@ -44,20 +44,6 @@ const MyDrawer = () => {
       },
     });
   };
-
-  // Sample data
-  const courses = [
-    { id: 1, name: "رياضيات الصف التاسع" },
-    { id: 2, name: "فيزياء الصف العاشر" },
-    { id: 3, name: "رياضيات الصف التاسع" },
-    { id: 2, name: "فيزياء الصف العاشر" },
-    { id: 1, name: "رياضيات الصف التاسع" },
-    { id: 2, name: "فيزياء الصف العاشر" },
-    { id: 1, name: "رياضيات الصف التاسع" },
-    { id: 2, name: "فيزياء الصف العاشر" },
-    { id: 1, name: "رياضيات الصف التاسع" },
-    { id: 2, name: "فيزياء الصف العاشر" },
-  ];
 
   return (
     <Box
@@ -93,12 +79,14 @@ const MyDrawer = () => {
       </Toolbar>
       <Divider sx={{ bgcolor: "#fff" }} />
       {/* Main Navigation */}
-      <List>
-        {SidebarData.mainItems.map((item, index) => {
+      <List sx={{ flexGrow: 1 }}>
+        {sidebardata.mainItems.map((item, index) => {
           return (
             <Box key={index}>
               <NavItem
-                path={`/manager${item.path}`}
+                path={`${
+                  rolesConfig[localStorage.getItem("userRole") || ""].webPrefix
+                }${item.path}`}
                 title={item.title}
                 icon={item.icon}
               />
@@ -107,55 +95,71 @@ const MyDrawer = () => {
         })}
       </List>
 
-      <Divider sx={{ bgcolor: "#fff" }} />
-      <List sx={{ color: "primary.contrastText", flexGrow: 1 }}>
-        {/* Course Selection */}
-        <Autocomplete
-          options={courses}
-          getOptionLabel={(option) => option.name}
-          value={selectedCourse}
-          onChange={(_, newValue) => {
-            setSelectedCourse(newValue);
-          }}
-          sx={{
-            borderLeft: `2px solid ${theme.palette.primary.main}`,
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="اختر الدورة" // make label pr:2
-              variant="outlined"
-              fullWidth
+      {sidebardata.subItems.length && (
+        <>
+          <Divider sx={{ bgcolor: "#fff" }} />
+          <List sx={{ color: "primary.contrastText", flexGrow: 1 }}>
+            {/* Course Selection */}
+            <Box
+              onClick={() => {
+                handleDrawerClose?.();
+                navigate(
+                  `${
+                    rolesConfig[localStorage.getItem("userRole") || ""]
+                      .webPrefix
+                  }/courses/select`
+                );
+              }}
               sx={{
-                bgcolor: (theme) => alpha(theme.palette.background.default, 1),
-                borderRadius: "0px 50px 50px 0px ",
-                "& .MuiInputLabel-root": {
-                  right: 50, // RTL support for label positioning
-                },
-                "& .MuiOutlinedInput-root": {
-                  paddingRight: 2,
+                border: "1px solid white",
+                borderRadius: "0px 50px 50px 0px",
+                p: 1.5,
+                cursor: "pointer",
+                my: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
                 },
               }}
-            />
-          )}
-        />
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <SwapHoriz sx={{ color: "white", ml: 1 }} /> {/* Change icon */}
+                <Typography
+                  sx={{
+                    color: "white",
+                    textAlign: "right",
+                    fontWeight: "medium",
+                  }}
+                >
+                  {selectedCourseName || "اختر الدورة"}
+                </Typography>
+              </Box>
+              <ArrowForwardIos sx={{ color: "white", fontSize: "small" }} />{" "}
+              {/* Optional arrow */}
+            </Box>
 
-        {/* Submenu */}
-        {SidebarData.subItems.map((item, index) => (
-          <Box key={index}>
-            <NavItem
-              path={`/manager${item.path}`}
-              title={item.title}
-              selectedCourse={!!selectedCourse}
-              variant="withIndicator"
-            />
-          </Box>
-        ))}
-      </List>
-
+            {/* Submenu */}
+            {sidebardata.subItems?.map((item, index) => (
+              <Box key={index}>
+                <NavItem
+                  path={`${
+                    rolesConfig[localStorage.getItem("userRole") || ""]
+                      .webPrefix
+                  }${item.path}`}
+                  title={item.title}
+                  selectedCourse={!!selectedCourseId}
+                  variant="withIndicator"
+                />
+              </Box>
+            ))}
+          </List>
+        </>
+      )}
       <Divider sx={{ bgcolor: "#fff" }} />
       {/* Secondary Navigation */}
-      <List>
+      <List sx={{ justifySelf: "flex-end" }}>
         {["تسجيل الخروج"].map((text) => (
           <ListItem key={text} disablePadding>
             <ListItemButton onClick={handleLogout}>

@@ -3,6 +3,7 @@ import theme from "../../styles/mainThem";
 import { Advertisement } from "../../interfaces/Advertisement ";
 import getImageUrl from "../../services/image-url";
 import { Image } from "../../interfaces/Image";
+import { formattedDate } from "../../utils/formatedDate";
 
 interface AdsCardProps {
   advertisement: Advertisement;
@@ -12,10 +13,6 @@ const AdsCard = ({ advertisement }: AdsCardProps) => {
   const mainImage = getImageUrl(advertisement.images[0].path);
   const otherImages: Image[] =
     advertisement.images?.length > 1 ? advertisement.images.slice(1) : [];
-
-  const formattedDate = new Date(advertisement.created_at).toLocaleDateString(
-    "ar-EG"
-  );
 
   return (
     <Card
@@ -151,7 +148,7 @@ const AdsCard = ({ advertisement }: AdsCardProps) => {
             zIndex: 3,
           }}
         >
-          {formattedDate}
+          {formattedDate(advertisement.created_at)}
         </Typography>
       </Box>
     </Card>

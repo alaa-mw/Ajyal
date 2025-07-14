@@ -11,9 +11,14 @@ export const drawerWidth = 240;
 
 interface ResponsiveDrawerProps {
   container?: HTMLElement | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sidebardata: any;
 }
 
-const ResponsiveDrawer = ({ container }: ResponsiveDrawerProps) => {
+const ResponsiveDrawer = ({
+  container,
+  sidebardata,
+}: ResponsiveDrawerProps) => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
   const handleDrawerClose = () => {
@@ -39,7 +44,7 @@ const ResponsiveDrawer = ({ container }: ResponsiveDrawerProps) => {
           display: { xs: "block", sm: "none" },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          opacity:0.8,
+          opacity: 0.8,
         }}
       >
         <Toolbar>
@@ -52,7 +57,7 @@ const ResponsiveDrawer = ({ container }: ResponsiveDrawerProps) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" >
+          <Typography variant="h6" noWrap component="div">
             أجيال التعليمي
           </Typography>
         </Toolbar>
@@ -78,7 +83,6 @@ const ResponsiveDrawer = ({ container }: ResponsiveDrawerProps) => {
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: drawerWidth,
-              
             },
           }}
           slotProps={{
@@ -87,8 +91,9 @@ const ResponsiveDrawer = ({ container }: ResponsiveDrawerProps) => {
             },
           }}
         >
-          <MyDrawer />
+          <MyDrawer handleDrawerClose={handleDrawerClose} sidebardata={sidebardata} />
         </Drawer>
+
         {/* laptop view*/}
         <Drawer
           container={container}
@@ -98,12 +103,11 @@ const ResponsiveDrawer = ({ container }: ResponsiveDrawerProps) => {
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: drawerWidth,
-              
             },
           }}
           open
         >
-          <MyDrawer />
+          <MyDrawer sidebardata={sidebardata} />
         </Drawer>
       </Box>
     </Box>

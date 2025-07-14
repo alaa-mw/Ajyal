@@ -33,7 +33,7 @@ import {
   updateField,
 } from "./Redux/courseSlice";
 
-const classRooms = ["1", "2", "3", "4", "5"];
+export const classRooms = ["1", "2", "3", "4", "5"];
 
 const NewCourse = () => {
   const { showSnackbar } = useSnackbar();

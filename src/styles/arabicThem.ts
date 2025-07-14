@@ -10,6 +10,19 @@ const theme = createTheme(mainThem,{
         },
       },
     },
+     MuiTableCell: {
+      styleOverrides: {
+        root: {
+          textAlign: 'right',
+          '&.MuiTableCell-head': { // For header cells
+            fontWeight: 'bold',
+          },
+          '&.MuiTableCell-body': { // For body cells
+            direction: 'rtl',
+          },
+        },
+      },
+    },
   // إعدادات مخصصة لحقول النص
     // MuiTextField: {
     //   defaultProps: {
