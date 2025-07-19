@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from "@mui/material";
-import QuizTabs from "../Quizzez/QuizTabs";
+import QuizTabs from "../quizzes/QuizTabs";
 import CurriculumList from "./CurriculumList";
 import SharedFiles from "./SharedFiles";
 

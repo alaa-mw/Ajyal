@@ -9,8 +9,8 @@ import {
 } from '@mui/icons-material';
 
 export const SidebarData = {
-    mainItems:[ // ضع عنوان مناسب  و لا تتقيد بعناوين الكود
-    {
+    mainItems:[ 
+        {
             title: 'الطلاب',
             path:"/students",
             icon: SchoolIcon,
@@ -31,7 +31,7 @@ export const SidebarData = {
             icon: AnnouncementIcon
         },
     ],
-    subItems:[ // ضع عنوان مناسب 
+    subItems:[ 
         {
             title: 'التسجيل',
             path:"/course-register",
@@ -49,27 +49,22 @@ export const SidebarData = {
 
 
 export const SidebarDataTeacher = {
-    mainItems:[ // ضع عنوان مناسب  و لا تتقيد بعناوين الكود
-    {
-      title: 'الرئيسية',
-      path: "/",
-      icon: HomeIcon // Better for "Home"
-    },
-    {
-      title: 'الاختبارات',
-      path: "/quizzes",
-      icon: QuizIcon // Specifically designed for quizzes
-    },
-    {
-      title: 'الأسئلة',
-      path: "/questions",
-      icon: QuestionsIcon // Better than generic SchoolIcon
-    },
-    {
-        title: 'الإعلانات',
-        path:"/ads",
-        icon: AnnouncementIcon
-    },
+    mainItems:[ 
+        {
+        title: 'الرئيسية',
+        path: "/",
+        icon: HomeIcon 
+        },
+        {
+        title: 'الاختبارات',
+        path: "/quizzes",
+        icon: QuizIcon
+        },
+        {
+        title: 'الأسئلة',
+        path: "/questions",
+        icon: QuestionsIcon 
+        },
     ],
     subItems:[ ]
 }

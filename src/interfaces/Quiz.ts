@@ -1,16 +1,16 @@
 export interface Choice {
-  id?: number;
-  question_id?: number;
+  id?: string;
+  question_id?: string;
   choice_text: string;
   is_correct: boolean;
 }
 
 export interface Question {
-  id?: number;
-  quiz_id?: number;
-  parent_question_id: number | null;
+  id?: string;
+  quiz_id?: string;
+  parent_question_id: string | null;
   image?: string;
-  mark: number;
+  mark?: number;
   question_text: string;
   hint?: string;
   choices: Choice[];
@@ -19,8 +19,8 @@ export interface Question {
 }
 
 export interface Quiz {
-  id?: number;
-  curriculum_id: number;
+  id?: string;
+  curriculum_id: string;
   type: 'timed' | 'worksheet';
   available: boolean;
   duration: number;

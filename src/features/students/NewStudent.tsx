@@ -1,10 +1,20 @@
 import React from "react";
-import { Box, Button, Paper, Typography } from "@mui/material";
-import FormField from "../../components/form/FormField";
+import {
+  Box,
+  Button,
+  FormControl,
+  MenuItem,
+  Paper,
+  Select,
+  Typography,
+} from "@mui/material";
+import FormField from "../../components/common/FormField";
 import theme from "../../styles/mainThem";
 import useSendData from "../../hooks/useSendData";
 import { useSnackbar } from "../../contexts/SnackbarContext";
 import { Student } from "../../interfaces/Student";
+import { classes } from "../../data/classNames";
+import { RTLDatePicker } from "../../components/common/RTLDatePicker";
 
 const NewStudent = () => {
   const { showSnackbar } = useSnackbar();
@@ -16,12 +26,20 @@ const NewStudent = () => {
     mother_name: "",
     address: "",
     number_civial: "",
+    class_level: "",
+    birthdate: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     console.log("Form :", formData);
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSelectChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -48,7 +66,14 @@ const NewStudent = () => {
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <form onSubmit={handleSubmit}>
           {/* الصف الأول - حقلين */}
-          <Box sx={{ display: "flex", gap: 3, mb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", s: "row" },
+              gap: 3,
+              mb: 3,
+            }}
+          >
             <Box sx={{ flex: 1 }}>
               <FormField
                 label="الاسم الأول"
@@ -72,7 +97,14 @@ const NewStudent = () => {
           </Box>
 
           {/* الصف الثاني - حقلين */}
-          <Box sx={{ display: "flex", gap: 3, mb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", s: "row" },
+              gap: 3,
+              mb: 3,
+            }}
+          >
             <Box sx={{ flex: 1 }}>
               <FormField
                 label="اسم الأب"
@@ -95,7 +127,14 @@ const NewStudent = () => {
             </Box>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 3, mb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", s: "row" },
+              gap: 3,
+              mb: 3,
+            }}
+          >
             <Box sx={{ flex: 1 }}>
               <FormField
                 label="العنوان"
@@ -104,10 +143,6 @@ const NewStudent = () => {
                 onChange={handleChange}
                 placeholder="الروضة"
                 required
-                // textFieldProps={{
-                //   multiline: true,
-                //   rows: 4,
-                // }}
               />
             </Box>
             <Box sx={{ flex: 1 }}>
@@ -120,8 +155,71 @@ const NewStudent = () => {
               />
             </Box>
           </Box>
-          {/* حقل العنوان (عرض كامل) */}
-          <Box sx={{ mb: 3 }}></Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", s: "row" },
+              gap: 3,
+              mb: 3,
+            }}
+          >
+            <Box sx={{ flex: 1 }}>
+              <FormControl fullWidth required>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    mb: 0.4,
+                    color: "primary.main",
+                    fontWeight: 600,
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  تاريخ الميلاد
+                </Typography>
+                <RTLDatePicker
+                  value={formData.birthdate}
+                  onChange={(date) =>
+                    setFormData((prev) => ({ ...prev, birthdate: date }))
+                  }
+                />
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <FormControl fullWidth required>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    mb: 0.4,
+                    color: "primary.main",
+                    fontWeight: 600,
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  المستوى *
+                </Typography>
+                <Select
+                  name="class_level"
+                  value={formData.class_level}
+                  onChange={handleSelectChange}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#e0e0e0",
+                        borderRadius: "8px",
+                      },
+                    },
+                  }}
+                >
+                  {classes.map((level) => (
+                    <MenuItem key={level} value={level}>
+                      {level}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
 
           <Button
             fullWidth

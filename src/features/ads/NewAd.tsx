@@ -12,7 +12,7 @@ import {
   Autocomplete,
   LinearProgress,
 } from "@mui/material";
-import FormField from "../../components/form/FormField";
+import FormField from "../../components/common/FormField";
 import theme from "../../styles/mainThem";
 import { SelectChangeEvent } from "@mui/material/Select";
 import useSendData from "../../hooks/useSendData";
@@ -86,7 +86,7 @@ const NewAd = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files);
-      const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+      const newPreviews = newFiles.map((file) => URL.createObjectURL(file)); //URL.createObjectURL() ينشئ رابط مؤقت يمكن استخدامه لعرض الصورة قبل رفعها
 
       setFormData((prev) => ({
         ...prev,
@@ -189,7 +189,9 @@ const NewAd = () => {
               </FormControl>
             )}
 
-            {formData.advertisable_type === "" && <TextField disabled fullWidth />}
+            {formData.advertisable_type === "" && (
+              <TextField disabled fullWidth />
+            )}
             {formData.advertisable_type === "course" && (
               <FormControl fullWidth sx={{ mb: 3 }}>
                 <Autocomplete

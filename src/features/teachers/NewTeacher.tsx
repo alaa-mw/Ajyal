@@ -13,7 +13,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import FormField from "../../components/form/FormField";
+import FormField from "../../components/common/FormField";
 import theme from "../../styles/mainThem";
 import useSendData from "../../hooks/useSendData";
 import { Teacher } from "../../interfaces/Teacher";
@@ -188,7 +188,12 @@ const NewTeacher = () => {
                   style={{ display: "none" }}
                 />
               </label>
-              <Typography variant="body1" color="gray" textAlign={"center"} mt={1}>
+              <Typography
+                variant="body1"
+                color="gray"
+                textAlign={"center"}
+                mt={1}
+              >
                 انقر لتحميل صورة
               </Typography>
             </Box>

@@ -5,7 +5,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { Drawer, IconButton } from "@mui/material";
-import MyDrawer from "./MyDrawer";
+import MyDrawer from "../layout/MyDrawer";
 
 export const drawerWidth = 240;
 
@@ -91,7 +91,10 @@ const ResponsiveDrawer = ({
             },
           }}
         >
-          <MyDrawer handleDrawerClose={handleDrawerClose} sidebardata={sidebardata} />
+          <MyDrawer
+            handleDrawerClose={handleDrawerClose}
+            sidebardata={sidebardata}
+          />
         </Drawer>
 
         {/* laptop view*/}

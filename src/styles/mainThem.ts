@@ -50,7 +50,7 @@ const theme = createTheme({
     },
     secondary: {
       main: '#A38097',    // Purple/mauve
-      light: '#D6B3CD',   // Light purple
+      light: '#c97cb6ff',   // Light purple
       dark: '#7A5E73',    // Dark purple
       contrastText: '#ffffff',
     },

@@ -22,7 +22,7 @@ import { loginSuccess } from "./features/auth/Redux/authSlice.ts";
 import { rolesConfig } from "./rolesConfig.ts";
 import { SelectedCourseProvider } from "./contexts/SelectedCourseContext.tsx";
 import CourseRegisterPage from "./features/courseSpecific/courseRegisterPage.tsx";
-import QuizzezPage from "./pages/teacher/QuizzezPage.tsx";
+import QuizzesPage from "./pages/teacher/QuizzesPage.tsx";
 import QuestionsPage from "./pages/teacher/QuestionsPage.tsx";
 
 function App() {
@@ -89,7 +89,7 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
               <Route path="/teacher" element={<TeacherDashboard />}>
                 <Route index element={<div>home</div>} />
-                <Route path="quizzes" element={<QuizzezPage />} />
+                <Route path="quizzes" element={<QuizzesPage />} />
                 <Route path="questions" element={<QuestionsPage />} />
               </Route>
             </Route>

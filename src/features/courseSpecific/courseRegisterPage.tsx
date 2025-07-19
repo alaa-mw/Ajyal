@@ -7,72 +7,43 @@ import {
   MenuItem,
   SelectChangeEvent,
 } from "@mui/material";
-import WaitStudentsList, { StudentWait } from "./students/WaitStudentsList";
 import useFetchDataId from "../../hooks/useFetchDataId";
-import { classRoom } from "../../interfaces/Course";
+import { classRoom, CourseRegistrationsStudent } from "../../interfaces/Course";
 import { useSelectedCourse } from "../../contexts/SelectedCourseContext";
 import SelectedCourse from "./SelectedCourse";
 import { useEffect, useState } from "react";
-import { Student } from "../../interfaces/Student";
 import useSendData from "../../hooks/useSendData";
-import React from "react";
 import ActiveStudentsList from "./students/ActiveStudentsList";
 
 const CourseRegisterPage = () => {
-  const [students, setStudents] = React.useState<StudentWait[]>([
-    {
-      id: "1",
-      name: "أحمد محمد",
-      registrationFee: 500,
-      paymentStatus: "paid",
-      registrationDate: "2023-05-15",
-      isWaitingList: true,
-    },
-    {
-      id: "2",
-      name: "سارة علي",
-      registrationFee: 500,
-      paymentStatus: "unpaid",
-      registrationDate: "2023-05-16",
-      isWaitingList: true,
-    },
-    {
-      id: "3",
-      name: "خالد عبدالله",
-      registrationFee: 300,
-      paymentStatus: "paid",
-      registrationDate: "2023-05-10",
-      isWaitingList: false,
-    },
-  ]);
-
+  
   const handleConfirmRegistration = (studentId: string) => {
-    setStudents(
-      students.map((student) =>
-        student.id === studentId
-          ? { ...student, isWaitingList: false }
-          : student
-      )
-    );
-    // Here you would also call your API to confirm the registration
-    console.log("Confirming registration for student:", studentId);
+    // setStudents(
+    //   students.map((student) =>
+    //     student.id === studentId
+    //       ? { ...student, isWaitingList: false }
+    //       : student
+    //   )
+    // );
+    // // Here you would also call your API to confirm the registration
+    // console.log("Confirming registration for student:", studentId);
   };
 
   const { selectedCourseId } = useSelectedCourse();
   const [selectedClassroom, setSelectedClassroom] = useState<string>("all");
-  const [displayedStudents, setDisplayedStudents] = useState<Student[]| CourseRegistrationsStudent[]>([]);
+  const [displayedStudents, setDisplayedStudents] = useState<CourseRegistrationsStudent[]>([]);
 
   const { data: classRooms } = useFetchDataId<classRoom[]>(
     `/course/classRooms-course/${selectedCourseId}`,
     selectedCourseId as string | undefined
   );
-  const { data: allStudent } = useFetchDataId<Student[]>(
+  const { data: allStudent } = useFetchDataId<CourseRegistrationsStudent[]>(
     `/course/AllStudent/${selectedCourseId}`,
     selectedCourseId as string | undefined
   );
 
   const { data: studentsAtClass, mutate: getStudentsAtClass } = useSendData<
-    Student[]
+    CourseRegistrationsStudent[]
   >("/course/AllStudentAtClass");
 
   // Update displayed students when data changes
@@ -139,10 +110,10 @@ const CourseRegisterPage = () => {
         }}
       >
         <ActiveStudentsList activeStudents={displayedStudents} />
-        <WaitStudentsList
+        {/* <WaitStudentsList
           waitingStudents={students}
           onConfirmRegistration={handleConfirmRegistration}
-        />
+        /> */}
       </Box>
     </>
   );

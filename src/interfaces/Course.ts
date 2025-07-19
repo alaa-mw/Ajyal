@@ -19,9 +19,9 @@ export interface classRoom{
 }
 
 export interface CourseRegistrationsStudent {
-    id: number;
-    course_id: number;
-    student_id: number;
+    id: string;
+    course_id: string;
+    student_id: string;
     registered_at: string;
     created_at: string;
     updated_at: string;

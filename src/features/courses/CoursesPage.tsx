@@ -12,7 +12,7 @@ import CourseCard from "./CourseCard";
 import useFetchData from "../../hooks/useFetchData";
 import { Course } from "../../interfaces/Course";
 import { useSelectedCourse } from "../../contexts/SelectedCourseContext";
-import { drawerWidth } from "../../components/ui/ResponsiveDrawer";
+import { drawerWidth } from "../../components/layout/ResponsiveDrawer";
 import Search from "@mui/icons-material/Search";
 
 const CoursesPage = () => {

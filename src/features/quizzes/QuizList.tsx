@@ -73,7 +73,6 @@ const QuizList = () => {
 
 export default QuizList;
 
-
 // import QuizCard from "./QuizCard";
 // import { Box, Stack, Typography } from "@mui/material";
 // import theme from "../../styles/mainThem";

@@ -22,60 +22,13 @@ import { PaymentDialog } from "./PaymentDialog";
 import { Student } from "../../../interfaces/Student";
 import { getStudentName } from "../../../utils/getStudentName";
 import { StudentActionsMenu } from "./StudentActionsMenu";
+import { CourseRegistrationsStudent } from "../../../interfaces/Course";
 
 interface Props {
-  activeStudents: Student[] | undefined;
+  activeStudents: CourseRegistrationsStudent[];
 }
 
 const ActiveStudentsList = ({ activeStudents }: Props) => {
-  const [students] = useState<Student[]>([
-    {
-      id: "1",
-      first_name: "alaa",
-      last_name: "...",
-      mother_name: "mum",
-      section: "أ",
-      isAccountActive: true,
-      registrationDate: "2023-01-15",
-    },
-    {
-      id: "2",
-      first_name: "yaman",
-      last_name: "....",
-      mother_name: "mum",
-      section: "ب",
-      isAccountActive: false,
-      registrationDate: "2023-02-20",
-    },
-    {
-      id: "3",
-      first_name: "oula",
-      last_name: "...",
-      mother_name: "mum",
-      section: "ب",
-      isAccountActive: false,
-      registrationDate: "2023-02-20",
-    },
-    {
-      id: "4",
-      first_name: "rana",
-      last_name: "..",
-      mother_name: "mum",
-      section: "ب",
-      isAccountActive: false,
-      registrationDate: "2023-02-20",
-    },
-    {
-      id: "5",
-      first_name: "sana",
-      last_name: "...",
-      mother_name: "mum",
-      section: "ب",
-      isAccountActive: false,
-      registrationDate: "2023-02-20",
-    },
-  ]);
-
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [isDraggingSelect, setIsDraggingSelect] = useState(false);
   const dragStartRef = useRef<number | null>(null);
@@ -107,8 +60,9 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
 
     const start = dragStartRef.current;
     const end = index;
+    if (!activeStudents) return;
 
-    const rangeStudents = students
+    const rangeStudents = activeStudents
       .slice(Math.min(start, end), Math.max(start, end) + 1)
       .map((s) => s.id);
 
@@ -184,17 +138,17 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
                 <Checkbox
                   indeterminate={
                     selectedStudents.length > 0 &&
-                    selectedStudents.length < students.length
+                    selectedStudents.length < activeStudents.length
                   }
                   checked={
-                    students.length > 0 &&
-                    selectedStudents.length === students.length
+                    activeStudents.length > 0 &&
+                    selectedStudents.length === activeStudents.length
                   }
                   onChange={() => {
                     setSelectedStudents(
-                      selectedStudents.length === students.length
+                      selectedStudents.length === activeStudents.length
                         ? []
-                        : students.map((s) => s.id)
+                        : activeStudents.map((s) => s.id)
                     );
                   }}
                 />
@@ -208,12 +162,12 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {students.map((student, index) => (
+            {activeStudents?.map((student, index) => (
               <TableRow
                 key={student.id}
                 hover
                 sx={{
-                  bgcolor: selectedStudents.includes(student.id)
+                  bgcolor: selectedStudents.includes(student.id) // registered_id
                     ? "#e3f2fd"
                     : "inherit",
                   "&:hover": {
@@ -229,21 +183,23 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
                     onMouseEnter={() => handleMouseEnter(student.id, index)}
                   />
                 </TableCell>
-                <TableCell>{getStudentName(student)}</TableCell>
-                <TableCell>{student.mother_name}</TableCell>
-                <TableCell>{student.section}</TableCell>
+                <TableCell>{getStudentName(student.student)}</TableCell>
+                <TableCell>{student.student.mother_name}</TableCell>
+                <TableCell>{"later"}</TableCell>
+                {/* // fix -later */}
                 <TableCell>
                   <Chip
-                    label={student.isAccountActive ? "متابع" : "غير متابع"}
-                    color={student.isAccountActive ? "success" : "error"}
+                    // fix -later
+                    label={"متابع"}
+                    color={"success"}
                     size="small"
                   />
                 </TableCell>
-                <TableCell>{formattedDate(student.registrationDate)}</TableCell>
+                <TableCell>{formattedDate(student.registered_at)}</TableCell>
                 <TableCell>
                   <IconButton
                     aria-label="actions"
-                    onClick={(e) => handleMenuClick(e, student)}
+                    onClick={(e) => handleMenuClick(e, student.student)}
                   >
                     <MoreVert />
                   </IconButton>

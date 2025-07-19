@@ -4,7 +4,7 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabPanel from "@mui/lab/TabPanel";
 import { Tabs } from "@mui/material";
-import QuizList from "./QuizList";
+import QuizList from "../quizzes/QuizList";
 import theme from "../../styles/mainThem";
 
 const QuizTabs = () => {
