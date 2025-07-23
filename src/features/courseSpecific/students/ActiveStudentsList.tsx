@@ -23,19 +23,23 @@ import { Student } from "../../../interfaces/Student";
 import { getStudentName } from "../../../utils/getStudentName";
 import { StudentActionsMenu } from "./StudentActionsMenu";
 import { CourseRegistrationsStudent } from "../../../interfaces/Course";
+import { ClassroomAssignmentDialog } from "./ClassroomAssignmentDialog";
 
 interface Props {
   activeStudents: CourseRegistrationsStudent[];
 }
 
 const ActiveStudentsList = ({ activeStudents }: Props) => {
+  
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [isDraggingSelect, setIsDraggingSelect] = useState(false);
   const dragStartRef = useRef<number | null>(null);
   const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
   const [openNoteDialog, setOpenNoteDialog] = useState(false);
+  const [openClassroomDialog, setOpenClassroomDialog] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
+
 
   // Regular checkbox toggle
   const handleCheckboxChange = (studentId: string) => {
@@ -87,8 +91,7 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
   };
 
   const handleAssignToClassroom = () => {
-    console.log("Assigning students:", selectedStudents);
-    setSelectedStudents([]);
+    setOpenClassroomDialog(true);
   };
 
   const handleSendPaymentAlert = () => {
@@ -229,6 +232,11 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
         open={openNoteDialog}
         student={currentStudent}
         onClose={() => setOpenNoteDialog(false)}
+      />
+      <ClassroomAssignmentDialog
+        open={openClassroomDialog}
+        onClose={() => setOpenClassroomDialog(false)}
+        selectedStudents={selectedStudents}
       />
     </Box>
   );

@@ -22,8 +22,10 @@ import { loginSuccess } from "./features/auth/Redux/authSlice.ts";
 import { rolesConfig } from "./rolesConfig.ts";
 import { SelectedCourseProvider } from "./contexts/SelectedCourseContext.tsx";
 import CourseRegisterPage from "./features/courseSpecific/courseRegisterPage.tsx";
-import QuizzesPage from "./pages/teacher/QuizzesPage.tsx";
 import QuestionsPage from "./pages/teacher/QuestionsPage.tsx";
+import QuizDetails from "./features/quizzes/Viewer/QuizDetails.tsx";
+import QuizCreator from "./features/quizzes/Creator/QuizCreator.tsx";
+import QuizList from "./features/quizzes/Viewer/QuizList.tsx";
 
 function App() {
   const Navigate = useNavigate();
@@ -89,7 +91,21 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
               <Route path="/teacher" element={<TeacherDashboard />}>
                 <Route index element={<div>home</div>} />
-                <Route path="quizzes" element={<QuizzesPage />} />
+                <Route path="quizzes">
+                  <Route index element={<QuizList />} />
+                  <Route path=":quizId" element={<QuizDetails />} />
+
+                  {/* Updated routes - clearly separated create/edit flows */}
+                  <Route path="create">
+                    {/* <Route index element={<Navigate to="new" replace />} /> */}
+                    <Route path="new" element={<QuizCreator mode="create" />} />
+                    <Route
+                      path="edit/:quizId"
+                      element={<QuizCreator mode="edit" />}
+                    />
+                  </Route>
+                </Route>
+
                 <Route path="questions" element={<QuestionsPage />} />
               </Route>
             </Route>

@@ -28,7 +28,7 @@ const NavItem: React.FC<NavItemProps> = ({
   theme,
 }) => {
   const location = useLocation();
-  console.log(path);
+  // console.log(path);
   const isSelected =
     path === `${rolesConfig[localStorage.getItem('userRole') || ""].webPrefix}/`
       ? location.pathname === path

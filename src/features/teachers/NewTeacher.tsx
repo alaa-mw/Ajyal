@@ -21,6 +21,7 @@ import { useSnackbar } from "../../contexts/SnackbarContext";
 import { SubjectsByGradeDynamic } from "../../interfaces/Subject";
 import useFetchData from "../../hooks/useFetchData";
 import { classNames } from "../../data/classNames";
+import { ImageUploader } from "../../components/common/ImageUploader";
 
 interface FormData {
   name: string;
@@ -168,6 +169,13 @@ const NewTeacher = () => {
             }}
           >
             <Box sx={{ order: { xs: 1, sm: 2 }, mx: 4, alignSelf: "center" }}>
+              {/* <ImageUploader
+                maxImages={1}
+                selectedImages={formData.avatar}
+                setSelectedImages={(images) =>
+                  setFormData((prev) => ({ ...prev, avatar: images[0] }))
+                } fix -later
+              /> */}
               <label htmlFor="profile-image">
                 <Avatar
                   sx={{

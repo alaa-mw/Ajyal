@@ -1,30 +1,36 @@
+import { Image } from "./Image";
+
 export interface Choice {
   id?: string;
   question_id?: string;
   choice_text: string;
-  is_correct: boolean;
+  is_correct: 0 | 1;
 }
 
 export interface Question {
+  mode: 'create' | 'edit';
+  isChange: boolean;
   id?: string;
   quiz_id?: string;
   parent_question_id: string | null;
-  image?: string;
-  mark?: number;
+  image?: Image ;
+  mark?: string;
   question_text: string;
   hint?: string;
   choices: Choice[];
   children?: Question[];
-  expanded?: boolean;
 }
 
 export interface Quiz {
-  id?: string;
+   mode: 'create' | 'edit';
+  isChange:boolean;
+  id: string;
   curriculum_id: string;
-  type: 'timed' | 'worksheet';
-  available: boolean;
+  topic_id: string;
+  name:string;
+  type: 'Timed' | 'worksheet';
+  available: number;
   duration: number;
-  image?: string;
   start_time: string;
   end_time: string;
   questions: Question[];

@@ -11,19 +11,20 @@ import {
   RemoveCircle,
   QuestionAnswerOutlined,
 } from "@mui/icons-material";
-import { Question } from "../../interfaces/Quiz";
-import { RootState } from "../../store";
+import { Question } from "../../../interfaces/Quiz";
+import { RootState } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addChildQuestion,
   printQuizState,
   removeQuestion,
   updateNestedQuestion,
-} from "./Redux/quizSlice";
-import { findQuestion } from "../../utils/questionUtils";
-import theme from "../../styles/mainThem";
+} from "../Redux/quizSlice";
+import { findQuestion } from "../../../utils/questionUtils";
+import theme from "../../../styles/mainThem";
 import { useEffect } from "react";
-import { ImageUploader } from "../../components/common/ImageUploader";
+import { ImageUploader } from "../../../components/common/ImageUploader";
+import { Image } from "../../../interfaces/Image";
 
 interface QuestionSelectedProps {
   path: number[];
@@ -38,6 +39,10 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
   useEffect(() => {
     dispatch(printQuizState());
   }, [question]);
+
+   useEffect(() => {
+    console.log("image",question?.image )
+  }, [question?.image ])
 
   if (!question) return null;
 
@@ -70,22 +75,8 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
     );
   };
 
-  const handleChoiceCorrectChange = (cIndex: number, isCorrect: boolean) => {
-    const updatedChoices = [...question.choices];
-    updatedChoices[cIndex] = {
-      ...updatedChoices[cIndex],
-      is_correct: isCorrect,
-    };
-    dispatch(
-      updateNestedQuestion({
-        path,
-        changes: { choices: updatedChoices },
-      })
-    );
-  };
-
   const handleAddChoice = () => {
-    const newChoice = { choice_text: "", is_correct: false };
+    const newChoice = { choice_text: "", is_correct: 0 as 0 | 1 };
     dispatch(
       updateNestedQuestion({
         path,
@@ -111,14 +102,19 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
   const handleRemoveQuestion = () => {
     dispatch(removeQuestion({ path }));
   };
-  const handleImageChange = (images: string[]) => {
+
+  const handleImageChange = (images: Image[]) => {
+    // Store serializable data in Redux
     dispatch(
       updateNestedQuestion({
         path,
-        changes: { image: images[0] },
+        changes: {
+          image: images[0]
+        },
       })
     );
   };
+
   return (
     <Box
       sx={{
@@ -188,7 +184,7 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
             }
           />
           {path.length === 1 && (
-            <ImageUploader
+            <ImageUploader // change to conveint image filed in quiz, when sand to server send as api
               maxImages={1}
               selectedImages={question.image ? [question.image] : []}
               setSelectedImages={handleImageChange}
@@ -217,10 +213,26 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
                 sx={{ display: "flex", alignItems: "center", mb: 1 }}
               >
                 <Checkbox
-                  checked={choice.is_correct}
-                  onChange={(e) =>
-                    handleChoiceCorrectChange(cIndex, e.target.checked)
-                  }
+                  checked={Boolean(choice.is_correct)}
+                  onChange={(e) => {
+                    // Only set to true if it's being checked
+                    if (e.target.checked) {
+                      // Create new choices array with all is_correct set to false
+                      const updatedChoices = question.choices.map(
+                        (ch, idx) => ({
+                          ...ch,
+                          is_correct: (idx === cIndex ? 1 : 0) as 0 | 1,
+                        })
+                      );
+                      // Update the entire choices array
+                      dispatch(
+                        updateNestedQuestion({
+                          path,
+                          changes: { choices: updatedChoices },
+                        })
+                      );
+                    }
+                  }}
                 />
                 <TextField
                   fullWidth
@@ -242,10 +254,11 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
             ))}
 
             <Button
-              startIcon={<AddCircle fontSize="small" />}
+              startIcon={<AddCircle sx={{ ml: 1 }} fontSize="small" />}
               onClick={handleAddChoice}
               size="small"
               sx={{ mt: 1 }}
+              disabled={question.choices.length > 3}
             >
               إضافة خيار
             </Button>

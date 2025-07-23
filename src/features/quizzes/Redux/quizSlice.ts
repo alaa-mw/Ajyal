@@ -4,52 +4,33 @@ import { Choice, Question, Quiz } from '../../../interfaces/Quiz';
 import { createNewQuestion, findQuestion } from '../../../utils/questionUtils';
 
 const initialState: Quiz = {
+  mode:'create',
+  isChange:false,
    id: '',
    curriculum_id: '',
-   type: 'timed' ,
-   available: false,
+   topic_id:'',
+   name:'',
+   type: 'Timed' ,
+   available: 0,
    duration: 30,
-   image: '',
    start_time: '',
    end_time: '',
    questions:[
     {
+        mode:'create',
+        isChange:false,
         id:'',
         parent_question_id: null,
-        image: '',
+        image: undefined,
         question_text: '',
         hint: '',
+        mark:"1",
         choices: [
-            { choice_text: "", is_correct: false },
-            { choice_text: "", is_correct: false },
+            { choice_text: "", is_correct: 0 },
+            { choice_text: "", is_correct: 0 },
         ],
         children: [],
-        expanded: false,
-    },{
-        id:'',
-        parent_question_id: null,
-        image: '',
-        question_text: '',
-        hint: '',
-        choices: [
-            { choice_text: "", is_correct: false },
-            { choice_text: "", is_correct: false },
-        ],
-        children: [],
-        expanded: true,
-    },{
-        id:'',
-        parent_question_id: null,
-        image: '',
-        question_text: '',
-        hint: '',
-        choices: [
-            { choice_text: "", is_correct: false },
-            { choice_text: "", is_correct: false },
-        ],
-        children: [],
-        expanded: true,
-    }
+    },
     ]
 };
 
@@ -64,7 +45,9 @@ export const quizSlice = createSlice({
     ) => {
         const { field, value } = action.payload;
         state[field] = value;
+        state.isChange=true;
     },
+    
     
     // For question fields
     updateQuestion: <K extends keyof Question> (
@@ -77,6 +60,8 @@ export const quizSlice = createSlice({
     ) => {
         const { questionIndex, field, value } = action.payload;
         state.questions[questionIndex][field] = value;
+        state.questions[questionIndex].isChange = true;
+        console.log("true.......")
     },
     
     // For choice fields
@@ -91,6 +76,7 @@ export const quizSlice = createSlice({
     ) => {
         const { questionIndex, choiceIndex, field, value } = action.payload;
         state.questions[questionIndex].choices[choiceIndex][field] = value;
+        state.questions[questionIndex].isChange = true;
     },
 
     // For nested questions
@@ -110,9 +96,14 @@ export const quizSlice = createSlice({
       
       if (current) {
         Object.assign(current, changes);
+        current.isChange = true; 
       }
     },
 
+    addQuestion:(state: Draft<Quiz>)=>{
+      const newQuestion = createNewQuestion( null);
+        state.questions.push(newQuestion);
+    },
     addChildQuestion: (
       state: Draft<Quiz>,
       action: PayloadAction<{ path: number[] }>
@@ -146,10 +137,11 @@ export const quizSlice = createSlice({
           if (parent.children.length === 1 && parent.choices?.length) {
             parent.choices = [];
           }
+          
+          parent.isChange = true;
         }
       }
     },
-
 
     removeQuestion: (
       state: Draft<Quiz>,
@@ -182,8 +174,8 @@ export const quizSlice = createSlice({
       // If last child was removed, restore default choices to parent
       if (parent?.children?.length === 0) {
         parent.choices = [
-          { choice_text: "", is_correct: false },
-          { choice_text: "", is_correct: false },
+          { choice_text: "", is_correct: 0 },
+          { choice_text: "", is_correct: 0 },
         ];
       }
     },
@@ -192,8 +184,100 @@ export const quizSlice = createSlice({
       console.log(current(state));
     },
 
-    resetCourse: () => initialState,
-  },
+    resetQuiz: () => initialState,
+
+    // for response 
+    setQuizData: (state: Draft<Quiz>, action: PayloadAction<Quiz>) => {
+      const {
+        id,
+        curriculum_id,
+        topic_id,
+        name,
+        type,
+        available,
+        duration,
+        start_time,
+        end_time,
+        questions = [],
+        isChange = false,
+        mode = 'edit'
+      } = action.payload;
+
+      // Update top-level quiz fields
+      state.id = id;
+      state.curriculum_id = curriculum_id;
+      state.topic_id = topic_id;
+      state.name = name;
+      state.type = type;
+      state.available = available;
+      state.duration = duration;
+      state.start_time = start_time;
+      state.end_time = end_time;
+      state.isChange = isChange;
+      state.mode = mode;
+
+      // Normalize and set questions
+      state.questions = questions.map(question => ({
+        ...question,
+        isChange: false,
+        mode:'edit',
+        choices: question?.choices?.map(choice =>({
+          ...choice,
+
+        })),
+
+        children: question.children?.map(child => ({
+          ...child,
+          isChange: false,
+          mode:'edit',
+          choices: question?.choices?.map(choice =>({
+          ...choice,
+
+        })),
+
+        })) || []
+      }));
+    },
+    setQuestionData: (state: Draft<Quiz>, action: PayloadAction<{ 
+        path: number[]; 
+        changes: Partial<Question>;
+      }>) => {
+        
+      const { path, changes } = action.payload;
+      const current = state.questions[path[0]]
+
+      const {
+        id,
+        image,
+        question_text,
+        hint,
+        choices = [],
+        children = [],
+        isChange = false,
+        mode = 'edit'
+      } = changes;
+      current.id = id;
+      current.image = image;
+      current.question_text = question_text || '';
+      current.hint = hint;
+      current.isChange = isChange;
+      current.mode = mode;
+
+      current.choices = choices?.map(choice =>({
+        ...choice
+      })) ;
+
+      current.children = children?.map(child => ({
+          ...child,
+          isChange: false,
+          mode:'edit',
+          choices: child?.choices?.map(choice =>({
+          ...choice,
+
+          }))
+      }))
+    },
+  }
 });
 
 export const {
@@ -201,10 +285,13 @@ export const {
   updateQuestion,
   updateChoice,
   updateNestedQuestion,
+  addQuestion,
   addChildQuestion,
   removeQuestion,
   printQuizState,
-  resetCourse,
+  resetQuiz,
+  setQuizData,
+  setQuestionData,
 } = quizSlice.actions;
 
 export default quizSlice.reducer;

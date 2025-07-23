@@ -10,6 +10,7 @@ interface RTLDatePickerProps {
   onChange: (date: string) => void;
   label?: string;
   minDate?: Date | string | null;
+  disabled?: boolean;
 }
 
 export function RTLDatePicker({
@@ -17,6 +18,7 @@ export function RTLDatePicker({
   onChange,
   label,
   minDate,
+  disabled = false
 }: RTLDatePickerProps) {
   const handleDateChange = (date: Date | Dayjs | null) => {
     if (date) {
@@ -50,6 +52,7 @@ export function RTLDatePicker({
         value={value ? new Date(value) : null}
         onChange={handleDateChange}
         minDate={getMinDate()}
+        disabled={disabled}
         slotProps={{
           textField: {
             dir: "rtl",
@@ -63,7 +66,7 @@ export function RTLDatePicker({
         }}
         sx={{
           "& .MuiPickersInputBase-root": {
-            flexDirection: "row-reverse",
+            // flexDirection: "row-reverse",
             "& .MuiInputAdornment-root": {
               marginLeft: 0,
               marginRight: "8px",

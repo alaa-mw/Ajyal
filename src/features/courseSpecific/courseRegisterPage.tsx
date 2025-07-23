@@ -6,6 +6,7 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
+  Button,
 } from "@mui/material";
 import useFetchDataId from "../../hooks/useFetchDataId";
 import { classRoom, CourseRegistrationsStudent } from "../../interfaces/Course";
@@ -14,24 +15,17 @@ import SelectedCourse from "./SelectedCourse";
 import { useEffect, useState } from "react";
 import useSendData from "../../hooks/useSendData";
 import ActiveStudentsList from "./students/ActiveStudentsList";
+import RegisterStudentDialog from "./RegisterStudentDialog";
+import useFetchData from "../../hooks/useFetchData";
+import { Student } from "../../interfaces/Student";
 
 const CourseRegisterPage = () => {
-  
-  const handleConfirmRegistration = (studentId: string) => {
-    // setStudents(
-    //   students.map((student) =>
-    //     student.id === studentId
-    //       ? { ...student, isWaitingList: false }
-    //       : student
-    //   )
-    // );
-    // // Here you would also call your API to confirm the registration
-    // console.log("Confirming registration for student:", studentId);
-  };
-
   const { selectedCourseId } = useSelectedCourse();
+  const [openDialog, setOpenDialog] = useState(false);
   const [selectedClassroom, setSelectedClassroom] = useState<string>("all");
-  const [displayedStudents, setDisplayedStudents] = useState<CourseRegistrationsStudent[]>([]);
+  const [displayedStudents, setDisplayedStudents] = useState<
+    CourseRegistrationsStudent[]
+  >([]);
 
   const { data: classRooms } = useFetchDataId<classRoom[]>(
     `/course/classRooms-course/${selectedCourseId}`,
@@ -45,6 +39,8 @@ const CourseRegisterPage = () => {
   const { data: studentsAtClass, mutate: getStudentsAtClass } = useSendData<
     CourseRegistrationsStudent[]
   >("/course/AllStudentAtClass");
+
+  const { data: ajyalStudent } = useFetchData<Student[]>("/student/all");
 
   // Update displayed students when data changes
   useEffect(() => {
@@ -78,7 +74,10 @@ const CourseRegisterPage = () => {
       >
         التسجيل والشعب
       </Typography>
-      <SelectedCourse courseId={selectedCourseId} />
+      <SelectedCourse
+        courseId={selectedCourseId}
+        registeredCount={allStudent?.data.length}
+      />
       <FormControl fullWidth size="small" sx={{ width: 220 }}>
         <InputLabel id="classroom-filter-label">Classroom</InputLabel>
         <Select
@@ -97,7 +96,14 @@ const CourseRegisterPage = () => {
           ))}
         </Select>
       </FormControl>
-      <Box
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setOpenDialog(true)}
+      >
+        تسجيل طالب جديد
+      </Button>
+      {/* <Box
         sx={{
           display: "flex",
           flexDirection: {
@@ -108,13 +114,19 @@ const CourseRegisterPage = () => {
           },
           gap: 4,
         }}
-      >
-        <ActiveStudentsList activeStudents={displayedStudents} />
-        {/* <WaitStudentsList
-          waitingStudents={students}
-          onConfirmRegistration={handleConfirmRegistration}
-        /> */}
-      </Box>
+      > */}
+      <ActiveStudentsList activeStudents={displayedStudents} />
+
+      {/* </Box> */}
+      <RegisterStudentDialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        onConfirm={(studentId, amount) => {
+          // Handle payment registration
+          console.log(`Register payment ${amount} for student ${studentId}`);
+        }}
+        students={ajyalStudent?.data || []}
+      />
     </>
   );
 };

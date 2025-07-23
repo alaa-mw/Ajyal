@@ -13,7 +13,7 @@ import { Course } from "../../interfaces/Course";
 import { formattedDate } from "../../utils/formatedDate";
 import useFetchDataId from "../../hooks/useFetchDataId";
 
-const SelectedCourse = ({ courseId }) => {
+const SelectedCourse = ({ courseId, registeredCount = 0 }) => {
   console.log("cc", courseId);
   const theme = useTheme();
   const { data: response } = useFetchDataId<Course>(
@@ -48,7 +48,7 @@ const SelectedCourse = ({ courseId }) => {
         boxShadow: 2,
         borderRadius: 2,
         overflow: "visible",
-        mb:1
+        mb: 1,
       }}
     >
       <CardContent sx={{ flex: 1, py: "7px !important" }}>
@@ -82,7 +82,7 @@ const SelectedCourse = ({ courseId }) => {
             <>
               {/* Show vertical divider on desktop */}
               <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                <Divider orientation="vertical"  />
+                <Divider orientation="vertical" />
               </Box>
               {/* Show horizontal divider on mobile */}
               <Box sx={{ display: { xs: "block", sm: "none" }, width: "100%" }}>
@@ -114,7 +114,7 @@ const SelectedCourse = ({ courseId }) => {
             <Typography variant="caption" color="text.secondary">
               عدد المسجلين :
             </Typography>
-            <Typography variant="body2">{course?.capacity} طالب</Typography>
+            <Typography variant="body2">{registeredCount} طالب</Typography>
           </Box>
         </Stack>
 
