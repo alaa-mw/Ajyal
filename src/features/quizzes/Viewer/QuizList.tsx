@@ -17,6 +17,7 @@ import { Add } from "@mui/icons-material";
 import useFetchData from "../../../hooks/useFetchData";
 import { Curriculum } from "../../../interfaces/Curriculum";
 import { useState } from "react";
+import useSendData from "../../../hooks/useSendData";
 
 const QuizList = () => {
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ const QuizList = () => {
   const { data: teacherCurriculum } = useFetchData<Curriculum[]>(
     "/teacher/get-all-my-subjects-with-course"
   );
+
+  const { mutate: deleteQuiz } = useSendData("/quiz/delete");
 
   const handleQuizClick = (quizId: string) => {
     const available = quizzes?.data.find((q) => q.id == quizId)?.available;
@@ -45,6 +48,9 @@ const QuizList = () => {
       });
     }
   };
+  const handleQuizDelete = (quizId: string) => {
+    deleteQuiz({ quiz_id: quizId });
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 1 }}>
@@ -57,7 +63,7 @@ const QuizList = () => {
         الاختبارات
       </Typography>
       <Box display={"flex"} justifyContent={"space-between"}>
-        <FormControl  sx={{ width:300, mb: 2 }}>
+        <FormControl sx={{ width: 300, mb: 2 }}>
           <InputLabel>المنهج الدراسي</InputLabel>
           <Select
             name="curriculum_id"
@@ -92,7 +98,11 @@ const QuizList = () => {
       <Grid container spacing={3}>
         {quizzes?.data.map((quiz) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={quiz.id}>
-            <QuizCard quiz={quiz} onClick={handleQuizClick} />
+            <QuizCard
+              quiz={quiz}
+              onClick={handleQuizClick}
+              onDelete={handleQuizDelete}
+            />
           </Grid>
         ))}
       </Grid>

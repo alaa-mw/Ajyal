@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Paper,
   Stepper,
@@ -13,14 +13,12 @@ import { QuizInfoStep } from "./QuizInfoStep";
 import { QuestionsStep } from "./QuestionsStep";
 import { ReviewStep } from "./ReviewStep";
 import { drawerWidth } from "../../../components/layout/ResponsiveDrawer";
-import { RootState } from "../../../store";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import theme from "../../../styles/mainThem";
 import { useSnackbar } from "../../../contexts/SnackbarContext";
-import useSendData from "../../../hooks/useSendData";
-import { setQuizData, updateQuizField } from "../Redux/quizSlice";
-import { Quiz } from "../../../interfaces/Quiz";
+import { updateQuizMode } from "../Redux/quizSlice";
 import { useQuizStateManager } from "./QuizStateManager";
+import { useNavigate } from "react-router-dom";
 
 interface QuizCreatorProps {
   mode: "create" | "edit"; // Explicit mode prop
@@ -28,77 +26,46 @@ interface QuizCreatorProps {
 
 export const QuizCreator = ({ mode = "create" }: QuizCreatorProps) => {
   const { showSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const quiz = useSelector((state: RootState) => state.quiz);
   const { error, isLoading } = useQuizStateManager();
 
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["معلومات الاختبار", "الأسئلة والإجابات", "مراجعة"];
 
-  const { mutate: createQuiz } = useSendData<Quiz>("/quiz/create");
-  const { mutate: updateQuiz } = useSendData<Quiz>("/quiz/update");
+  // إنشاء ref للوصول إلى المكون الابن
+  const quizStepRef = useRef<{
+    saveQuiz: () => Promise<void>;
+  }>();
+
+  const questionsStepRef = useRef<{
+    saveLastQuestion: () => Promise<void>;
+  }>();
+
+  const reviewStepRef = useRef<{
+    done: () => Promise<void>;
+  }>();
 
   useEffect(() => {
-    dispatch(
-      updateQuizField({
-        field: "mode",
-        value: mode,
-      })
-    );
+    dispatch(updateQuizMode({ value: mode }));
   }, [mode]);
 
-  const prepareQuizData = () => ({
-    quiz_id: quiz.id,
-    curriculum_id: quiz.curriculum_id,
-    topic_id: quiz.topic_id,
-    name: quiz.name,
-    type: quiz.type,
-    available: quiz.available,
-    duration: quiz.duration,
-    start_time: quiz.start_time,
-  });
-
-  const handleStepChange = () => {
-    if (activeStep === 1) {
-      if (quiz.isChange && quiz.mode == "create") {
-        createQuiz(prepareQuizData(), {
-          onSuccess: (response) => {
-            console.log(response.data)
-            showSnackbar(response.message, "success");
-            dispatch(
-              setQuizData({
-                ...response.data,
-                isChange: false,
-              })
-            );
-          },
-          onError: (error) => {
-            showSnackbar(error.message, "error");
-          },
-        });
-      } else if (quiz.isChange && quiz.mode == "edit") {
-        updateQuiz(prepareQuizData(), {
-          onSuccess: (response) => {
-            showSnackbar(response.message, "success");
-            dispatch(
-              setQuizData({
-                ...response.data,
-                isChange: false,
-              })
-            );
-          },
-          onError: (error) => {
-            showSnackbar(error.message, "error");
-          },
-        });
-      }
+  const handleStepCount = async (direction: "next" | "prev") => {
+    if (activeStep === 0 && quizStepRef.current) {
+      console.log("quizRef");
+      await quizStepRef.current?.saveQuiz();
+    } else if (activeStep === 1 && questionsStepRef.current) {
+      await questionsStepRef.current?.saveLastQuestion();
+    } else if (activeStep === 2 && reviewStepRef.current) {
+      await reviewStepRef.current.done();
     }
+
+    setActiveStep((prev) => (direction === "next" ? prev + 1 : prev - 1));
   };
-
-  useEffect(() => {
-    handleStepChange();
-  }, [activeStep]);
-
+  const handleDraftSave = () => {
+    showSnackbar("تم حفظ الاختبار كمسودة", "success");
+    navigate("/teacher/quizzes")
+  };
   if (error) {
     showSnackbar("حدث خطأ أثناء جلب بيانات الاختبار", "error");
     return <div>حدث خطأ أثناء جلب بيانات الاختبار</div>;
@@ -138,9 +105,9 @@ export const QuizCreator = ({ mode = "create" }: QuizCreatorProps) => {
           ))}
         </Stepper>
 
-        {activeStep === 0 && <QuizInfoStep />}
-        {activeStep === 1 && <QuestionsStep />}
-        {activeStep === 2 && <ReviewStep />}
+        {activeStep === 0 && <QuizInfoStep ref={quizStepRef} />}
+        {activeStep === 1 && <QuestionsStep ref={questionsStepRef} />}
+        {activeStep === 2 && <ReviewStep ref={reviewStepRef} />}
       </Paper>
 
       <Box
@@ -167,22 +134,27 @@ export const QuizCreator = ({ mode = "create" }: QuizCreatorProps) => {
             <Button
               variant="outlined"
               disabled={activeStep === 0}
-              onClick={() => setActiveStep((prev) => prev - 1)}
+              onClick={() => handleStepCount("prev")}
             >
               السابق
             </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                if (activeStep === steps.length - 1) {
-                  console.log("Submitting quiz:", quiz);
-                } else {
-                  setActiveStep((prev) => prev + 1);
-                }
-              }}
-            >
-              {activeStep === steps.length - 1 ? "إنشاء الاختبار" : "التالي"}
-            </Button>
+            <Box display={"flex"} gap={2}>
+              <Button
+                variant="contained"
+                onClick={() => handleStepCount("next")}
+              >
+                {activeStep === steps.length - 1 ? "إنشاء الاختبار" : "التالي"}
+              </Button>
+              {activeStep === 2 && (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleDraftSave}
+                >
+                  حفظ كمسودة
+                </Button>
+              )}
+            </Box>
           </Box>
         </Container>
       </Box>

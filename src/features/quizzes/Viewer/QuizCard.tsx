@@ -7,19 +7,23 @@ import {
   Box,
   Typography,
   Divider,
+  IconButton,
+  CardActions,
 } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import EventIcon from "@mui/icons-material/Event";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { Quiz } from "../../../interfaces/Quiz";
 import { EditNote } from "@mui/icons-material";
 
 interface QuizCardProps {
   quiz: Quiz;
   onClick: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-const QuizCard: React.FC<QuizCardProps> = ({ quiz, onClick }) => {
+const QuizCard: React.FC<QuizCardProps> = ({ quiz, onClick, onDelete }) => {
   return (
     <Card
       elevation={3}
@@ -28,13 +32,10 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, onClick }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        direction: "rtl", // RTL layout for Arabic
+        direction: "rtl",
       }}
     >
-      <CardActionArea
-        onClick={() => onClick(quiz.id)}
-        sx={{ flexGrow: 1 }}
-      >
+      <CardActionArea onClick={() => onClick(quiz.id)} sx={{ flexGrow: 1 }}>
         <CardContent>
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
             <Typography variant="h6" component="h3">
@@ -61,17 +62,33 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, onClick }) => {
               {new Date(quiz.start_time).toLocaleDateString("ar-EG")}
             </Typography>
           </Box>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Chip
-              sx={{ px: 1 }}
-              icon={quiz.available ? <CheckCircleIcon /> : <EditNote />}
-              label={quiz.available ? "متاح" : "مسودة"}
-              color={quiz.available ? "success" : "default"}
-              size="small"
-            />
-          </Box>
         </CardContent>
       </CardActionArea>
+
+      <CardActions sx={{ justifyContent: "space-between", p: 1 }}>
+        <Box>
+          <Chip
+            sx={{ px: 1 }}
+            icon={quiz.available ? <CheckCircleIcon /> : <EditNote />}
+            label={quiz.available ? "متاح" : "مسودة"}
+            color={quiz.available ? "success" : "default"}
+            size="small"
+          />
+        </Box>
+        <IconButton
+          aria-label="delete"
+          onClick={() => onDelete(quiz.id)}
+          disabled={Boolean(quiz.available)}
+          color="error"
+          sx={{
+            "&:hover": {
+              backgroundColor: "rgba(255, 0, 0, 0.1)",
+            },
+          }}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </CardActions>
     </Card>
   );
 };

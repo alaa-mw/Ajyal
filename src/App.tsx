@@ -100,7 +100,7 @@ function App() {
                     {/* <Route index element={<Navigate to="new" replace />} /> */}
                     <Route path="new" element={<QuizCreator mode="create" />} />
                     <Route
-                      path="edit/:quizId"
+                      path=":quizId"
                       element={<QuizCreator mode="edit" />}
                     />
                   </Route>

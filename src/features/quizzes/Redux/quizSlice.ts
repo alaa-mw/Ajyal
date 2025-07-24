@@ -48,6 +48,13 @@ export const quizSlice = createSlice({
         state.isChange=true;
     },
     
+     updateQuizMode:(
+        state: Draft<Quiz>,
+        action: PayloadAction<{ value: "create" | "edit" }>
+    ) => {
+        const {value } = action.payload;
+        state.mode= value;
+    },
     
     // For question fields
     updateQuestion: <K extends keyof Question> (
@@ -292,6 +299,7 @@ export const {
   resetQuiz,
   setQuizData,
   setQuestionData,
+  updateQuizMode
 } = quizSlice.actions;
 
 export default quizSlice.reducer;

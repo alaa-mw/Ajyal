@@ -25,6 +25,8 @@ import theme from "../../../styles/mainThem";
 import { useEffect } from "react";
 import { ImageUploader } from "../../../components/common/ImageUploader";
 import { Image } from "../../../interfaces/Image";
+import useSendData from "../../../hooks/useSendData";
+import { useSnackbar } from "../../../contexts/SnackbarContext";
 
 interface QuestionSelectedProps {
   path: number[];
@@ -32,17 +34,20 @@ interface QuestionSelectedProps {
 
 const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
   const dispatch = useDispatch();
+  const { showSnackbar } = useSnackbar();
+  const questions = useSelector((state: RootState) => state.quiz.questions);
   const question = useSelector((state: RootState) =>
     findQuestion(state.quiz.questions, path)
   );
 
+  const { mutate: deleteQuestion } = useSendData("/question/delete");
   useEffect(() => {
     dispatch(printQuizState());
   }, [question]);
 
-   useEffect(() => {
-    console.log("image",question?.image )
-  }, [question?.image ])
+  useEffect(() => {
+    console.log("image", question?.image);
+  }, [question?.image]);
 
   if (!question) return null;
 
@@ -100,7 +105,26 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
   };
 
   const handleRemoveQuestion = () => {
-    dispatch(removeQuestion({ path }));
+    if (path.length <= 1) {
+      // parent
+      deleteQuestion(
+        {
+          question_id: findQuestion(questions, path)?.id,
+        },
+        {
+          onSuccess: (response) => {
+            showSnackbar(response.message, "success");
+
+            dispatch(removeQuestion({ path }));
+          },
+          onError: (error) => {
+            showSnackbar(error.message, "error");
+          },
+        }
+      );
+    } else {
+      dispatch(removeQuestion({ path }));
+    }
   };
 
   const handleImageChange = (images: Image[]) => {
@@ -109,7 +133,7 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
       updateNestedQuestion({
         path,
         changes: {
-          image: images[0]
+          image: images[0],
         },
       })
     );
