@@ -43,8 +43,7 @@ const ResponsiveDrawer = ({
         sx={{
           display: { xs: "block", sm: "none" },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-          opacity: 0.8,
+          // ml: { sm: `${drawerWidth}px` },
         }}
       >
         <Toolbar>
@@ -53,11 +52,11 @@ const ResponsiveDrawer = ({
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mx: 2, display: { sm: "none" } }}
+            sx={{ mx: 1, display: { sm: "none" } }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" my={1}>
             أجيال التعليمي
           </Typography>
         </Toolbar>

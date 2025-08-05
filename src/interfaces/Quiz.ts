@@ -32,6 +32,5 @@ export interface Quiz {
   available: number;
   duration: number;
   start_time: string;
-  end_time: string;
   questions: Question[];
 }

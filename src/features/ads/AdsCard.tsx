@@ -1,25 +1,52 @@
-import { Card, Typography, Box } from "@mui/material";
+import {
+  Card,
+  Typography,
+  Box,
+  IconButton,
+} from "@mui/material";
 import theme from "../../styles/mainThem";
 import { Advertisement } from "../../interfaces/Advertisement ";
 import getImageUrl from "../../services/image-url";
 import { Image } from "../../interfaces/Image";
 import { formattedDate } from "../../utils/formatedDate";
+import { Delete, Edit } from "@mui/icons-material";
+import useDeleteItem from "../../hooks/useDeleteItem";
+import { useSnackbar } from "../../contexts/SnackbarContext";
 
 interface AdsCardProps {
   advertisement: Advertisement;
 }
 
 const AdsCard = ({ advertisement }: AdsCardProps) => {
+  const { showSnackbar } = useSnackbar();
   const mainImage = getImageUrl(advertisement.images[0].path);
   const otherImages: Image[] =
     advertisement.images?.length > 1 ? advertisement.images.slice(1) : [];
+
+  
+  const {mutate:deleteAd} = useDeleteItem("/admin/deleteAdvertisement") ;
+  const handleDelete = (id) => {
+    if (window.confirm("Delete this ad?")) {
+      deleteAd(id, {
+      onSuccess: (response) => showSnackbar(response.message, "success"),
+      onError: (error) =>
+        showSnackbar(error.message, "error"),
+    });
+    }
+  };
+
+  // const handleEdit = () => {
+  //   onEdit?.(advertisement.id.toString());
+  //   handleClose();
+  // };
+
 
   return (
     <Card
       sx={{
         position: "relative",
         width: 270,
-        height: 540,
+        height: 510,
         borderRadius: 2,
         overflow: "hidden",
         boxShadow: 3,
@@ -150,6 +177,49 @@ const AdsCard = ({ advertisement }: AdsCardProps) => {
         >
           {formattedDate(advertisement.created_at)}
         </Typography>
+
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+          }}
+        >
+          <IconButton
+            aria-label="edit"
+            onClick={() => onEdit(advertisement.id)}
+            sx={{
+              color: "white",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              "&:hover": {
+                backgroundColor: theme.palette.info.main,
+              },
+              "& .MuiSvgIcon-root": {
+                fontSize: "1rem", // Smaller icon size
+              },
+              p:.8
+            }}
+          >
+            <Edit fontSize="inherit" />
+          </IconButton>
+          <IconButton
+            aria-label="delete"
+            onClick={()=>handleDelete(advertisement.id)}
+            sx={{
+              color: "white",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              "&:hover": {
+                backgroundColor: theme.palette.error.main,
+              },
+              "& .MuiSvgIcon-root": {
+                fontSize: "1rem", // Smaller icon size
+              },
+              p:.8
+            }}
+          >
+            <Delete fontSize="inherit" />
+          </IconButton>
+        </Box>
       </Box>
     </Card>
   );

@@ -7,7 +7,6 @@ const AdsSkeleton = () => {
       sx={{
         position: "relative",
         width: 270,
-        height: 540,
         borderRadius: 2,
         overflow: "hidden",
         boxShadow: 3,

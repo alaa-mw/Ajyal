@@ -8,15 +8,18 @@ import {
 } from "@mui/material";
 import EntityToolbar from "../../components/ui/EntityToolbar";
 import { useNavigate } from "react-router-dom";
-import CourseCard from "./CourseCard";
+import CourseCard from "../../features/courses/CourseCard";
 import useFetchData from "../../hooks/useFetchData";
 import { Course } from "../../interfaces/Course";
 import { useSelectedCourse } from "../../contexts/SelectedCourseContext";
 import { drawerWidth } from "../../components/layout/ResponsiveDrawer";
 import Search from "@mui/icons-material/Search";
+import CourseCardSkeleton from "../../features/courses/CourseCardSkeleton";
 
 const CoursesPage = () => {
-  const { data: courses } = useFetchData<Course[]>("/course/all-courses");
+  const { data: courses, isLoading } = useFetchData<Course[]>(
+    "/course/all-courses"
+  );
   const navigate = useNavigate();
   const { setSelectedCourse } = useSelectedCourse();
 
@@ -128,6 +131,7 @@ const CoursesPage = () => {
             p: 2,
           }}
         >
+          {isLoading && [...Array(4)].map(() => <CourseCardSkeleton />)}
           {courses?.data.map((item) => (
             <CourseCard
               key={item.id}

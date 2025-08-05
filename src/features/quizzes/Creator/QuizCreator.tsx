@@ -64,7 +64,7 @@ export const QuizCreator = ({ mode = "create" }: QuizCreatorProps) => {
   };
   const handleDraftSave = () => {
     showSnackbar("تم حفظ الاختبار كمسودة", "success");
-    navigate("/teacher/quizzes")
+    navigate("/teacher/quizzes/");
   };
   if (error) {
     showSnackbar("حدث خطأ أثناء جلب بيانات الاختبار", "error");
@@ -79,9 +79,24 @@ export const QuizCreator = ({ mode = "create" }: QuizCreatorProps) => {
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "90vh" }}>
       <Paper
         elevation={3}
-        sx={{ p: { xs: 0.5, md: 3 }, flex: 1, mb: 8, overflow: "auto" }}
+        sx={{
+          p: { xs: 0.5, md: 3 },
+          flex: 1,
+          mb: 8,
+          overflow: "auto",
+          borderTop: `10px solid ${theme.palette.primary.main}`,
+        }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "primary.main",
+            mb: 3,
+          }}
+        >
           إنشاء اختبار
         </Typography>
 

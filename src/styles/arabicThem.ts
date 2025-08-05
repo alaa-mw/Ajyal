@@ -16,6 +16,8 @@ const theme = createTheme(mainThem,{
           textAlign: 'right',
           '&.MuiTableCell-head': { // For header cells
             fontWeight: 'bold',
+            color:"white",
+            backgroundColor: mainThem.palette.primary.main // fix
           },
           '&.MuiTableCell-body': { // For body cells
             direction: 'rtl',
@@ -108,8 +110,8 @@ const theme = createTheme(mainThem,{
           backgroundColor: '#0d47a1',
         }
       }
-    }
-  
+    },
+     
 });
 
 export default theme;

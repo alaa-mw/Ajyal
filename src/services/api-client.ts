@@ -7,7 +7,7 @@ const baseAxios = axios.create({
   baseURL:baseUrl+"api",
 });
 
-// Interceptor للردود
+
 baseAxios.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
@@ -18,7 +18,7 @@ baseAxios.interceptors.response.use(
   }
 );
 
-// Interceptor للطلبات
+
 baseAxios.interceptors.request.use((config) => {
   // config.baseURL = getDynamicBaseURL();
   const token = localStorage.getItem("authToken");
@@ -84,6 +84,10 @@ class APIClient<T> {
       data,
       headers: { Authorization: undefined },
     });
+
+  delete = (id:string) =>{
+    return this.request<T>({ method: "DELETE", url: `${this.endpoint}/${id}`})
+  }
 }
 
 export default APIClient;

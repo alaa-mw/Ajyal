@@ -16,11 +16,13 @@ import {
 } from "@mui/material";
 import { QrCodeScanner, Search as SearchIcon } from "@mui/icons-material";
 import { Student } from "../../interfaces/Student";
+import useSendData from "../../hooks/useSendData";
+import { useSelectedCourse } from "../../contexts/SelectedCourseContext";
+import { useSnackbar } from "../../contexts/SnackbarContext";
 
 interface RegisterStudentDialogProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (studentId: string, paymentAmount: number) => void;
   students: Student[];
 }
 
@@ -29,13 +31,18 @@ const steps = ["اختيار الطالب", "إدخال المبلغ", "التأ
 const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
   open,
   onClose,
-  onConfirm,
   students,
 }) => {
+  const { selectedCourseId } = useSelectedCourse();
+  const { showSnackbar } = useSnackbar();
   const [activeStep, setActiveStep] = useState(0);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const { mutate: registerStudentAtCourse } = useSendData(
+    "/course/registerAtCourse"
+  );
 
   const handleNext = () => {
     setActiveStep((prev) => prev + 1);
@@ -47,7 +54,22 @@ const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
 
   const handleConfirm = () => {
     if (selectedStudent && paymentAmount) {
-      onConfirm(selectedStudent.id, parseFloat(paymentAmount));
+      registerStudentAtCourse(
+        {
+          course_id: selectedCourseId,
+          student_id: selectedStudent.id,
+          payment: paymentAmount,
+        },
+        {
+          onSuccess: (response) => {
+            console.log(response.data);
+            showSnackbar(response.message, "success");
+          },
+          onError: (error) => {
+            showSnackbar(error.message, "error");
+          },
+        }
+      );
       handleClose();
     }
   };
@@ -93,11 +115,10 @@ const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
               <Button
                 variant="outlined"
                 startIcon={<QrCodeScanner />}
-                onClick={() => setOpenScanner(true)}
+                // onClick={() => setOpenScanner(true)}
               >
                 مسح QR Code
               </Button>
-
             </Box>
             <Autocomplete
               options={filteredStudents}

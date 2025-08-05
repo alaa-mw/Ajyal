@@ -14,7 +14,6 @@ const initialState: Quiz = {
    available: 0,
    duration: 30,
    start_time: '',
-   end_time: '',
    questions:[
     {
         mode:'create',
@@ -204,7 +203,6 @@ export const quizSlice = createSlice({
         available,
         duration,
         start_time,
-        end_time,
         questions = [],
         isChange = false,
         mode = 'edit'
@@ -219,7 +217,6 @@ export const quizSlice = createSlice({
       state.available = available;
       state.duration = duration;
       state.start_time = start_time;
-      state.end_time = end_time;
       state.isChange = isChange;
       state.mode = mode;
 

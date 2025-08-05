@@ -19,7 +19,6 @@ export const findQuestion = (questions: Question[], path: number[]): Question | 
   let current: Question | undefined = questions[path[0]];
   if (!current) return undefined;
 
-  // Navigate through the nested structure
   for (let i = 1; i < path.length; i++) {
     if (!current.children) return undefined;
     

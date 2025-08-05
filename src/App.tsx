@@ -1,16 +1,15 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import arabicThem from "./styles/arabicThem";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import AuthPage from "./features/auth/AuthPage";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import NotFound from "./pages/NotFound";
 import NewStudent from "./features/students/NewStudent";
 import NewTeacher from "./features/teachers/NewTeacher";
-import StudentsPage from "./features/students/StudentsPage";
-import TeachersPage from "./features/teachers/TeachersPage";
-import AdsPage from "./features/ads/AdsPage";
-import CoursesPage from "./features/courses/CoursesPage";
+import StudentsPage from "./pages/manager-secretariat/StudentsPage.tsx";
+import TeachersPage from "./pages/manager-secretariat/TeachersPage.tsx";
+import AdsPage from "./pages/manager-secretariat/AdsPage.tsx";
+import CoursesPage from "./pages/manager-secretariat/CoursesPage.tsx";
 import NewCourse from "./features/courses/NewCourse";
 import NewAd from "./features/ads/NewAd";
 import ProtectedRoute from "./pages/ProtectedRoute";
@@ -21,11 +20,12 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "./features/auth/Redux/authSlice.ts";
 import { rolesConfig } from "./rolesConfig.ts";
 import { SelectedCourseProvider } from "./contexts/SelectedCourseContext.tsx";
-import CourseRegisterPage from "./features/courseSpecific/courseRegisterPage.tsx";
 import QuestionsPage from "./pages/teacher/QuestionsPage.tsx";
 import QuizDetails from "./features/quizzes/Viewer/QuizDetails.tsx";
 import QuizCreator from "./features/quizzes/Creator/QuizCreator.tsx";
 import QuizList from "./features/quizzes/Viewer/QuizList.tsx";
+import CourseRegisterPage from "./features/courseSpecific/CourseRegisterPage.tsx";
+import AuthPage from "./pages/AuthPage.tsx";
 
 function App() {
   const Navigate = useNavigate();
@@ -109,12 +109,6 @@ function App() {
                 <Route path="questions" element={<QuestionsPage />} />
               </Route>
             </Route>
-
-            {/* Fallback routes */}
-            {/* <Route
-              path="/not-authorized"
-              element={<div>غير مصرح بالوصول</div>}
-            /> */}
           </Routes>
         </SnackbarProvider>
       </SelectedCourseProvider>

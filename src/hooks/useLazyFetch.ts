@@ -4,7 +4,6 @@ import { useCallback, useRef } from "react";
 
 interface QueryParams {
   page?: number;
-  // يمكن إضافة المزيد من البارامترات هنا
 }
 
 export const useLazyFetch = <TData>(endpoint: string, options = {}) => {

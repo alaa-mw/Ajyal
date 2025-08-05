@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
-import Circle from "../../components/ui/Circle";
-import mainThem from "../../styles/mainThem";
-import LoginForm from "./LoginForm";
 import { useLocation } from "react-router-dom";
-import logoWindows from "../../assets/logoWindows.png";
-import RegisterStepper from "./RegisterStepper";
+import RegisterStepper from "../features/auth/RegisterStepper";
+import LoginForm from "../features/auth/LoginForm";
+import Circle from "../components/ui/Circle";
+import mainThem from "../styles/mainThem";
+import logoWindows from '../assets/logoWindows.png';
 
 const AuthPage = () => {
   const location = useLocation();

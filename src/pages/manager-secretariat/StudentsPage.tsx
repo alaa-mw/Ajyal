@@ -2,8 +2,7 @@ import { Typography } from "@mui/material";
 import React from "react";
 import EntityToolbar from "../../components/ui/EntityToolbar";
 import { useNavigate } from "react-router-dom";
-import StudentsTable from "./StudentsTable";
-import StudentsList from "./StudentsList";
+import StudentsList from "../../features/students/StudentsList";
 
 const StudentsPage = () => {
   const navigate = useNavigate();
@@ -41,7 +40,7 @@ const StudentsPage = () => {
         selectedNewest={isNewestSelected}
         onSortNewest={handleSortNewest}
       />
-      <StudentsList/>
+      <StudentsList />
     </>
   );
 };

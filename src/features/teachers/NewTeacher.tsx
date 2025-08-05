@@ -20,7 +20,7 @@ import { Teacher } from "../../interfaces/Teacher";
 import { useSnackbar } from "../../contexts/SnackbarContext";
 import { SubjectsByGradeDynamic } from "../../interfaces/Subject";
 import useFetchData from "../../hooks/useFetchData";
-import { classNames } from "../../data/classNames";
+import { classNames } from "../../static/classNames";
 import { ImageUploader } from "../../components/common/ImageUploader";
 
 interface FormData {

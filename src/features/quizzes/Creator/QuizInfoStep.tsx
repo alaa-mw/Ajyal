@@ -17,11 +17,11 @@ import { printQuizState, updateQuizField } from "../Redux/quizSlice";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Subject } from "../../../interfaces/Subject";
 import useFetchDataId from "../../../hooks/useFetchDataId";
-import { RTLDatePicker } from "../../../components/common/RTLDatePicker";
 import useSendData from "../../../hooks/useSendData";
 import { setQuizData } from "../Redux/quizSlice";
 import { Quiz } from "../../../interfaces/Quiz";
 import { useSnackbar } from "../../../contexts/SnackbarContext";
+import { RTLTimeDatePicker } from "../../../components/common/RTLTimeDatePicker";
 
 export interface QuizStepRef {
   saveQuiz: () => Promise<void>;
@@ -48,8 +48,14 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
 
     useEffect(() => {
       dispatch(printQuizState());
-      console.log(teacherCurriculum);
-    }, [quiz, teacherCurriculum]);
+    }, [quiz]);
+
+    useEffect(() => {
+      const selectedCurriculum = teacherCurriculum?.data.find(
+        (tc) => tc.id === quiz.curriculum_id
+      );
+      setSId(selectedCurriculum?.subject_id);
+    }, [quiz.curriculum_id]);
 
     const handleQuizFieldChange = <K extends keyof Quiz>(
       field: K,
@@ -61,16 +67,6 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
           value,
         })
       );
-    };
-
-    const handleCurriculumChange = (e: SelectChangeEvent<string>) => {
-      const curriculumId = e.target.value as unknown as string;
-      handleQuizFieldChange("curriculum_id", curriculumId);
-
-      const selectedCurriculum = teacherCurriculum?.data.find(
-        (tc) => tc.id === curriculumId
-      );
-      setSId(selectedCurriculum?.subject_id);
     };
 
     const handleTopicChange = (e: SelectChangeEvent<string>) => {
@@ -160,7 +156,9 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
           <Select
             name="curriculum_id"
             value={quiz.curriculum_id || ""}
-            onChange={handleCurriculumChange}
+            onChange={(e) =>
+              handleQuizFieldChange("curriculum_id", e.target.value)
+            }
           >
             <MenuItem value="">اختر المنهج الدراسي</MenuItem>{" "}
             {/* Default empty option */}
@@ -203,7 +201,6 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
 
         <FormControl fullWidth sx={{ mb: 2 }}>
           <TextField
-            fullWidth
             name="name"
             label="عنوان الاختبار"
             value={quiz.name}
@@ -224,7 +221,7 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
         </FormControl>
 
         <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-          <RTLDatePicker
+          <RTLTimeDatePicker
             label="تاريخ البدء"
             value={quiz.start_time}
             onChange={(value) => handleQuizFieldChange("start_time", value)}
@@ -232,7 +229,7 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
           />
 
           <TextField
-            fullWidth
+            // fullWidth
             sx={{ mb: 2 }}
             name="duration"
             label="المدة (دقائق)"

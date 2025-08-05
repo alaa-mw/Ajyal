@@ -63,8 +63,8 @@ const QuizList = () => {
         الاختبارات
       </Typography>
       <Box display={"flex"} justifyContent={"space-between"}>
-        <FormControl sx={{ width: 300, mb: 2 }}>
-          <InputLabel>المنهج الدراسي</InputLabel>
+        <FormControl sx={{ width: 300, mb: 2, backgroundColor: "#fff" }}>
+          <InputLabel sx={{ mr: 2 }}>المنهج الدراسي</InputLabel>
           <Select
             name="curriculum_id"
             value={cId || ""}

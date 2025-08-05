@@ -23,7 +23,7 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   }
 
   // token exist & role allowed
-  return <Outlet />; //
+   return <Outlet />; 
 };
 
 export default ProtectedRoute;

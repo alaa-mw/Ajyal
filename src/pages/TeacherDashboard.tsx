@@ -4,7 +4,7 @@ import ResponsiveDrawer, {
 } from "../components/layout/ResponsiveDrawer";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
-import { SidebarDataTeacher } from "../data/sidebarData";
+import { SidebarDataTeacher } from "../static/sidebarData";
 
 const TeacherDashboard = () => {
   const containerRef = useRef<HTMLDivElement>(null); // Create the ref

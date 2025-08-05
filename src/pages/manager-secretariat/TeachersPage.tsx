@@ -2,13 +2,16 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import EntityToolbar from "../../components/ui/EntityToolbar";
-import TeacherCard from "./TeacherCard";
+import TeacherCard from "../../features/teachers/TeacherCard";
 import useFetchData from "../../hooks/useFetchData";
 import { Teacher } from "../../interfaces/Teacher";
+import TeacherCardSkeleton from "../../features/teachers/TeacherCardSkeleton";
+
 
 const TeachersPage = () => {
   const navigate = useNavigate();
-  const { data: teachers } = useFetchData<Teacher[]>("/admin/allTeachers");
+  const { data: teachers, isLoading } =
+    useFetchData<Teacher[]>("/admin/allTeachers");
 
   const handleSearch = () => {
     console.log("Searching for:");
@@ -58,8 +61,9 @@ const TeachersPage = () => {
           p: 2,
         }}
       >
+        {isLoading && [...Array(4)].map(() => (<TeacherCardSkeleton />))}
         {teachers?.data?.map((teacher) => (
-          <TeacherCard key={teacher.id}  teacher={teacher} />
+          <TeacherCard key={teacher.id} teacher={teacher} />
         ))}
       </Box>
     </>
@@ -67,3 +71,4 @@ const TeachersPage = () => {
 };
 
 export default TeachersPage;
+

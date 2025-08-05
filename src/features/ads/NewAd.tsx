@@ -19,8 +19,9 @@ import useSendData from "../../hooks/useSendData";
 import { Teacher } from "../../interfaces/Teacher";
 import { Course } from "../../interfaces/Course";
 import { useSnackbar } from "../../contexts/SnackbarContext";
-import { Close } from "@mui/icons-material";
 import { useLazyFetch } from "../../hooks/useLazyFetch";
+import { ImageUploader } from "../../components/common/ImageUploader";
+import { Image } from "../../interfaces/Image";
 
 const NewAd = () => {
   const { mutate: addAdd } = useSendData("/admin/addAdvertisement");
@@ -43,10 +44,9 @@ const NewAd = () => {
     body: "",
     advertisable_id: "",
     advertisable_type: "",
-    images: [] as File[],
+    images: [] as Image[],
   });
 
-  const [previewImages, setPreviewImages] = React.useState<string[]>([]);
   const [, setSearchTerm] = React.useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,59 +83,42 @@ const NewAd = () => {
     }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      const newPreviews = newFiles.map((file) => URL.createObjectURL(file)); //URL.createObjectURL() ينشئ رابط مؤقت يمكن استخدامه لعرض الصورة قبل رفعها
-
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...newFiles],
-      }));
-      setPreviewImages((prev) => [...prev, ...newPreviews]);
-    }
-  };
-
-  const removeImage = (index: number) => {
+  const handleImageChange = (images: Image[]) => {
     setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index),
+      images: images,
     }));
-    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
-
-    // Revoke the object URL to avoid memory leaks
-    URL.revokeObjectURL(previewImages[index]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-    addAdd(formData, {
-      onSuccess: (response) => {
-        showSnackbar(response.message, "success");
-        // Clear form data
-        setFormData({
-          title: "",
-          body: "",
-          advertisable_id: "",
-          advertisable_type: "",
-          images: [],
-        });
-        // Clear preview images and revoke URLs
-        previewImages.forEach((url) => URL.revokeObjectURL(url));
-        setPreviewImages([]);
-      },
-      onError: (error) => showSnackbar(error.message, "error"),
-    });
+    addAdd(
+      { ...formData, images: formData.images.map((i) => i.file) },
+      {
+        onSuccess: (response) => {
+          showSnackbar(response.message, "success");
+          // Clear form data
+          setFormData({
+            title: "",
+            body: "",
+            advertisable_id: "",
+            advertisable_type: "",
+            images: [],
+          });
+        },
+        onError: (error) => showSnackbar(error.message, "error"),
+      }
+    );
   };
 
   return (
     <Box
       sx={{
         width: { xs: "100%", sm: "100%", md: "100%", lg: 600 },
-        minHeight: 700,
+        minHeight: 600,
         mx: "auto",
-        p: { xs: 0, sm: 3 },
+        px: { xs: 0, sm: 3 },
       }}
     >
       <Typography
@@ -165,8 +148,8 @@ const NewAd = () => {
               </Select>
             </FormControl>
 
-            {(loadingTeachers || loadingCourses) && (
-              <LinearProgress sx={{ mb: 2 }} />
+            {formData.advertisable_type === "" && (
+              <TextField disabled fullWidth />
             )}
 
             {formData.advertisable_type === "teacher" && (
@@ -178,20 +161,37 @@ const NewAd = () => {
                     value && handleTeacherSelect(value.id)
                   }
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="اختر المعلم"
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    <Box position="relative">
+                      <TextField
+                        {...params}
+                        label="اختر المعلم"
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            paddingBottom: loadingTeachers ? "8px" : 0,
+                          },
+                        }}
+                      />
+                      {loadingTeachers && (
+                        <LinearProgress
+                          sx={{
+                            position: "absolute",
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: "2px",
+                            borderBottomLeftRadius: "4px",
+                            borderBottomRightRadius: "4px",
+                          }}
+                        />
+                      )}
+                    </Box>
                   )}
                   noOptionsText="لا توجد نتائج"
                 />
               </FormControl>
             )}
 
-            {formData.advertisable_type === "" && (
-              <TextField disabled fullWidth />
-            )}
             {formData.advertisable_type === "course" && (
               <FormControl fullWidth sx={{ mb: 3 }}>
                 <Autocomplete
@@ -199,11 +199,31 @@ const NewAd = () => {
                   getOptionLabel={(option) => option.name}
                   onChange={(_, value) => value && handleCourseSelect(value.id)}
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="اختر الدورة"
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    <Box position="relative">
+                      <TextField
+                        {...params}
+                        label="اختر الدورة"
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            paddingBottom: loadingCourses ? "8px" : 0,
+                          },
+                        }}
+                      />
+                      {loadingCourses && (
+                        <LinearProgress
+                          sx={{
+                            position: "absolute",
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: "2px",
+                            borderBottomLeftRadius: "4px",
+                            borderBottomRightRadius: "4px",
+                          }}
+                        />
+                      )}
+                    </Box>
                   )}
                   noOptionsText="لا توجد نتائج"
                 />
@@ -233,65 +253,11 @@ const NewAd = () => {
             />
 
             <Box sx={{ mt: 2 }}>
-              <label htmlFor="image-upload">
-                <Button variant="outlined" component="span">
-                  رفع الصور
-                </Button>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  style={{ display: "none" }}
-                  multiple
-                />
-              </label>
-
-              {previewImages.length > 0 && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}
-                  >
-                    الصور المرفوعة:
-                  </Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                    {previewImages.map((preview, index) => (
-                      <Box key={index} sx={{ position: "relative" }}>
-                        <Box
-                          component="img"
-                          src={preview}
-                          sx={{
-                            width: 100,
-                            height: 100,
-                            objectFit: "cover",
-                            borderRadius: 1,
-                          }}
-                        />
-                        <Button
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                            minWidth: 0,
-                            p: 0.5,
-                            bgcolor: "rgba(0,0,0,0.5)",
-                            color: "white",
-                            "&:hover": {
-                              bgcolor: "rgba(0,0,0,0.7)",
-                            },
-                          }}
-                          onClick={() => removeImage(index)}
-                        >
-                          <Close fontSize="small" />
-                        </Button>
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              )}
+              <ImageUploader
+                maxImages={8}
+                selectedImages={formData.images}
+                setSelectedImages={handleImageChange}
+              />
             </Box>
           </Box>
 
@@ -299,8 +265,8 @@ const NewAd = () => {
             type="submit"
             variant="contained"
             size="large"
+            fullWidth
             sx={{
-              mr: "35%",
               px: 5,
               py: 1.5,
               background: theme.palette.gradient.primary,

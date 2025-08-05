@@ -1,19 +1,18 @@
-import React, { SetStateAction, useRef, useState } from "react";
-import AdsCard from "./AdsCard";
+import React, { SetStateAction, useState } from "react";
+import AdsCard from "../../features/ads/AdsCard";
 import { Box, Button, Typography } from "@mui/material";
-import NewAd from "./NewAd";
+import NewAd from "../../features/ads/NewAd";
 import { useLazyFetch } from "../../hooks/useLazyFetch";
 import { Advertisement } from "../../interfaces/Advertisement ";
 import { PaginatedResponse } from "../../interfaces/PaginatedResponse";
-import AdsSkeleton from "./AdsSkeleton";
+import AdsSkeleton from "../../features/ads/AdsSkeleton";
 
 const AdsPage = () => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<
     "teachers" | "courses" | "general"
   >("teachers");
   const [page, setPage] = useState(1);
-  // استخدم useLazyFetch مع تعطيل الجلب التلقائي
+
   const {
     data: tAd,
     fetchWithParams: fetchTAd,
@@ -80,13 +79,29 @@ const AdsPage = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: "column", sm: "column", md: "column", lg: "column", xl: "row" },
+          flexDirection: {
+            xs: "column",
+            sm: "column",
+            md: "column",
+            lg: "column",
+            xl: "row",
+          },
           justifyContent: "space-between",
         }}
       >
-        <Box sx={{ maxWidth: { xs: "100%", sm: "100%", md: "100%", lg: 1250 } }}>
+        <Box
+          sx={{ maxWidth: { xs: "100%", sm: "100%", md: "100%", lg: 1250 } }}
+        >
           {/* أزرار التبويب */}
-          <Box sx={{ display: "flex",justifyContent:"space-between", gap: 1, my: 1,mx:6 }}>
+          <Box
+            sx={{
+              display: "flex",
+              // justifyContent: "space-between",
+              gap: 1,
+              my: 1,
+              mx: 2,
+            }}
+          >
             {["teachers", "courses", "general"].map((tab) => (
               <Button
                 key={tab}
@@ -97,7 +112,7 @@ const AdsPage = () => {
                   );
                   setPage(1);
                 }}
-                sx={{ flex: .3, borderRadius: 10 }}
+                sx={{ borderRadius: 10 }}
               >
                 {tab === "teachers"
                   ? "معلمين"
@@ -111,19 +126,19 @@ const AdsPage = () => {
           {/* محتوى الإعلانات */}
 
           <Box
-            ref={scrollContainerRef}
             sx={{
               display: "grid",
               gridTemplateColumns: {
                 xs: "1fr",
                 s: "repeat(2, 1fr)",
                 sm: "repeat(2, 1fr)",
-                md: "repeat(2, 1fr)",
+                md: "repeat(3, 1fr)",
                 lg: "repeat(3, 1fr)",
               },
-              gap: 2,
+              gap: 1,
               px: 2,
-              minHeight: 550, // "calc(100vh - 160px)",
+              minHeight: 510, // "calc(100vh - 160px)",
+              minWidth:800
             }}
           >
             {isLoading ? (
@@ -149,7 +164,7 @@ const AdsPage = () => {
 
           {paginationData && (
             <Box
-              sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 1 }}
+              sx={{ display: "flex", justifyContent: "center", mt: 1, gap: 1 }}
             >
               <Button
                 disabled={page == 1}

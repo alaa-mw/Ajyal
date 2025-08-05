@@ -80,6 +80,10 @@ const theme = createTheme({
       warning: '#ff9800', // Orange
       info:'#21bff3'     // Blue
     },
+    success: {
+      main: '#74d17dff', // Default green
+       contrastText: '#fff',
+    }
   },
   typography: {
     fontFamily: "'Cairo', sans-serif",

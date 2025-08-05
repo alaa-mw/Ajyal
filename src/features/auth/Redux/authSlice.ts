@@ -34,7 +34,7 @@ export const authSlice = createSlice({
       
       localStorage.removeItem('authToken');
       localStorage.removeItem('userRole');
-      return initialState; // إعادة تعيين كامل للحالة
+      return initialState; 
     },
     setUserId(state, action) {
       state.userId = action.payload.userId;

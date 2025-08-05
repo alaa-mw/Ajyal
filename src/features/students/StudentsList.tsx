@@ -8,7 +8,6 @@ import {
   Paper,
   Checkbox,
   Chip,
-  Typography,
   Box,
   IconButton,
   Stack,
@@ -18,11 +17,12 @@ import useFetchData from "../../hooks/useFetchData";
 import { Student } from "../../interfaces/Student";
 import { getStudentName } from "../../utils/getStudentName";
 import { useRef, useState } from "react";
-import { formattedDate } from '../../utils/formatedDate';
+import { formattedDate } from "../../utils/formatedDate";
+import SkeletonTableRow from "../../components/common/SkeletonTableRow";
 
 const StudentsList = () => {
   // State and handlers remain the same
-  const { data: studentsData } = useFetchData<Student[]>("/student/all");
+  const { data: studentsData , isLoading} = useFetchData<Student[]>("/student/all");
   const activeStudents = studentsData?.data || [];
 
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
@@ -70,9 +70,17 @@ const StudentsList = () => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow sx={{ bgcolor: "#f5f5f5" }}>
+            <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
+                  sx={{
+                    "&.Mui-checked": {
+                      color: "white",
+                    },
+                    "&.MuiCheckbox-indeterminate": {
+                      color: "white",
+                    },
+                  }}
                   indeterminate={
                     selectedStudents.length > 0 &&
                     selectedStudents.length < activeStudents.length
@@ -99,6 +107,7 @@ const StudentsList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {isLoading && <SkeletonTableRow cellCount={7} rowCount={3}/>}
             {activeStudents.map((student, index) => (
               <TableRow
                 key={student.id}
@@ -126,9 +135,7 @@ const StudentsList = () => {
                 <TableCell>
                   <Chip label="نشط" color="success" size="small" />
                 </TableCell>
-                <TableCell>
-                  {formattedDate(student.created_at)}
-                </TableCell>
+                <TableCell>{formattedDate(student.created_at)}</TableCell>
                 <TableCell>
                   <IconButton
                     aria-label="actions"

@@ -13,7 +13,7 @@ import theme from "../../styles/mainThem";
 import useSendData from "../../hooks/useSendData";
 import { useSnackbar } from "../../contexts/SnackbarContext";
 import { Student } from "../../interfaces/Student";
-import { classes } from "../../data/classNames";
+import { classes } from "../../static/classNames";
 import { RTLDatePicker } from "../../components/common/RTLDatePicker";
 
 const NewStudent = () => {
@@ -152,6 +152,7 @@ const NewStudent = () => {
                 value={formData.number_civial}
                 onChange={handleChange}
                 placeholder="XXXXXXXXXX"
+                required
               />
             </Box>
           </Box>

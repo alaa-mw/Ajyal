@@ -1,5 +1,4 @@
 import {
-  Box,
   Typography,
   FormControl,
   InputLabel,
@@ -87,7 +86,10 @@ const CourseRegisterPage = () => {
           onChange={handleChange}
         >
           <MenuItem key={"all"} value={"all"}>
-            All
+            الكل
+          </MenuItem>{" "}
+          <MenuItem key={"-1"} value={"-1"}>
+            بلا قاعة صفية
           </MenuItem>
           {classRooms?.data.map((cls) => (
             <MenuItem key={cls.id} value={cls.id}>
@@ -121,10 +123,6 @@ const CourseRegisterPage = () => {
       <RegisterStudentDialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
-        onConfirm={(studentId, amount) => {
-          // Handle payment registration
-          console.log(`Register payment ${amount} for student ${studentId}`);
-        }}
         students={ajyalStudent?.data || []}
       />
     </>

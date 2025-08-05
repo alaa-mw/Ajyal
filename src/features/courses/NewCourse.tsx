@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import React, { useEffect } from "react";
 import FormField from "../../components/common/FormField";
-import { classes } from "../../data/classNames";
+import { classes } from "../../static/classNames";
 import useSendData from "../../hooks/useSendData";
 import { Course } from "../../interfaces/Course";
 import { Subject } from "../../interfaces/Subject";
@@ -36,7 +36,9 @@ const NewCourse = () => {
   const { showSnackbar } = useSnackbar();
 
   const { mutate: addCourse } = useSendData<Course>("/course/create");
-  const {data:classRooms}  = useFetchData<ClassRoom[]>("/classroom/all-classrooms");
+  const { data: classRooms } = useFetchData<ClassRoom[]>(
+    "/classroom/all-classrooms"
+  );
   const { data: subjects, mutate: fetchSubjectType } =
     useSendData<Subject[]>("/subjects");
 
