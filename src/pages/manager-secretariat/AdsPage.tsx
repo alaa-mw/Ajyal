@@ -1,11 +1,11 @@
 import React, { SetStateAction, useState } from "react";
 import AdsCard from "../../features/ads/AdsCard";
 import { Box, Button, Typography } from "@mui/material";
-import NewAd from "../../features/ads/NewAd";
 import { useLazyFetch } from "../../hooks/useLazyFetch";
 import { Advertisement } from "../../interfaces/Advertisement ";
 import { PaginatedResponse } from "../../interfaces/PaginatedResponse";
 import AdsSkeleton from "../../features/ads/AdsSkeleton";
+import AdForm from "../../features/ads/AdForm";
 
 const AdsPage = () => {
   const [activeTab, setActiveTab] = useState<
@@ -138,7 +138,7 @@ const AdsPage = () => {
               gap: 1,
               px: 2,
               minHeight: 510, // "calc(100vh - 160px)",
-              minWidth:800
+              minWidth: 800,
             }}
           >
             {isLoading ? (
@@ -195,8 +195,7 @@ const AdsPage = () => {
             </Box>
           )}
         </Box>
-
-        <NewAd />
+          <AdForm />
       </Box>
     </>
   );

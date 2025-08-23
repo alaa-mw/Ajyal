@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer, { AuthState } from './features/auth/Redux/authSlice';
 import courseReducer, { CourseState } from './features/courses/Redux/courseSlice';
 import quizReducer from './features/quizzes/Redux/quizSlice';
+import adReducer, { AdState } from './features/ads/Redux/adSlice';
 import { Quiz } from './interfaces/Quiz';
 
 export interface RootState {
   auth: AuthState;
   course: CourseState;
   quiz: Quiz;
+  ad: AdState;
 }
 
 export default configureStore({
@@ -15,6 +17,7 @@ export default configureStore({
     auth: authReducer,
     course: courseReducer,
     quiz: quizReducer,
+    ad: adReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
     serializableCheck: {

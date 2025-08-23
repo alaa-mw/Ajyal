@@ -12,9 +12,9 @@ import {
   Autocomplete,
   LinearProgress,
 } from "@mui/material";
+import { SelectChangeEvent } from "@mui/material/Select";
 import FormField from "../../components/common/FormField";
 import theme from "../../styles/mainThem";
-import { SelectChangeEvent } from "@mui/material/Select";
 import useSendData from "../../hooks/useSendData";
 import { Teacher } from "../../interfaces/Teacher";
 import { Course } from "../../interfaces/Course";
@@ -22,9 +22,23 @@ import { useSnackbar } from "../../contexts/SnackbarContext";
 import { useLazyFetch } from "../../hooks/useLazyFetch";
 import { ImageUploader } from "../../components/common/ImageUploader";
 import { Image } from "../../interfaces/Image";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { resetAd, updateAdField } from "./Redux/adSlice";
+import { Advertisement } from "../../interfaces/Advertisement ";
 
-const NewAd = () => {
-  const { mutate: addAdd } = useSendData("/admin/addAdvertisement");
+const AdForm = () => {
+  const dispatch = useDispatch();
+  const { showSnackbar } = useSnackbar();
+  const [, setSearchTerm] = React.useState("");
+
+  const { mode, data: formData } = useSelector((state: RootState) => state.ad);
+
+  const { mutate: saveAd } = useSendData(
+    mode === "create"
+      ? "/admin/addAdvertisement"
+      : `/admin/updateAdvertisement/${formData.id}`
+  );
 
   const {
     data: teachers,
@@ -38,74 +52,45 @@ const NewAd = () => {
     isLoading: loadingCourses,
   } = useLazyFetch<Course[]>("/course/all-courses");
 
-  const { showSnackbar } = useSnackbar();
-  const [formData, setFormData] = React.useState({
-    title: "",
-    body: "",
-    advertisable_id: "",
-    advertisable_type: "",
-    images: [] as Image[],
-  });
-
-  const [, setSearchTerm] = React.useState("");
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    dispatch(updateAdField({ field: name as keyof Advertisement, value }));
   };
 
   const handleSelectChange = (e: SelectChangeEvent) => {
     const { name, value } = e.target;
 
-    if (value == "teacher") fetchTeachers();
-    else fetchCourses();
+    if (value === "teacher") fetchTeachers();
+    else if (value === "course") fetchCourses();
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-      advertisable_id: "", // Reset ID when type changes
-    }));
+    dispatch(updateAdField({ field: name as keyof Advertisement, value }));
+    dispatch(updateAdField({ field: "advertisable_id", value: "" }));
   };
 
   const handleTeacherSelect = (teacherId: string) => {
     const selectedTeacher = teachers?.data.find((t) => t.id === teacherId);
-    setFormData((prev) => ({
-      ...prev,
-      advertisable_id: teacherId.toString(),
-      body: selectedTeacher?.bio || "",
-    }));
+    dispatch(updateAdField({ field: "advertisable_id", value: teacherId }));
+    if (selectedTeacher?.bio) {
+      dispatch(updateAdField({ field: "body", value: selectedTeacher.bio }));
+    }
   };
 
   const handleCourseSelect = (courseId: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      advertisable_id: courseId.toString(),
-    }));
+    dispatch(updateAdField({ field: "advertisable_id", value: courseId }));
   };
 
   const handleImageChange = (images: Image[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: images,
-    }));
+    dispatch(updateAdField({ field: "images", value: images }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    addAdd(
+    saveAd(
       { ...formData, images: formData.images.map((i) => i.file) },
       {
         onSuccess: (response) => {
           showSnackbar(response.message, "success");
-          // Clear form data
-          setFormData({
-            title: "",
-            body: "",
-            advertisable_id: "",
-            advertisable_type: "",
-            images: [],
-          });
+          dispatch(resetAd());
         },
         onError: (error) => showSnackbar(error.message, "error"),
       }
@@ -125,7 +110,7 @@ const NewAd = () => {
         variant="h5"
         sx={{ mb: 2, fontWeight: "bold", textAlign: "right" }}
       >
-        نشر إعلان
+        {mode === "create" ? "نشر إعلان" : "تعديل الإعلان"}
       </Typography>
 
       <Paper
@@ -139,7 +124,7 @@ const NewAd = () => {
               <Select
                 name="advertisable_type"
                 value={formData.advertisable_type}
-                onChange={handleSelectChange}
+                onChange={() => handleSelectChange}
                 label="نوع الإعلان"
               >
                 <MenuItem value="">عام</MenuItem>
@@ -281,4 +266,4 @@ const NewAd = () => {
   );
 };
 
-export default NewAd;
+export default AdForm;

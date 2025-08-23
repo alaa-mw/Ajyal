@@ -12,12 +12,16 @@ import { formattedDate } from "../../utils/formatedDate";
 import { Delete, Edit } from "@mui/icons-material";
 import useDeleteItem from "../../hooks/useDeleteItem";
 import { useSnackbar } from "../../contexts/SnackbarContext";
+import { useDispatch } from "react-redux";
+import { setAd } from "./Redux/adSlice";
 
 interface AdsCardProps {
   advertisement: Advertisement;
 }
 
 const AdsCard = ({ advertisement }: AdsCardProps) => {
+  
+  const dispatch = useDispatch();
   const { showSnackbar } = useSnackbar();
   const mainImage = getImageUrl(advertisement.images[0].path);
   const otherImages: Image[] =
@@ -35,10 +39,9 @@ const AdsCard = ({ advertisement }: AdsCardProps) => {
     }
   };
 
-  // const handleEdit = () => {
-  //   onEdit?.(advertisement.id.toString());
-  //   handleClose();
-  // };
+  const handleEdit = () => {
+    dispatch(setAd(advertisement));
+  };
 
 
   return (
@@ -187,7 +190,7 @@ const AdsCard = ({ advertisement }: AdsCardProps) => {
         >
           <IconButton
             aria-label="edit"
-            onClick={() => onEdit(advertisement.id)}
+            onClick={handleEdit}
             sx={{
               color: "white",
               backgroundColor: "rgba(0, 0, 0, 0.5)",

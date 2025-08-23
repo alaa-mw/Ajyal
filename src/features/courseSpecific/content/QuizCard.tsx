@@ -6,7 +6,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import theme from "../../styles/mainThem";
+import theme from "../../../styles/mainThem";
 import { Lock, MoreVert } from "@mui/icons-material";
 import { grey } from "@mui/material/colors";
 

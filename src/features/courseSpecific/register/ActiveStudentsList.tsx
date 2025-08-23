@@ -24,13 +24,15 @@ import { getStudentName } from "../../../utils/getStudentName";
 import { StudentActionsMenu } from "./StudentActionsMenu";
 import { CourseRegistrationsStudent } from "../../../interfaces/Course";
 import { ClassroomAssignmentDialog } from "./ClassroomAssignmentDialog";
+import SkeletonTableRow from "../../../components/common/SkeletonTableRow";
 
 interface Props {
+  isLoading: boolean;
   activeStudents: CourseRegistrationsStudent[];
 }
 
-const ActiveStudentsList = ({ activeStudents }: Props) => {
-  
+const ActiveStudentsList = ({ activeStudents, isLoading }: Props) => {
+  console.log("activeStudents",activeStudents);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [isDraggingSelect, setIsDraggingSelect] = useState(false);
   const dragStartRef = useRef<number | null>(null);
@@ -39,7 +41,6 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
   const [openClassroomDialog, setOpenClassroomDialog] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
-
 
   // Regular checkbox toggle
   const handleCheckboxChange = (studentId: string) => {
@@ -115,10 +116,11 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
   };
 
   return (
-    <Box sx={{ p: 2 }} onMouseLeave={handleMouseUp} onMouseUp={handleMouseUp}>
+    <Box sx={{ p: 0 }} onMouseLeave={handleMouseUp} onMouseUp={handleMouseUp}>
       <Stack direction={"row"} justifyContent={"space-between"}>
         <Typography variant="h6" sx={{ mb: 0 }}>
-          الطلاب الفعليين (اسحب لتحديد متعدد)
+          الطلاب الفعليين
+          <Typography variant="body2" color="grey">(اسحب لتحديد متعدد)</Typography>
         </Typography>
 
         {selectedStudents.length > 0 && (
@@ -128,7 +130,7 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
               color="primary"
               onClick={handleAssignToClassroom}
             >
-              إسناد إلى قاعة صفية ({selectedStudents.length})
+              إسناد إلى شعبة ({selectedStudents.length})
             </Button>
           </Box>
         )}
@@ -165,6 +167,7 @@ const ActiveStudentsList = ({ activeStudents }: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {isLoading && <SkeletonTableRow cellCount={7} rowCount={3}/>}
             {activeStudents?.map((student, index) => (
               <TableRow
                 key={student.id}

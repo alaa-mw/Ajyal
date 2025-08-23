@@ -4,8 +4,8 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabPanel from "@mui/lab/TabPanel";
 import { Tabs } from "@mui/material";
-import QuizList from "../quizzes/QuizList";
-import theme from "../../styles/mainThem";
+import theme from "../../../styles/mainThem";
+import QuizList from "./QuizList";
 
 const QuizTabs = () => {
   const [value, setValue] = React.useState("1");
@@ -35,13 +35,13 @@ const QuizTabs = () => {
 
                   transition: "all 0.3s ease",
                 },
-                bgcolor: "tertiary.main",
+                bgcolor: "primary.main",
                 borderRadius: 2,
                 "& .Mui-selected": {
                   bgcolor: "white",
                   color: "black",
                   fontWeight: "bold",
-                  borderTop: `7px solid ${theme.palette.tertiary.main}`,
+                  borderTop: `7px solid ${theme.palette.primary.main}`,
                   borderRadius: "20px 20px 0px 0px",
                 },
                 "& .MuiTabs-indicator": {

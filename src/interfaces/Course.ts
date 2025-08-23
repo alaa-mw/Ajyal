@@ -1,3 +1,4 @@
+import { Curriculum } from "./Curriculum";
 import { Student } from "./Student";
 
 export interface Course{
@@ -11,12 +12,9 @@ export interface Course{
     capacity: number;
     created_at: string;
     updated_at: string;
+    curriculums?: Curriculum[];
 }
 
-export interface classRoom{
-    id: string;
-    class_number: string;
-}
 
 export interface CourseRegistrationsStudent {
     id: string;

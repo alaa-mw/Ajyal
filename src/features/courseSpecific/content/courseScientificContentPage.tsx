@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from "@mui/material";
-import QuizTabs from "../quizzes/QuizTabs";
+import QuizTabs from "./QuizTabs";
 import CurriculumList from "./CurriculumList";
 import SharedFiles from "./SharedFiles";
 
@@ -18,7 +18,12 @@ const courseScientificContentPage = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: "column", sm: "column", md: "column", lg: "row" },
+          flexDirection: {
+            xs: "column",
+            sm: "column",
+            md: "column",
+            lg: "row",
+          },
           gap: 4,
         }}
       >

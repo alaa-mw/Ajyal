@@ -44,7 +44,7 @@ class APIClient<T> {
   private request = <TData>(config: AxiosRequestConfig) => {
     return baseAxios
       .request<FetchResponse<TData>>(config)
-      .then((res) => res.data)
+      .then((res) => res.data) // not res
       .catch((error: AxiosError) => {
         console.error("API Error:", error.response?.data || error.message);
         return Promise.reject(error.response?.data || error);
@@ -72,7 +72,8 @@ class APIClient<T> {
   post = (data?: unknown) =>
     this.request<T>({
       method: "POST",
-      url: this.endpoint,
+      url: this.endpoint, 
+      // responseType: 'blob', // important
       data,
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -85,6 +86,15 @@ class APIClient<T> {
       headers: { Authorization: undefined },
     });
 
+  postBolob = (data?: unknown) =>
+    this.request<T>({
+      method: "POST",
+      url: this.endpoint, 
+      responseType: 'blob', // important
+      data,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    
   delete = (id:string) =>{
     return this.request<T>({ method: "DELETE", url: `${this.endpoint}/${id}`})
   }

@@ -15,10 +15,10 @@ import {
   Divider,
 } from "@mui/material";
 import { QrCodeScanner, Search as SearchIcon } from "@mui/icons-material";
-import { Student } from "../../interfaces/Student";
-import useSendData from "../../hooks/useSendData";
-import { useSelectedCourse } from "../../contexts/SelectedCourseContext";
-import { useSnackbar } from "../../contexts/SnackbarContext";
+import { Student } from "../../../interfaces/Student";
+import useSendData from "../../../hooks/useSendData";
+import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
+import { useSnackbar } from "../../../contexts/SnackbarContext";
 
 interface RegisterStudentDialogProps {
   open: boolean;

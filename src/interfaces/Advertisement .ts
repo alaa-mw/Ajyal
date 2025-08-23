@@ -1,12 +1,12 @@
 import { Image } from "./Image";
 
 export interface Advertisement {
-  id: number;
+  id: string;
   title: string;
   body: string;
-  advertisable_id: number | null;
+  advertisable_id: string | null;
   advertisable_type: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
   images: Image[];
 }

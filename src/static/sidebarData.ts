@@ -41,8 +41,8 @@ export const SidebarData = {
             path:"/course-scientific-content",
         },
         {
-            title: 'المزيد',
-            path:"/course-more",
+            title: 'المالية',
+            path:"/course-financial",
         },
     ],
 }

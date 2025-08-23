@@ -13,8 +13,8 @@ import { useState } from "react";
 import useSendData from "../../../hooks/useSendData";
 import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
 import useFetchDataId from "../../../hooks/useFetchDataId";
-import { classRoom } from "../../../interfaces/Course";
 import { useSnackbar } from "../../../contexts/SnackbarContext";
+import { ClassRoom } from "../../../interfaces/ClassRoom";
 
 interface ClassroomAssignmentDialogProps {
   open: boolean;
@@ -29,7 +29,7 @@ export function ClassroomAssignmentDialog({
 }: ClassroomAssignmentDialogProps) {
   const { showSnackbar } = useSnackbar();
   const { selectedCourseId } = useSelectedCourse();
-  const { data: classrooms } = useFetchDataId<classRoom[]>(
+  const { data: classrooms } = useFetchDataId<ClassRoom[]>(
     `/course/classRooms-course/${selectedCourseId}`,
     selectedCourseId as string | undefined
   );

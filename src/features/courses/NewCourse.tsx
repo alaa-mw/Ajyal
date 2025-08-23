@@ -96,6 +96,7 @@ const NewCourse = () => {
   useEffect(() => {
     if (courseData.type) {
       fetchSubjectType({ subjects_type: courseData.type });
+      console.log("subjects",subjects)
     }
   }, [courseData.type, fetchSubjectType]);
   useEffect(() => {
@@ -299,7 +300,7 @@ const NewCourse = () => {
                 تحديد الكل
               </MenuItem>
             )}
-            {(subjects?.data.length ?? 0) > 0 ? (
+            {(subjects?.data?.length ?? 0) > 0 ? (
               subjects?.data.map((subject) => (
                 <MenuItem
                   key={subject.id}

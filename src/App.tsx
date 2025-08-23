@@ -11,10 +11,10 @@ import TeachersPage from "./pages/manager-secretariat/TeachersPage.tsx";
 import AdsPage from "./pages/manager-secretariat/AdsPage.tsx";
 import CoursesPage from "./pages/manager-secretariat/CoursesPage.tsx";
 import NewCourse from "./features/courses/NewCourse";
-import NewAd from "./features/ads/NewAd";
+import NewAd from "./features/ads/AdForm.tsx";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import { SnackbarProvider } from "./contexts/SnackbarContext.tsx";
-import CourseScientificContentPage from "./features/courseSpecific/courseScientificContentPage.tsx";
+import CourseScientificContentPage from "./features/courseSpecific/content/courseScientificContentPage.tsx";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "./features/auth/Redux/authSlice.ts";
@@ -24,11 +24,12 @@ import QuestionsPage from "./pages/teacher/QuestionsPage.tsx";
 import QuizDetails from "./features/quizzes/Viewer/QuizDetails.tsx";
 import QuizCreator from "./features/quizzes/Creator/QuizCreator.tsx";
 import QuizList from "./features/quizzes/Viewer/QuizList.tsx";
-import CourseRegisterPage from "./features/courseSpecific/CourseRegisterPage.tsx";
+import CourseRegisterPage from "./features/courseSpecific/register/CourseRegisterPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
+import CourseFinancialPage from "./features/courseSpecific/financial/CourseFinancialPage.tsx";
 
 function App() {
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const userToken = localStorage.getItem("authToken");
@@ -41,7 +42,7 @@ function App() {
           role: userRole,
         })
       );
-      Navigate(`${rolesConfig[userRole].webPrefix}/`);
+      navigate(`${rolesConfig[userRole].webPrefix}/`);
     }
   }, [userRole, userToken]);
 
@@ -84,6 +85,10 @@ function App() {
                 <Route
                   path="course-scientific-content"
                   element={<CourseScientificContentPage />}
+                />
+                <Route
+                  path="course-financial"
+                  element={<CourseFinancialPage />}
                 />
               </Route>
             </Route>

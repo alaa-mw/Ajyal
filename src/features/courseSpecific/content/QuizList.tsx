@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import QuizCard from "./QuizCard";
 import { Box, Stack, Typography, Pagination } from "@mui/material";
-import theme from "../../styles/mainThem";
-
-const labels = ["العنوان", "النوع", "الحالة", "معدل النجاح", "المزيد"];
+import theme from "../../../styles/mainThem";
+const labels = ["العنوان", "النوع", "معدل النجاح", "تاريخ التقدم"];
 const itemsPerPage = 5; // Number of items to show per page
 
 const QuizList = () => {
@@ -31,7 +30,7 @@ const QuizList = () => {
             sx={{
               width: 120,
               textAlign: "center",
-              bgcolor: theme.palette.tertiary.main,
+              bgcolor: theme.palette.primary.light,
               color: "white",
               borderRadius: 5,
               p: 0.5,
@@ -57,11 +56,11 @@ const QuizList = () => {
           onChange={handlePageChange}
           sx={{
             "& .MuiPaginationItem-root": {
-              color: theme.palette.tertiary.main,
-              borderColor: theme.palette.tertiary.main,
+              color: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
             },
             "& .Mui-selected": {
-              backgroundColor: theme.palette.tertiary.main,
+              backgroundColor: theme.palette.primary.main,
               color: "#fff",
             },
           }}
