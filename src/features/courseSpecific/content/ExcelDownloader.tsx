@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button, CircularProgress, Box, Alert } from '@mui/material';
 import { Download } from '@mui/icons-material';
-import useSendData from '../../../hooks/useSendData';
+import useSendFile from '../../../hooks/useSendFile';
 
 const ExcelDownloader = () => {
-  const { mutate: download, ...mutation } = useSendData("/course/excel/download-excel");
+  const { mutate: download, ...mutation } = useSendFile("/course/excel/download-excel");
   const { isPending, isError, error } = mutation;
   
   const downloadExcel = () => {
@@ -15,8 +15,10 @@ const ExcelDownloader = () => {
       onSuccess: (response) => {
         try {
           // response instanceof Blob
+          console.log(response)
           const blob = response as unknown as Blob;
           
+          console.log("blob",blob)
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;

@@ -6,10 +6,18 @@ import TabPanel from "@mui/lab/TabPanel";
 import { Tabs } from "@mui/material";
 import theme from "../../../styles/mainThem";
 import QuizList from "./QuizList";
+import useFetchDataId from "../../../hooks/useFetchDataId";
+import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
+import { CourseQuizzes } from "../../../interfaces/Course";
 
 const QuizTabs = () => {
+  const { selectedCourseId } = useSelectedCourse();
   const [value, setValue] = React.useState("1");
 
+  const { data: quizzes } = useFetchDataId<CourseQuizzes>(
+    `/quiz/get-all-course-quiz/${selectedCourseId}`,
+    selectedCourseId as string | undefined
+  );
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
@@ -53,11 +61,11 @@ const QuizTabs = () => {
               <Tab label="الاختبارات المنجزة" value="2" />
             </Tabs>
           </Box>
-          <TabPanel value="1" sx={{ py: 2 }}>
-            <QuizList />
+          <TabPanel value="1" sx={{ py: 2, minHeight:500 }}>
+            <QuizList quizzes={quizzes?.data.without_results} />
           </TabPanel>
-          <TabPanel value="2" sx={{ py: 2 }}>
-            <QuizList />
+          <TabPanel value="2" sx={{ py: 2, minHeight:500 }}>
+            <QuizList quizzes={quizzes?.data.with_results} />
           </TabPanel>
         </TabContext>
       </Box>

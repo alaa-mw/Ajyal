@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -8,26 +8,32 @@ import {
   DialogContent,
   DialogActions,
   Typography,
-  Alert,
-  CircularProgress,
   MenuItem,
   InputLabel,
   FormControl,
   Select,
   IconButton,
-} from '@mui/material';
-import { CloudUpload, Save, Close } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
+  LinearProgress,
+  Grid,
+} from "@mui/material";
+import { CloudUpload, Save, Close } from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+import useSendData from "../../../hooks/useSendData";
+import { useSnackbar } from "../../../contexts/SnackbarContext";
+import useFetchDataId from "../../../hooks/useFetchDataId";
+import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
+import { Course } from "../../../interfaces/Course";
+import { RTLDatePicker } from "../../../components/common/RTLDatePicker";
 
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
   height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
+  overflow: "hidden",
+  position: "absolute",
   bottom: 0,
   left: 0,
-  whiteSpace: 'nowrap',
+  whiteSpace: "nowrap",
   width: 1,
 });
 
@@ -36,257 +42,233 @@ interface PaperDialogProps {
   onClose: () => void;
 }
 
-const PaperExamDialog = ({
-  open,
-  onClose,
-}: PaperDialogProps) => {
+const PaperExamDialog = ({ open, onClose }: PaperDialogProps) => {
   const [formData, setFormData] = useState({
-    curriculum_id: '',
-    title: '',
-    description: '',
-    exam_date: '',
-    max_degree: '',
-    file: null
+    curriculum_id: "",
+    title: "",
+    description: "",
+    exam_date: "",
+    max_degree: "",
+    file: null,
   });
-  
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const { showSnackbar } = useSnackbar();
+  const { selectedCourseId } = useSelectedCourse();
+  const { mutate: storeExamResult } = useSendData(`/course/store-paperExam`);
 
-  // const handleOpen = () => {
-  //   setOpen(true);
-  //   // Reset form when opening
-  //   setFormData({
-  //     curriculum_id: '',
-  //     title: '',
-  //     description: '',
-  //     exam_date: '',
-  //     max_degree: '',
-  //     file: null
-  //   });
-  //   setError('');
-  //   setSuccess('');
-  // };
-
-  // const handleClose = () => {
-  //   setOpen(false);
-  // };
+  const { data: course, isLoading } = useFetchDataId<Course>(
+    `/course/curricula-course/${selectedCourseId}`,
+    selectedCourseId as string | undefined
+  );
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleFileChange = (e) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      file: e.target.files[0]
+      file: e.target.files[0],
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
 
-      const submitData = new FormData();
-      submitData.append('curriculum_id', formData.curriculum_id);
-      submitData.append('title', formData.title);
-      submitData.append('description', formData.description);
-      submitData.append('exam_date', formData.exam_date);
-      submitData.append('max_degree', formData.max_degree);
-      
-      if (formData.file) {
-        submitData.append('file', formData.file);
-      }
+    storeExamResult(formData, {
+      onSuccess: (response) => {
+        showSnackbar(response.message, "success");
+        onClose();
+      },
+      onError: (error) => {
+        showSnackbar(error.message, "error");
+      },
+    });
+    // const submitData = new FormData();
+    // submitData.append('curriculum_id', formData.curriculum_id);
+    // submitData.append('title', formData.title);
+    // submitData.append('description', formData.description);
+    // submitData.append('exam_date', formData.exam_date);
+    // submitData.append('max_degree', formData.max_degree);
 
-      // Replace with your actual API call
-      const response = await fetch('/course/store-paperExam', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Add your auth token
-        },
-        body: submitData
-      });
-
-      if (!response.ok) {
-        throw new Error('فشل في إرسال البيانات');
-      }
-
-      const result = await response.json();
-      setSuccess('تم حفظ الامتحان بنجاح!');
-      console.log('Success:', result);
-      
-      // Reset form
-      setFormData({
-        curriculum_id: '',
-        title: '',
-        description: '',
-        exam_date: '',
-        max_degree: '',
-        file: null
-      });
-    
+    // if (formData.file) {
+    //   submitData.append('file', formData.file);
+    // }
   };
 
   return (
-    <>
-      {/* Dialog component */}
-      <Dialog 
-        open={open} 
-        onClose={onClose}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2
-          }
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          m: 0,
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          backgroundColor: "primary.main",
+          color: "white",
         }}
       >
-        <DialogTitle sx={{ 
-          m: 0, 
-          p: 2,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: 'primary.main',
-          color: 'white'
-        }}>
-          <Typography variant="h5" component="span">
-            رفع علامة امتحان ورقي
-          </Typography>
-          <IconButton
-            aria-label="close"
-            onClick={onClose}
-            sx={{
-              color: 'white',
-            }}
-          >
-            <Close />
-          </IconButton>
-        </DialogTitle>
+        <Typography variant="h5" component="span">
+          رفع علامة امتحان ورقي
+        </Typography>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            color: "white",
+          }}
+        >
+          <Close />
+        </IconButton>
+      </DialogTitle>
 
-        <DialogContent sx={{ p: 3 }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          
-          {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {success}
-            </Alert>
-          )}
+      <DialogContent sx={{ p: 3 }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2, // Reduced gap
+            mt: 1,
+          }}
+        >
+          {/* Curriculum */}
+          <FormControl fullWidth>
+            <InputLabel id="curriculum-label">المادة الدراسية</InputLabel>
+            <Select
+              labelId="curriculum-label"
+              name="curriculum_id"
+              value={formData.curriculum_id}
+              onChange={handleInputChange}
+              label="المادة الدراسية"
+              required
+            >
+              {isLoading ? (
+                <MenuItem disabled>
+                  <Box sx={{ width: "100%" }}>
+                    <LinearProgress />
+                  </Box>
+                </MenuItem>
+              ) : (
+                course?.data.curriculums?.map((curr) => (
+                  <MenuItem key={curr.subject.id} value={curr.subject.id}>
+                    {curr.subject.name}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+          </FormControl>
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1,p:2 }}>
-            <FormControl fullWidth>
-              <InputLabel id="curriculum-label">المادة الدراسية</InputLabel>
-              <Select
-                labelId="curriculum-label"
-                name="curriculum_id"
-                value={formData.curriculum_id}
+          {/* Title and Description */}
+          <Grid container spacing={2}>
+            <Grid sx={{ width: "48%" }}>
+              <TextField
+                name="title"
+                label="عنوان الامتحان"
+                value={formData.title}
                 onChange={handleInputChange}
-                label="المادة الدراسية"
                 required
-              >
-                <MenuItem value="1">الرياضيات</MenuItem>
-                <MenuItem value="2">العلوم</MenuItem>
-                <MenuItem value="3">اللغة العربية</MenuItem>
-                <MenuItem value="4">اللغة الإنجليزية</MenuItem>
-              </Select>
-            </FormControl>
+                fullWidth
+              />
+            </Grid>
+            <Grid sx={{ width: "48%" }}>
+              <TextField
+                name="description"
+                label="وصف الامتحان"
+                value={formData.description}
+                onChange={handleInputChange}
+                multiline
+                fullWidth
+                minRows={1}
+              />
+            </Grid>
+          </Grid>
 
-            <TextField
-              name="title"
-              label="عنوان الامتحان"
-              value={formData.title}
-              onChange={handleInputChange}
-              required
-              fullWidth
-            />
+          {/* Exam Date and Max Degree */}
+          <Grid container spacing={2}>
+            <Grid sx={{ width: "48%" }}>
+              <RTLDatePicker
+                value={formData.exam_date}
+                onChange={(date) =>
+                  setFormData((prev) => ({ ...prev, exam_date: date }))
+                }
+                label="تاريخ الامتحان"
+              />
+            </Grid>
+            <Grid sx={{ width: "48%" }}>
+              <TextField
+                name="max_degree"
+                label="الدرجة الكاملة"
+                type="number"
+                value={formData.max_degree}
+                onChange={handleInputChange}
+                inputProps={{ min: 0 }}
+                required
+                fullWidth
+              />
+            </Grid>
+          </Grid>
 
-            <TextField
-              name="description"
-              label="وصف الامتحان"
-              value={formData.description}
-              onChange={handleInputChange}
-              multiline
-              fullWidth
-            />
-
-            <TextField
-              name="exam_date"
-              label="تاريخ الامتحان"
-              type="date"
-              value={formData.exam_date}
-              onChange={handleInputChange}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              required
-              fullWidth
-            />
-
-            <TextField
-              name="max_degree"
-              label="الدرجة الكاملة"
-              type="number"
-              value={formData.max_degree}
-              onChange={handleInputChange}
-              inputProps={{ min: 0 }}
-              required
-              fullWidth
-            />
-
+          {/* File Upload */}
+          <Box>
             <Button
               component="label"
               variant="outlined"
-              startIcon={<CloudUpload />}
+              startIcon={<CloudUpload sx={{ ml: 2 }} />}
               sx={{ py: 1.5 }}
+              fullWidth
             >
               رفع ملف الامتحان
-              <VisuallyHiddenInput 
-                type="file" 
+              <VisuallyHiddenInput
+                type="file"
                 onChange={handleFileChange}
                 accept=".xlsx,.xls,.pdf"
                 required
               />
             </Button>
-            
+
             {formData.file && (
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                الملف المحدد: {formData.file.name}
+              <Typography
+                variant="body2"
+                sx={{ color: "text.secondary", mt: 1 }}
+              >
+                تم الرفع
               </Typography>
             )}
           </Box>
-        </DialogContent>
+        </Box>
+      </DialogContent>
 
-        <DialogActions sx={{ p: 3, pt: 0 }}>
-          <Button 
-            onClick={onClose} 
-            disabled={loading}
-            sx={{ color: 'text.secondary' }}
-          >
-            إلغاء
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={loading}
-            onClick={handleSubmit}
-            startIcon={loading ? <CircularProgress size={20} /> : <Save />}
-            sx={{ px: 3 }}
-          >
-            {loading ? 'جاري الحفظ...' : 'حفظ'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+      <DialogActions sx={{ p: 3, pt: 0 }}>
+        <Button onClick={onClose} sx={{ color: "text.secondary" }}>
+          إلغاء
+        </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          onClick={handleSubmit}
+          startIcon={<Save sx={{ ml: 2 }} />}
+          sx={{ px: 3 }}
+        >
+          {"حفظ"}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

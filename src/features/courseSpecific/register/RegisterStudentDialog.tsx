@@ -12,13 +12,15 @@ import {
   StepLabel,
   Autocomplete,
   Typography,
-  Divider,
 } from "@mui/material";
 import { QrCodeScanner, Search as SearchIcon } from "@mui/icons-material";
 import { Student } from "../../../interfaces/Student";
 import useSendData from "../../../hooks/useSendData";
 import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
 import { useSnackbar } from "../../../contexts/SnackbarContext";
+import useFetchDataId from "../../../hooks/useFetchDataId";
+import { Invoice } from "../../../interfaces/Invoice";
+import InvoiceCard from "../financial/InvoiceCard";
 
 interface RegisterStudentDialogProps {
   open: boolean;
@@ -26,7 +28,7 @@ interface RegisterStudentDialogProps {
   students: Student[];
 }
 
-const steps = ["اختيار الطالب", "إدخال المبلغ", "التأكيد"];
+const steps = ["اختيار الطالب", "تحديد المدفوعات"];
 
 const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
   open,
@@ -37,11 +39,16 @@ const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
   const { showSnackbar } = useSnackbar();
   const [activeStep, setActiveStep] = useState(0);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [paymentAmount, setPaymentAmount] = useState("");
+  const [selectedInvoices, setSelectedInvoices] = useState<Invoice[]>([]); // changed!!
   const [searchTerm, setSearchTerm] = useState("");
 
   const { mutate: registerStudentAtCourse } = useSendData(
     "/course/registerAtCourse"
+  );
+
+  const { data: invoices } = useFetchDataId<Invoice[]>(
+    `/invoice/allInvoices/${selectedCourseId}`,
+    selectedCourseId as string | undefined
   );
 
   const handleNext = () => {
@@ -52,24 +59,33 @@ const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
     setActiveStep((prev) => prev - 1);
   };
 
+  const handleInvoiceSelect = (invoice: Invoice) => {
+    setSelectedInvoices((prev) =>
+      prev.some((inv) => inv.id === invoice.id)
+        ? prev.filter((i) => i.id !== invoice.id)
+        : [...prev, invoice]
+    );
+  };
+
   const handleConfirm = () => {
-    if (selectedStudent && paymentAmount) {
-      registerStudentAtCourse(
-        {
-          course_id: selectedCourseId,
-          student_id: selectedStudent.id,
-          payment: paymentAmount,
+    const formData = new FormData();
+    formData.append("course_id", selectedCourseId || "-1");
+    formData.append("student_id", selectedStudent?.id || "-1");
+
+    selectedInvoices.forEach((invoice, index) => {
+      formData.append(`invoice[${index}]`, invoice.id);
+    });
+
+    if (selectedStudent && selectedInvoices.length > 0) {
+      registerStudentAtCourse(formData, {
+        onSuccess: (response) => {
+          console.log(response.data);
+          showSnackbar(response.message, "success");
         },
-        {
-          onSuccess: (response) => {
-            console.log(response.data);
-            showSnackbar(response.message, "success");
-          },
-          onError: (error) => {
-            showSnackbar(error.message, "error");
-          },
-        }
-      );
+        onError: (error) => {
+          showSnackbar(error.message, "error");
+        },
+      });
       handleClose();
     }
   };
@@ -77,7 +93,7 @@ const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
   const handleClose = () => {
     setActiveStep(0);
     setSelectedStudent(null);
-    setPaymentAmount("");
+    setSelectedInvoices([]);
     setSearchTerm("");
     onClose();
   };
@@ -86,6 +102,12 @@ const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
     `${student.first_name} ${student.father_name} ${student.last_name} ${student.id}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
+  );
+
+  // Calculate total amount
+  const totalAmount = selectedInvoices.reduce(
+    (sum, invoice) => sum + Number(invoice.value),
+    0
   );
 
   return (
@@ -97,7 +119,7 @@ const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
           justifyContent="space-between"
           alignItems="center"
         >
-          <Typography variant="h6">تسجيل دفعة للطالب</Typography>
+          <Typography variant="h6">تسجيل الطالب</Typography>
           <Stepper activeStep={activeStep} sx={{ width: "60%" }}>
             {steps.map((label) => (
               <Step key={label}>
@@ -146,43 +168,30 @@ const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
         )}
 
         {activeStep === 1 && selectedStudent && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>
-              الطالب المحدد: {selectedStudent.first_name}{" "}
-              {selectedStudent.father_name} {selectedStudent.last_name}
-            </Typography>
-            <Divider sx={{ my: 2 }} />
-            <TextField
-              label="مبلغ الدفعة"
-              variant="outlined"
-              fullWidth
-              type="number"
-              value={paymentAmount}
-              onChange={(e) => setPaymentAmount(e.target.value)}
-              InputProps={{
-                endAdornment: <Typography sx={{ ml: 1 }}>ل.س</Typography>,
-              }}
-            />
-          </Box>
-        )}
-
-        {activeStep === 2 && selectedStudent && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>
-              تأكيد تسجيل الدفعة
-            </Typography>
-            <Divider sx={{ my: 2 }} />
+          <>
+            <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+              {invoices?.data.map((invoice) => {
+                const isSelected = selectedInvoices.some(
+                  (inv) => inv.id === invoice.id
+                );
+                return (
+                  <InvoiceCard
+                    key={invoice.id}
+                    invoice={invoice}
+                    isSelected={isSelected}
+                    isFuture={false}
+                    onClick={() => handleInvoiceSelect(invoice)}
+                  />
+                );
+              })}
+            </Box>
             <Typography>
-              <strong>الطالب:</strong> {selectedStudent.first_name}{" "}
-              {selectedStudent.father_name} {selectedStudent.last_name}
+              المبلغ الكلي:
+              ${totalAmount}
             </Typography>
-            <Typography sx={{ mt: 1 }}>
-              <strong>المبلغ:</strong> {paymentAmount} ل.س
-            </Typography>
-          </Box>
+          </>
         )}
       </DialogContent>
-
       <DialogActions sx={{ p: 3 }}>
         {activeStep > 0 && (
           <Button onClick={handleBack} variant="outlined">
@@ -202,7 +211,7 @@ const RegisterStudentDialog: React.FC<RegisterStudentDialogProps> = ({
             onClick={handleConfirm}
             variant="contained"
             color="primary"
-            disabled={!paymentAmount}
+            disabled={selectedInvoices.length === 0}
           >
             تأكيد
           </Button>

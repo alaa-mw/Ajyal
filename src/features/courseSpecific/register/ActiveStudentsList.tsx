@@ -118,10 +118,10 @@ const ActiveStudentsList = ({ activeStudents, isLoading }: Props) => {
   return (
     <Box sx={{ p: 0 }} onMouseLeave={handleMouseUp} onMouseUp={handleMouseUp}>
       <Stack direction={"row"} justifyContent={"space-between"}>
-        <Typography variant="h6" sx={{ mb: 0 }}>
-          الطلاب الفعليين
+        {/* <Typography variant="h6" sx={{ mb: 0 }}>
+          الطلاب 
           <Typography variant="body2" color="grey">(اسحب لتحديد متعدد)</Typography>
-        </Typography>
+        </Typography> */}
 
         {selectedStudents.length > 0 && (
           <Box sx={{ mb: 1, display: "flex", gap: 2 }}>

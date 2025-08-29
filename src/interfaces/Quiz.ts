@@ -1,4 +1,5 @@
 import { Image } from "./Image";
+import { Student } from './Student';
 
 export interface Choice {
   id?: string;
@@ -22,7 +23,7 @@ export interface Question {
 }
 
 export interface Quiz {
-   mode: 'create' | 'edit';
+  mode: 'create' | 'edit';
   isChange:boolean;
   id: string;
   curriculum_id: string;
@@ -33,4 +34,12 @@ export interface Quiz {
   duration: number;
   start_time: string;
   questions: Question[];
+  max_degree?:string;
+  student_quizzes?:StudentResult[];
+}
+
+export interface StudentResult{
+  id:string;
+  result:number;
+  student:Student;
 }

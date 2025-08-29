@@ -1,10 +1,11 @@
-import { Box, IconButton, Paper, Typography } from "@mui/material";
+import { alpha, Box, IconButton, Paper, Typography } from "@mui/material";
 import Group from "@mui/icons-material/Group";
 import theme from "../../styles/mainThem";
 import { NoteAdd } from "@mui/icons-material";
 import useSendData from "../../hooks/useSendData";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useSnackbar } from "../../contexts/SnackbarContext";
+import { Curriculum } from "../../interfaces/Curriculum";
 
 const colors = [
   theme.palette.tertiary.main,
@@ -12,48 +13,26 @@ const colors = [
   theme.palette.secondary.main,
 ];
 
-const subjects = [
-  {
-    name: "Mathematics",
-    teachers: ["Ahmed Ali", "Fatima Mohammed", "Omar Hassan"],
-  },
-  {
-    name: "Science",
-    teachers: ["Yousef Ibrahim", "Layla Abdullah"],
-  },
-  {
-    name: "Arabic Language",
-    teachers: [
-      "Khalid Mahmoud",
-      "Aisha Omar",
-      "Mohammed Nasser",
-      "Samira Ahmed",
-    ],
-  },
-  {
-    name: "English Language",
-    teachers: ["Sarah Johnson", "David Smith"],
-  },
-  {
-    name: "History",
-    teachers: ["Noor Khalid", "Abdulrahman Saleh"],
-  },
-];
-
-const SubjectCard = ({ index = 0, curriculum_id ="1" }) => { // fix curriculum_id
+const SubjectCard = ({
+  index = 0,
+  curr,
+}: {
+  index?: number;
+  curr: Curriculum;
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showSnackbar } = useSnackbar();
   const { mutate: storeFile } = useSendData("/course/store-file");
 
-  const handleUpload = (event) => { 
+  const handleUpload = (event) => {
     const file = event.target.files[0];
-    if(!file) return;
+    if (!file) return;
 
     // إنشاء كائن FormData جديد
     const formData = new FormData();
-    formData.append('curriculum_id', curriculum_id); //fix
-    formData.append('title', file.name.split('.').slice(0, -1).join('.'));
-    formData.append('file', file);
+    formData.append("curriculum_id", curr.id); //fix
+    formData.append("title", file.name.split(".").slice(0, -1).join("."));
+    formData.append("file", file);
 
     // استخدام formData مباشرة في storeFile
     storeFile(formData, {
@@ -68,9 +47,10 @@ const SubjectCard = ({ index = 0, curriculum_id ="1" }) => { // fix curriculum_i
         elevation={3}
         sx={{
           minWidth: 250,
+          minHeight:180,
           p: 2,
           borderRadius: 2,
-          bgcolor: "background.paper",
+          bgcolor: alpha(colors[index % colors.length],0.08) ,//"background.paper",
           borderRight: `7px solid ${colors[index % colors.length]}`,
           "&:hover": {
             boxShadow: 6,
@@ -96,7 +76,7 @@ const SubjectCard = ({ index = 0, curriculum_id ="1" }) => { // fix curriculum_i
               pb: 0.5,
             }}
           >
-            اللغة العربية
+            {curr.subject?.name || "Unknown Subject"}
           </Typography>
           {/* Hidden file input */}
           <input
@@ -127,9 +107,10 @@ const SubjectCard = ({ index = 0, curriculum_id ="1" }) => { // fix curriculum_i
               المدرسين:
             </Typography>
           </Box>
-          {subjects[0].teachers.map((teacher, teacherIndex) => (
-            <Typography key={teacherIndex} component="li" variant="body1">
-              {teacher}
+
+          {curr.teachers?.map((teacher) => (
+            <Typography key={teacher.id} component="li" variant="body1">
+              {teacher.name}
             </Typography>
           ))}
         </Box>

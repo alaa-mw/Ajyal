@@ -1,24 +1,42 @@
+
 import React, { useState } from "react";
 import QuizCard from "./QuizCard";
 import { Box, Stack, Typography, Pagination } from "@mui/material";
 import theme from "../../../styles/mainThem";
-const labels = ["العنوان", "النوع", "معدل النجاح", "تاريخ التقدم"];
-const itemsPerPage = 5; // Number of items to show per page
+import { QuizResult } from "../../../interfaces/Course";
 
-const QuizList = () => {
+interface QuizListProps {
+  quizzes?: QuizResult[];
+}
+
+const labels = ["العنوان",
+   "النوع", 
+    "تاريخ التقدم", 
+   "متوسط ​​النتيجة",
+    "النتائج"];
+const itemsPerPage = 5;
+
+const QuizList = ({ quizzes = [] }: QuizListProps) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalItems = 12; // Total number of quiz items
+
+  // Calculate pagination
+  const totalItems = quizzes.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-  // Calculate which items to display on current page
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentItems = Array.from({ length: totalItems })
-    .slice(startIndex, endIndex)
-    .map((_, index) => startIndex + index);
+  const currentQuizzes = quizzes.slice(startIndex, startIndex + itemsPerPage);
 
-  const handlePageChange = (event, page) => {
+  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
+  };
+
+  // Function to determine quiz status based on available property
+  const getQuizStatus = (quiz: QuizResult) => {
+    return quiz.available === 1 ? "مفتوح" : "مغلق";
+  };
+
+  // Function to calculate success rate (you might want to adjust this logic)
+  const getSuccessRate = (quiz: QuizResult) => {
+    return quiz.mean_result || 0;
   };
 
   return (
@@ -41,95 +59,47 @@ const QuizList = () => {
         ))}
       </Box>
 
-      {/* Quiz cards container without scroll */}
+      {/* Quiz cards */}
       <Stack spacing={2} sx={{ borderRadius: 2 }}>
-        {currentItems.map((itemIndex) => (
-          <QuizCard key={`quiz-card-${itemIndex}`} />
+        {currentQuizzes.map((quiz) => (
+          <QuizCard 
+            key={quiz.id} 
+            quiz={quiz}
+            successRate={getSuccessRate(quiz)}
+            status={getQuizStatus(quiz)}
+          />
         ))}
+        
+        {quizzes.length === 0 && (
+          <Typography textAlign="center" color="text.secondary" py={4}>
+            لا توجد اختبارات
+          </Typography>
+        )}
       </Stack>
 
-      {/* Pagination controls */}
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={handlePageChange}
-          sx={{
-            "& .MuiPaginationItem-root": {
-              color: theme.palette.primary.main,
-              borderColor: theme.palette.primary.main,
-            },
-            "& .Mui-selected": {
-              backgroundColor: theme.palette.primary.main,
-              color: "#fff",
-            },
-          }}
-        />
-      </Box>
+      {/* Pagination - only show if there are multiple pages */}
+      {totalPages > 1 && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            sx={{
+              "& .MuiPaginationItem-root": {
+                color: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+              },
+              "& .Mui-selected": {
+                backgroundColor: theme.palette.primary.main,
+                color: "#fff",
+              },
+            }}
+          />
+        </Box>
+      )}
+      
     </Stack>
   );
 };
 
 export default QuizList;
-
-// import QuizCard from "./QuizCard";
-// import { Box, Stack, Typography } from "@mui/material";
-// import theme from "../../styles/mainThem";
-// const labels = ["العنوان", "النوع", "الحالة", "معدل النجاح", "المزيد"];
-// const QuizList = () => {
-//   return (
-//     <Stack>
-//       <Box display={"flex"} gap={4} paddingX={3.5} mb={2}>
-//         {labels.map((item) => (
-//           <Typography
-//             sx={{
-//               width: 120,
-//               textAlign: "center",
-//               bgcolor: theme.palette.tertiary.main,
-//               color: "white",
-//               borderRadius: 5,
-//               p: 0.5,
-//             }}
-//           >
-//             {item}
-//           </Typography>
-//         ))}
-//       </Box>
-//       {/* Vertical scrollable cards container */}
-//       <Box
-//         sx={{
-//           height: "470px", // Fixed height for scroll container
-//           overflowY: "auto",
-//           pr: 0.5, // Space for scrollbar
-//           pt:0.5,
-//           // Custom scrollbar styling
-//           "&::-webkit-scrollbar": {
-//             width: "4px",
-//           },
-//           "&::-webkit-scrollbar-track": {
-//             background: theme.palette.grey[100],
-//             borderRadius: "4px",
-//           },
-//           "&::-webkit-scrollbar-thumb": {
-//             background: theme.palette.grey[400],
-//             borderRadius: "4px",
-//             "&:hover": {
-//               background: theme.palette.grey[500],
-//             },
-//           },
-//         }}
-//       >
-//         <Stack
-//           spacing={2}
-//           sx={{ borderRadius: 2}}
-//         >
-//           {Array.from({ length: 12 }).map((_, index) => (
-//             <QuizCard key={`quiz-card-${index}`} />
-//           ))}
-//         </Stack>
-//       </Box>
-//     </Stack>
-//   );
-// };
-
-// export default QuizList;

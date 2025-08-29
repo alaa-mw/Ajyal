@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   List,
   ListItem,
   ListItemText,
   Checkbox,
   Typography,
-  Paper,
-  Avatar,
-  ListItemAvatar,
   Chip,
   Drawer,
   Box,
@@ -23,21 +20,31 @@ import {
 } from "@mui/icons-material";
 import { getStudentName } from "../../../utils/getStudentName";
 import { CourseRegistrationsStudent } from "../../../interfaces/Course";
+import useSendData from "../../../hooks/useSendData";
+import { useSnackbar } from "../../../contexts/SnackbarContext";
 
 interface AbsenceCheckListProps {
   students: CourseRegistrationsStudent[];
+  classRoomId: string;
   open: boolean;
   onClose: () => void;
-  onSave?: (absentStudents: string[]) => void;
 }
 
 const AbsenceCheckList: React.FC<AbsenceCheckListProps> = ({
   students = [],
+  classRoomId,
   open,
   onClose,
-  onSave,
 }) => {
   const [absencesList, setAbsencesList] = useState<string[]>([]);
+  const { showSnackbar } = useSnackbar();
+
+  const { mutate: storeAbsence } = useSendData("/absence/store-absences");
+
+  // The component doesn't unmount because MUI's Drawer is designed to keep the content mounted for smoother animations and state persistence.
+  useEffect(() => {
+    setAbsencesList([]);
+  }, [open]); // Reset when open state changes
 
   const handleAbsenceChange = (registrationId: string, isPresent: boolean) => {
     setAbsencesList((prev) =>
@@ -48,9 +55,23 @@ const AbsenceCheckList: React.FC<AbsenceCheckListProps> = ({
   };
 
   const handleSave = () => {
-    if (onSave) {
-      onSave(absencesList);
+    const today = new Date(); // today 29/8 , this line return 28/8 , fix
+
+    console.log(today.toLocaleDateString("en-CA"));
+    const formData = new FormData();
+    formData.append("absence_date", today.toLocaleDateString("en-CA"));
+    formData.append("classroom_course_id", classRoomId);
+
+    absencesList.forEach((absenceId, index) => {
+      formData.append(`registration_ids[${index}]`, absenceId);
+    });
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
     }
+    storeAbsence(formData, {
+      onSuccess: (response) => showSnackbar(response.message, "success"),
+      onError: (error) => showSnackbar(error.message, "error"),
+    });
     onClose();
   };
 
@@ -100,6 +121,14 @@ const AbsenceCheckList: React.FC<AbsenceCheckListProps> = ({
 
       <Box sx={{ flex: 1, overflow: "auto" }}>
         <List dense>
+          {students.length == 0 && (
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: "bold", color: "gray" }}
+            >
+              لا يوجد طلاب
+            </Typography>
+          )}
           {students.map((registration) => (
             <ListItem
               key={registration.id}

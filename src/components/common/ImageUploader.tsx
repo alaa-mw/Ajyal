@@ -4,6 +4,8 @@ import { AddCircle, Delete } from "@mui/icons-material";
 import theme from "../../styles/mainThem";
 import { Image } from "../../interfaces/Image";
 import getImageUrl from "../../services/image-url";
+import useSendData from "../../hooks/useSendData";
+import { useSnackbar } from "../../contexts/SnackbarContext";
 
 interface ImageUploaderProps {
   maxImages?: number;
@@ -17,7 +19,9 @@ export const ImageUploader = ({
   setSelectedImages,
 }: ImageUploaderProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { mutate: deleteImg } = useSendData("/image/delete");
 
+  const { showSnackbar } = useSnackbar();
   useEffect(() => {
     console.log(selectedImages);
   }, [selectedImages]);
@@ -51,6 +55,18 @@ export const ImageUploader = ({
   const handleRemoveImage = (id: string) => {
     const imageToRemove = selectedImages.find((img) => img.id === id);
 
+    console.log("id", id);
+    if (!String(id).startsWith('temp')) {
+      deleteImg(
+        { image_id: id },
+        {
+          onSuccess: (response) => showSnackbar(response.message, "success"),
+          onError: (error) => showSnackbar(error.message, "error"),
+        }
+      );
+    }
+    
+    console.log("complete");
     if (imageToRemove?.path?.startsWith("blob:")) {
       URL.revokeObjectURL(imageToRemove.path);
     }

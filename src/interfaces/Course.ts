@@ -25,3 +25,21 @@ export interface CourseRegistrationsStudent {
     updated_at: string;
     student: Student;
 }
+
+export interface CourseQuizzes{
+    with_results?:QuizResult[],
+    without_results?:QuizResult[]
+}
+
+export interface QuizResult {
+  id: string,
+  curriculum_teacher_id: string,
+  topic_id: string,
+  curriculum_id: string,
+  name: string,
+  type: string,
+  available: number,
+  start_time: string,
+  duration: number,
+  mean_result: number
+}

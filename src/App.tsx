@@ -27,6 +27,7 @@ import QuizList from "./features/quizzes/Viewer/QuizList.tsx";
 import CourseRegisterPage from "./features/courseSpecific/register/CourseRegisterPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import CourseFinancialPage from "./features/courseSpecific/financial/CourseFinancialPage.tsx";
+import InvoiceCreator from "./features/courseSpecific/financial/InvoiceCreator.tsx";
 
 function App() {
   const navigate = useNavigate();
@@ -86,10 +87,10 @@ function App() {
                   path="course-scientific-content"
                   element={<CourseScientificContentPage />}
                 />
-                <Route
-                  path="course-financial"
-                  element={<CourseFinancialPage />}
-                />
+                <Route path="course-financial">
+                  <Route index element={<CourseFinancialPage />} />
+                  <Route path="create" element={<InvoiceCreator />} />
+                </Route>
               </Route>
             </Route>
 

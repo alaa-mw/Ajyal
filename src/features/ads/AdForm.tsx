@@ -12,7 +12,6 @@ import {
   Autocomplete,
   LinearProgress,
 } from "@mui/material";
-import { SelectChangeEvent } from "@mui/material/Select";
 import FormField from "../../components/common/FormField";
 import theme from "../../styles/mainThem";
 import useSendData from "../../hooks/useSendData";
@@ -57,7 +56,9 @@ const AdForm = () => {
     dispatch(updateAdField({ field: name as keyof Advertisement, value }));
   };
 
-  const handleSelectChange = (e: SelectChangeEvent) => {
+  const handleSelectChange = (e: {
+    target: { value: string | null; name: string };
+  }) => {
     const { name, value } = e.target;
 
     if (value === "teacher") fetchTeachers();
@@ -124,7 +125,7 @@ const AdForm = () => {
               <Select
                 name="advertisable_type"
                 value={formData.advertisable_type}
-                onChange={() => handleSelectChange}
+                onChange={(e) => handleSelectChange(e)}
                 label="نوع الإعلان"
               >
                 <MenuItem value="">عام</MenuItem>

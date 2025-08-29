@@ -1,13 +1,6 @@
 import { getStudentName } from "../../../utils/getStudentName";
 import { useState, useEffect, useMemo } from "react";
-import {
-  Typography,
-  Container,
-  Grid,
-  Stack,
-  Button,
-  Box,
-} from "@mui/material";
+import { Typography, Container, Grid, Stack, Button, Box } from "@mui/material";
 import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
 import useFetchDataId from "../../../hooks/useFetchDataId";
 import useFetchData from "../../../hooks/useFetchData";
@@ -23,6 +16,7 @@ import AbsenceCheckList from "./AbsenceCheckList";
 import { Checklist } from "@mui/icons-material";
 import ExcelDownloader from "../content/ExcelDownloader";
 import PaperExamDialog from "./PaperExamDialog";
+import { TodayAbsence } from "../../../interfaces/TodayAbsence";
 
 const CourseRegisterPage = () => {
   const { selectedCourseId } = useSelectedCourse();
@@ -59,6 +53,14 @@ const CourseRegisterPage = () => {
 
   const { data: ajyalStudentsData } = useFetchData<Student[]>("/student/all");
 
+  const { data: todayAbsence } = useFetchDataId<TodayAbsence>(
+    `/absence/today-absence/${selectedCourseId}`,
+    selectedCourseId as string | undefined
+  );
+
+  const isAbsence = todayAbsence?.data.classrooms_with_absence.some(
+    (cls) => cls.classroom_id === selectedClassroom
+  );
   // This effect updates the student list based on the main data source
   useEffect(() => {
     setStudentList(allStudentsInCourseData?.data || []);
@@ -126,20 +128,20 @@ const CourseRegisterPage = () => {
                 <Button
                   variant="contained"
                   onClick={() => setDrawerOpen(true)}
-                  startIcon={<Checklist  />}
+                  startIcon={<Checklist sx={{ml:1}} />}
+                  disabled={isAbsence}
                 >
-                  تفقد الحضور
+                  {isAbsence ? "تم التفقد" : "تفقد الحضور"}
                 </Button>
                 <ExcelDownloader />
-                 <Button
+                <Button
                   variant="contained"
-                  startIcon={<Checklist />}
+                  startIcon={<Checklist sx={{ml:1}} />}
                   onClick={() => setOpenPaperDialog(true)}
                   sx={{ mx: 1 }}
                 >
                   رفع العلامات
                 </Button>
-                
               </Box>
             )}
             <ActiveStudentsList
@@ -165,12 +167,12 @@ const CourseRegisterPage = () => {
       <PaperExamDialog
         open={openPaperDialog}
         onClose={() => setOpenPaperDialog(false)}
-        />
-
+      />
 
       {/* Bottom Drawer for Absence Checklist */}
       <AbsenceCheckList
         students={displayedStudents}
+        classRoomId={selectedClassroom}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         // onSave={handleSaveAbsences}

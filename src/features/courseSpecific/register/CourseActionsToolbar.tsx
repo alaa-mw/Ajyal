@@ -4,19 +4,14 @@ import {
   Button,
   Stack,
   Card,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Typography,
   Box,
-  Chip,
   Grid,
+  Paper,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import theme from "../../../styles/mainThem";
-import { useState } from "react";
 import { ClassRoom } from "../../../interfaces/ClassRoom";
 
 interface CourseActionsToolbarProps {
@@ -36,11 +31,7 @@ const CourseActionsToolbar = ({
   classRooms,
   onAddNewStudent,
 }: CourseActionsToolbarProps) => {
-  const [expanded, setExpanded] = useState(false);
 
-  const handleAccordionChange = () => {
-    setExpanded(!expanded);
-  };
   return (
     <Card sx={{ p: 2, borderRadius: 3, boxShadow: 3 }}>
       <Stack direction="column" spacing={2}>
@@ -77,113 +68,87 @@ const CourseActionsToolbar = ({
             </Button>
           </Grid>
         </Grid>
-        {/* Classroom Accordion Filter */}
-        <Accordion
-          expanded={expanded}
-          onChange={handleAccordionChange}
-          sx={{ boxShadow: "none" }}
+        <Box
+          sx={{
+            px: 2,
+          }}
         >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            sx={{
-              minHeight: "auto",
-              py: 0,
-              "& .MuiAccordionSummary-content": {
-                my: 1,
-              },
-              "&.Mui-expanded": {
-                minHeight: "auto !important",
-                my: 0,
-              },
-            }}
-          >
-            <Typography variant="subtitle1">
-              الشعب الدراسية
-              {selectedClassroom !== "all" && (
-                <Chip
-                  label={`محدد: ${
-                    classRooms.find((c) => c.id === selectedClassroom)
-                      ?.class_number || ""
-                  }`}
-                  size="small"
-                  sx={{ bgcolor: theme.palette.tertiary.main, mx: 1 }}
-                />
-              )}
+          {/* العنوان */}
+
+          {/* خيارات التصفية */}
+          <Stack direction="row" spacing={1} sx={{ overflowX: "auto", p: 1 }}>
+            <Typography variant="subtitle1" gutterBottom>
+              الشعب الدراسية:
             </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Stack spacing={1}>
-              <Button
-                variant={"outlined"}
-                onClick={() => {
-                  onClassroomChange("all");
-                  setExpanded(false);
-                }}
-                fullWidth
-                sx={{
-                  justifyContent: "flex-start",
-                  bcolor:
-                    selectedClassroom === "all"
-                      ? "action.selected"
-                      : "background.paper",
-                      py:0
-                }}
-              >
-                كل الشعب
-              </Button>
-              <Button
-                variant={"outlined"}
-                onClick={() => {
-                  onClassroomChange("-1");
-                  setExpanded(false);
-                }}
-                fullWidth
-                sx={{
-                  justifyContent: "flex-start",
-                  bcolor:
-                    selectedClassroom === "-1"
-                      ? "action.selected"
-                      : "background.paper",
-                      py:0
-                }}
-              >
-                بلا شعبة
-              </Button>
-              {classRooms.map((cls) => (
-                <Box
-                  key={cls.id}
-                  onClick={() => {
-                    onClassroomChange(cls.id);
-                    setExpanded(false);
-                  }}
-                  sx={{
-                    px: 1,
-                    borderRadius: 1,
-                    cursor: "pointer",
-                    bgcolor:
-                      selectedClassroom === cls.id
-                        ? "action.selected"
-                        : "background.paper",
-                    "&:hover": { bgcolor: "action.hover" },
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography>{cls.class_number}</Typography>
-                  <Chip
-                    label={cls.class_number ? "تم التفقد" : "لم يتم التفقد"}
-                    size="small"
-                    color={cls.class_number ? "success" : "warning"}
-                  />
-                </Box>
-              ))}
-            </Stack>
-          </AccordionDetails>
-        </Accordion>
+            <Paper />
+            {/* خيار "كل الشعب" */}
+            <ClassroomCard
+              id="all"
+              selectedId={selectedClassroom}
+              onClick={onClassroomChange}
+              title="كل الشعب"
+            />
+            <ClassroomCard
+              id="-1"
+              selectedId={selectedClassroom}
+              onClick={onClassroomChange}
+              title="بلا شعبة"
+            />
+
+            {/* البطاقات الخاصة بكل شعبة */}
+            {classRooms.map((cls) => (
+              <ClassroomCard
+                key={cls.id}
+                id={cls.id}
+                selectedId={selectedClassroom}
+                onClick={onClassroomChange}
+                title={cls.class_number}
+              />
+            ))}
+          </Stack>
+        </Box>
       </Stack>
     </Card>
   );
 };
 
 export default CourseActionsToolbar;
+
+const ClassroomCard = ({ id, selectedId, onClick, title }) => {
+  const isSelected = selectedId === id;
+
+  return (
+    <Paper
+      onClick={() => onClick(id)}
+      elevation={isSelected ? 3 : 0}
+      sx={{
+        minWidth: 100,
+        p: 0.7,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        border: `2px solid ${
+          isSelected ? theme.palette.primary.main : theme.palette.grey[300]
+        }`,
+        borderRadius: 2,
+        boxShadow: isSelected
+          ? `0 0 0 2px ${theme.palette.primary.light}`
+          : "none",
+        backgroundColor: isSelected
+          ? theme.palette.action.selected
+          : "background.paper",
+        transition: "all 0.2s ease",
+        "&:hover": {
+          boxShadow: `0 0 0 2px ${theme.palette.primary.light}`,
+          borderColor: theme.palette.primary.main,
+        },
+      }}
+    >
+      <Typography variant="body2" sx={{ textAlign: "center" }}>
+        {title}
+      </Typography>
+    </Paper>
+  );
+};

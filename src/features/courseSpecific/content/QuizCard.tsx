@@ -2,75 +2,130 @@ import {
   Box,
   CircularProgress,
   CircularProgressProps,
-  IconButton,
+  Button,
   Stack,
   Typography,
+  alpha,
 } from "@mui/material";
 import theme from "../../../styles/mainThem";
-import { Lock, MoreVert } from "@mui/icons-material";
-import { grey } from "@mui/material/colors";
+import { QuizResult } from "../../../interfaces/Course";
+import { useState } from "react";
+import useFetchDataId from "../../../hooks/useFetchDataId";
+import StudentResultsList from "./StudentResultsList";
+import { Quiz } from "../../../interfaces/Quiz";
 
-const QuizCard = () => {
+interface QuizCardProps {
+  quiz: QuizResult;
+  successRate: number;
+  status: string;
+}
+
+const QuizCard = ({ quiz, successRate, status }: QuizCardProps) => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { data: studentResult } = useFetchDataId<Quiz>(
+    `/quiz/get-quiz-result/${quiz.id}`,
+    quiz.id
+  );
+
+  const isLocked = status === "مغلق";
+  const hasResults = successRate > 0;
+
+  const splitDateTime = (dateTime: string) => {
+    const [date, time] = dateTime.split(" ");
+    return {
+      date: date.split("-").reverse().join("-"), // 23-08-2025
+      time: time, // 02:54:43
+    };
+  };
   return (
     <Box
       display={"flex"}
-      
       gap={4}
       sx={{
         p: 1,
         borderRadius: 2,
         backgroundColor: "white",
-        borderRight: `7px solid ${theme.palette.tertiary.main}`,
-        // boxShadow: "0px 2px 10px rgba(0,0,0,0.08)",
-        boxShadow: 3,
+        borderRight: `7px solid ${theme.palette.primary.main}`,
+        bgcolor: alpha(theme.palette.tertiary.main, 0.1),
+        boxShadow: 1,
         "&:hover": {
-          bgcolor: grey[100],
-          cursor: "pointer",
+          boxShadow: 3,
+          transition: "all 0.6s ease",
         },
       }}
     >
       <Stack
         sx={{ width: 120, alignItems: "center", justifyContent: "center" }}
       >
-        <Typography variant="subtitle1">اختبار الوحدة الثالثة</Typography>
+        <Typography variant="subtitle1">{quiz.name}</Typography>
         <Typography variant="caption" color="gray">
-          اللغة الانكليزية
+          اختبار
         </Typography>
       </Stack>
 
       <Stack
         sx={{ width: 120, alignItems: "center", justifyContent: "center" }}
       >
-        <Typography variant="subtitle2">مؤقت</Typography>
+        <Typography variant="subtitle2">
+          {quiz.type === "Timed" ? "محدد بوقت" : "غير محدد بوقت"}
+        </Typography>
       </Stack>
 
       <Stack
         sx={{ width: 120, alignItems: "center", justifyContent: "center" }}
       >
-        <Lock sx={{ color: "gray" }} />
-        <Typography variant="caption" color="gray">
-          مغلق
-        </Typography>
-      </Stack>
-      <Stack
-        sx={{ width: 120, alignItems: "center", justifyContent: "center" }}
-      >
-        <CircularProgressWithLabel value={90} />
-      </Stack>
-      <Stack
-        sx={{ width: 120, alignItems: "center", justifyContent: "center" }}
-      >
-        <IconButton
-        // aria-label="more"
-        // id="long-button"
-        // aria-controls={open ? "long-menu" : undefined}
-        // aria-expanded={open ? "true" : undefined}
-        // aria-haspopup="true"
-        // onClick={handleClick}
+        <Typography
+          variant="body2"
+          color={isLocked ? "gray" : "green"}
+          sx={{ whiteSpace: "pre-line" }}
         >
-          <MoreVert />
-        </IconButton>
+          {`${splitDateTime(quiz.start_time).date}\n${
+            splitDateTime(quiz.start_time).time
+          }`}
+        </Typography>
       </Stack>
+
+      <Stack
+        sx={{ width: 120, alignItems: "center", justifyContent: "center" }}
+      >
+        {hasResults ? (
+          <CircularProgressWithLabel value={successRate} />
+        ) : (
+          <Typography variant="caption" color="gray">
+            لا توجد نتائج
+          </Typography>
+        )}
+      </Stack>
+
+      <Stack
+        sx={{ width: 120, alignItems: "center", justifyContent: "center" }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={() => setDrawerOpen(true)}
+          disabled={!hasResults} // Disable if no results
+          sx={{
+            minWidth: 100,
+            fontSize: "0.75rem",
+            py: 0.5,
+            borderRadius: 1,
+            "&:disabled": {
+              backgroundColor: "grey.300",
+              color: "grey.500",
+            },
+          }}
+        >
+          فتح النتيجة
+        </Button>
+      </Stack>
+      <StudentResultsList
+        totalResult={studentResult?.data?.max_degree}
+        students={studentResult?.data.student_quizzes}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      />
     </Box>
   );
 };
@@ -102,4 +157,5 @@ function CircularProgressWithLabel(
     </Box>
   );
 }
+
 export default QuizCard;

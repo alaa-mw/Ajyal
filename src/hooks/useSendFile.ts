@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import APIClient, { FetchResponse } from "../services/api-client";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const useSendData = <TData> ( endpoint: string , data?: unknown ) => {
+export const useSendFile = <TData> ( endpoint: string , data?: unknown ) => {
     const apiClient = new APIClient<TData>(endpoint); 
     return useMutation<FetchResponse<TData>, Error, typeof data>({
       mutationFn: (bodyData? ) => {
@@ -14,4 +14,4 @@ export const useSendData = <TData> ( endpoint: string , data?: unknown ) => {
      });
   };    
 
-export default useSendData;
+export default useSendFile;
