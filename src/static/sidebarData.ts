@@ -11,6 +11,11 @@ import {
 export const SidebarData = {
     mainItems:[ 
         {
+            title: 'الرئيسية',
+            path:"/",
+            icon: HomeIcon,
+        },
+        {
             title: 'الطلاب',
             path:"/students",
             icon: SchoolIcon,

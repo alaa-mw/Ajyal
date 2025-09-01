@@ -25,6 +25,13 @@ const theme = createTheme(mainThem,{
         },
       },
     },
+  MuiStepLabel: {
+      styleOverrides: {
+        root: {
+          textAlign: 'right',
+        },
+      }
+    },
   // إعدادات مخصصة لحقول النص
     // MuiTextField: {
     //   defaultProps: {

@@ -22,7 +22,8 @@ import SkeletonTableRow from "../../components/common/SkeletonTableRow";
 
 const StudentsList = () => {
   // State and handlers remain the same
-  const { data: studentsData , isLoading} = useFetchData<Student[]>("/student/all");
+  const { data: studentsData, isLoading } =
+    useFetchData<Student[]>("/student/all");
   const activeStudents = studentsData?.data || [];
 
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
@@ -107,7 +108,7 @@ const StudentsList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {isLoading && <SkeletonTableRow cellCount={7} rowCount={3}/>}
+            {isLoading && <SkeletonTableRow cellCount={7} rowCount={3} />}
             {activeStudents.map((student, index) => (
               <TableRow
                 key={student.id}

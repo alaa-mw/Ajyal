@@ -28,6 +28,7 @@ import CourseRegisterPage from "./features/courseSpecific/register/CourseRegiste
 import AuthPage from "./pages/AuthPage.tsx";
 import CourseFinancialPage from "./features/courseSpecific/financial/CourseFinancialPage.tsx";
 import InvoiceCreator from "./features/courseSpecific/financial/InvoiceCreator.tsx";
+import HomePage from "./pages/manager-secretariat/HomePage.tsx";
 
 function App() {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ function App() {
             >
               <Route path="/manager" element={<ManagerDashboard />}>
                 <Route path="*" element={<NotFound />} />
-                {/* <Route index element={<ManagerHome />} /> */}
+                <Route index element={<HomePage />} />
                 <Route path="students" element={<StudentsPage />} />
                 <Route path="students/new" element={<NewStudent />} />
 
@@ -90,6 +91,7 @@ function App() {
                 <Route path="course-financial">
                   <Route index element={<CourseFinancialPage />} />
                   <Route path="create" element={<InvoiceCreator />} />
+                  <Route path=":studentId" element={<CourseFinancialPage />} />
                 </Route>
               </Route>
             </Route>

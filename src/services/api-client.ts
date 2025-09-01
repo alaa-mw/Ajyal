@@ -1,8 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 import { logoutSuccess } from "../features/auth/Redux/authSlice";
 import store from "../store";
-export const baseUrl =  "http://127.0.0.1:8000/";
+// export const baseUrl =  "http://127.0.0.1:8000/";
 
+export const baseUrl =  "https://71c3a0641fef.ngrok-free.app/";
 const baseAxios = axios.create({
   baseURL:baseUrl+"api",
 });
@@ -25,6 +26,7 @@ baseAxios.interceptors.request.use((config) => {
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
+    config.headers['ngrok-skip-browser-warning'] = 'true';
   }
   return config;
 });
@@ -66,7 +68,8 @@ class APIClient<T> {
     const queryString = params.toString();
     console.log("queryString",queryString);
 
-    return this.request<T>({ method: "GET", url: queryString ? `${this.endpoint}?${queryString}` : this.endpoint })
+    return this.request<T>({ method: "GET",
+       url: queryString ? `${this.endpoint}?${queryString}` : this.endpoint })
   };
 
   post = (data?: unknown) =>

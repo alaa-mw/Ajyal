@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Typography, Box, alpha, useTheme, Stack, Button } from "@mui/material";
+import {
+  Typography,
+  Box,
+  alpha,
+  useTheme,
+  Stack,
+  Button,
+  Divider,
+} from "@mui/material";
 import { isPast, parseISO } from "date-fns";
 import useFetchDataId from "../../../hooks/useFetchDataId";
 import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
@@ -10,6 +18,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import InvoiceCard from "./InvoiceCard";
 import { formattedDate } from "../../../utils/formatedDate";
+import InvoiceStudentsPayments from "./InvoiceStudentsPayments";
 
 const InvoiceTimeline = () => {
   const theme = useTheme();
@@ -175,6 +184,10 @@ const InvoiceTimeline = () => {
       >
         الجدول الزمني للفواتير
       </Typography>
+      <Divider />
+      {selectedInvoiceId && (
+        <InvoiceStudentsPayments invoiceId={selectedInvoiceId} />
+      )}
     </Box>
   );
 };

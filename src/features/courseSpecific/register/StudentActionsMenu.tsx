@@ -1,11 +1,10 @@
 import { Menu, MenuItem } from "@mui/material";
-import { Notifications, Payment, Visibility, NoteAdd } from "@mui/icons-material";
+import { Notifications, Visibility, NoteAdd } from "@mui/icons-material";
 
 interface StudentActionsMenuProps {
   anchorEl: HTMLElement | null;
   onClose: () => void;
   onSendPaymentAlert: () => void;
-  onAddPayment: () => void;
   onViewPayments: () => void;
   onAddNote: () => void;
 }
@@ -14,7 +13,6 @@ export const StudentActionsMenu = ({
   anchorEl,
   onClose,
   onSendPaymentAlert,
-  onAddPayment,
   onViewPayments,
   onAddNote,
 }: StudentActionsMenuProps) => (
@@ -22,10 +20,6 @@ export const StudentActionsMenu = ({
     <MenuItem onClick={onSendPaymentAlert}>
       <Notifications fontSize="small" sx={{ ml: 1 }} />
       إرسال تنبيه مالي
-    </MenuItem>
-    <MenuItem onClick={onAddPayment}>
-      <Payment fontSize="small" sx={{ ml: 1 }} />
-      إضافة دفعة
     </MenuItem>
     <MenuItem onClick={onViewPayments}>
       <Visibility fontSize="small" sx={{ ml: 1 }} />

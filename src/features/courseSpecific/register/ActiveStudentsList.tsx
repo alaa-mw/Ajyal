@@ -10,7 +10,6 @@ import {
   Button,
   Checkbox,
   Chip,
-  Typography,
   Box,
   IconButton,
   Stack,
@@ -25,6 +24,7 @@ import { StudentActionsMenu } from "./StudentActionsMenu";
 import { CourseRegistrationsStudent } from "../../../interfaces/Course";
 import { ClassroomAssignmentDialog } from "./ClassroomAssignmentDialog";
 import SkeletonTableRow from "../../../components/common/SkeletonTableRow";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   isLoading: boolean;
@@ -33,6 +33,7 @@ interface Props {
 
 const ActiveStudentsList = ({ activeStudents, isLoading }: Props) => {
   console.log("activeStudents",activeStudents);
+   const navigate = useNavigate();
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [isDraggingSelect, setIsDraggingSelect] = useState(false);
   const dragStartRef = useRef<number | null>(null);
@@ -100,13 +101,13 @@ const ActiveStudentsList = ({ activeStudents, isLoading }: Props) => {
     handleMenuClose();
   };
 
-  const handleAddPayment = () => {
-    setOpenPaymentDialog(true);
-    handleMenuClose();
-  };
-
+  
   const handleViewPayments = () => {
+    
     console.log("Viewing payments for:", currentStudent?.id);
+    if (currentStudent) {
+      navigate(`/manager/course-financial/${currentStudent.id}`);
+    }
     handleMenuClose();
   };
 
@@ -220,7 +221,6 @@ const ActiveStudentsList = ({ activeStudents, isLoading }: Props) => {
         anchorEl={anchorEl}
         onClose={handleMenuClose}
         onSendPaymentAlert={handleSendPaymentAlert}
-        onAddPayment={handleAddPayment}
         onViewPayments={handleViewPayments}
         onAddNote={handleAddNote}
       />
