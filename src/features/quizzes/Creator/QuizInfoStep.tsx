@@ -202,7 +202,7 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
           <TextField
             name="name"
             label="عنوان الاختبار"
-            value={quiz.name}
+            value={quiz.name || ""}
             onChange={(e) => handleQuizFieldChange("name", e.target.value)}
           />
         </FormControl>
@@ -211,7 +211,7 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
           <InputLabel>نوع الاختبار</InputLabel>
           <Select
             name="type"
-            value={quiz.type}
+            value={quiz.type || ""}
             onChange={(e) => handleQuizFieldChange("type", e.target.value)}
           >
             <MenuItem value="Timed">اختبار محدود الوقت</MenuItem>
@@ -238,7 +238,7 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
               min: 5,
               step: 5,
             }}
-            value={quiz.duration}
+            value={quiz.duration || ""}
             onChange={(e) =>
               handleQuizFieldChange("duration", Number(e.target.value))
             }

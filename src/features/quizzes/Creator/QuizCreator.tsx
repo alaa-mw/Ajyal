@@ -58,6 +58,7 @@ export const QuizCreator = ({ mode = "create" }: QuizCreatorProps) => {
       await questionsStepRef.current?.saveLastQuestion();
     } else if (activeStep === 2 && reviewStepRef.current && direction == "next") {
       await reviewStepRef.current?.done();
+       navigate("/teacher/quizzes/");
     }
     console.log("stepChange") // want no access to here until above done 
     setActiveStep((prev) => (direction === "next" ? prev + 1 : prev - 1));

@@ -93,7 +93,7 @@ export const QuestionsStep = forwardRef<QuestionsStepRef | undefined>(
             },
           });
         }
-        showSnackbar("النهاية","info");
+        // showSnackbar("النهاية","info");
         // resolve();
       });
     };

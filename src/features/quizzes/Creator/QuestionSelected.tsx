@@ -105,7 +105,8 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
   };
 
   const handleRemoveQuestion = () => {
-    if (path.length <= 1) {
+    console.log("question.id",question.id)
+    if (path.length <= 1 && question.id) { // parent + have id (exist in server)
       // parent
       deleteQuestion(
         {
@@ -114,7 +115,6 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
         {
           onSuccess: (response) => {
             showSnackbar(response.message, "success");
-
             dispatch(removeQuestion({ path }));
           },
           onError: (error) => {
@@ -122,6 +122,8 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
           },
         }
       );
+
+      // dispatch(removeQuestion({ path }));
     } else {
       dispatch(removeQuestion({ path }));
     }
