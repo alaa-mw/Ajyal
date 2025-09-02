@@ -23,7 +23,7 @@ const AdsCard = ({ advertisement }: AdsCardProps) => {
   
   const dispatch = useDispatch();
   const { showSnackbar } = useSnackbar();
-  const mainImage = getImageUrl(advertisement.images[0].path);
+  const mainImage = getImageUrl(advertisement.images[0]?.path);
   const otherImages: Image[] =
     advertisement.images?.length > 1 ? advertisement.images.slice(1) : [];
 

@@ -10,6 +10,7 @@ import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
 import useFetchDataId from "../../../hooks/useFetchDataId";
 import { file } from "../../../interfaces/File";
 import { Download } from "@mui/icons-material";
+import { baseUrl } from "../../../services/api-client";
 
 const SharedFiles = () => {
   const { selectedCourseId } = useSelectedCourse();
@@ -20,7 +21,6 @@ const SharedFiles = () => {
 
   // Construct the full URL for the PDF
   const getPdfUrl = (filePath) => {
-    const baseUrl = "http://127.0.0.1:8000/";
     return `${baseUrl}${filePath}`;
   };
 

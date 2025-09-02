@@ -7,7 +7,6 @@ import {
   TextField,
   Checkbox,
   Typography,
-  SelectChangeEvent,
 } from "@mui/material";
 import { RootState } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
@@ -69,16 +68,16 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
       );
     };
 
-    const handleTopicChange = (e: SelectChangeEvent<string>) => {
-      const topicId = e.target.value as unknown as string;
+    // const handleTopicChange = (e: SelectChangeEvent<string>) => {
+    //   const topicId = e.target.value as unknown as string;
 
-      handleQuizFieldChange("topic_id", e.target.value);
+    //   handleQuizFieldChange("topic_id", e.target.value);
 
-      const selectedTopic = sTopics?.data.topics.find((tc) => tc.id == topicId);
-      if (selectedTopic?.topic_name) {
-        handleQuizFieldChange("name", `اختبار ${selectedTopic?.topic_name}`);
-      }
-    };
+    //   const selectedTopic = sTopics?.data.topics.find((tc) => tc.id == topicId);
+    //   if (selectedTopic?.topic_name) {
+    //     handleQuizFieldChange("name", `اختبار ${selectedTopic?.topic_name}`);
+    //   }
+    // };
 
     const prepareQuizData = () => ({
       quiz_id: quiz.id,
@@ -185,16 +184,16 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
               (ادخل المنهج الدراسي لإتاحة الأقسام)
             </Typography>
           </Typography>
+          {/* قم بإزالة الـ MenuItem واستخدام Box أو أي Container آخر  */}
           <Box sx={{ ml: 1 }}>
-            {sTopics?.data.topics.map((t, index) => (
-              <MenuItem key={index} value={t.id}>
+            {sTopics?.data.topics.map((t) => (
+              <Box key={t.id} sx={{ display: "flex", alignItems: "center" }}>
                 <Checkbox
-                  checked={quiz.topic_id == t.id}
-                  onChange={handleTopicChange}
-                  value={t.id}
+                  checked={quiz.topic_id === t.id}
+                  onChange={() => handleQuizFieldChange("topic_id", t.id)} // قم بتمرير الـ ID مباشرة
                 />
                 <Typography>{t.topic_name}</Typography>
-              </MenuItem>
+              </Box>
             ))}
           </Box>
         </FormControl>
@@ -224,6 +223,7 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
           <RTLTimeDatePicker
             label="تاريخ البدء"
             value={quiz.start_time}
+            minDate={new Date()} // current date and time.
             onChange={(value) => handleQuizFieldChange("start_time", value)}
             disabled={quiz.type == "worksheet"} // handle
           />

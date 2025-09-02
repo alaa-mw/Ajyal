@@ -55,7 +55,7 @@ const QuizCard = ({ quiz, successRate, status }: QuizCardProps) => {
       }}
     >
       <Stack
-        sx={{ width: 120, alignItems: "center", justifyContent: "center" }}
+        sx={{ width: 140, alignItems: "center", justifyContent: "center" }}
       >
         <Typography variant="subtitle1">{quiz.name}</Typography>
         <Typography variant="caption" color="gray">

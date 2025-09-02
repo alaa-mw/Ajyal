@@ -1,9 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 import { logoutSuccess } from "../features/auth/Redux/authSlice";
 import store from "../store";
-// export const baseUrl =  "http://127.0.0.1:8000/";
+export const baseUrl =  "http://127.0.0.1:8000/";
 
-export const baseUrl =  "https://71c3a0641fef.ngrok-free.app/";
+// export const baseUrl =  "https://71c3a0641fef.ngrok-free.app/";
 const baseAxios = axios.create({
   baseURL:baseUrl+"api",
 });
@@ -56,17 +56,17 @@ class APIClient<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get = (queryParams:Record<string ,any>  = {}) => {
     const params = new URLSearchParams();
-    console.log("params",params);
+    // console.log("params",params);
 
     for (const key in queryParams) {
       if (queryParams[key] !== undefined) {
         params.append(key, queryParams[key]);
       }
     }
-    console.log("paramsAfter",params);
+    // console.log("paramsAfter",params);
 
     const queryString = params.toString();
-    console.log("queryString",queryString);
+    // console.log("queryString",queryString);
 
     return this.request<T>({ method: "GET",
        url: queryString ? `${this.endpoint}?${queryString}` : this.endpoint })

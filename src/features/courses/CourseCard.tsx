@@ -45,6 +45,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onClick }) => {
   return (
     <Card
       sx={{
+        width:310,
         display: "flex",
         flexDirection: "column",
         height: "100%",

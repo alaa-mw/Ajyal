@@ -57,6 +57,10 @@ const AbsenceCheckList: React.FC<AbsenceCheckListProps> = ({
   const handleSave = () => {
     const today = new Date(); // today 29/8 , this line return 28/8 , fix
 
+//     const today = new Date(prev); // Create a copy of the 'today' object
+
+// today.setDate(today.getDate() + 5);
+
     console.log(today.toLocaleDateString("en-CA"));
     const formData = new FormData();
     formData.append("absence_date", today.toLocaleDateString("en-CA"));

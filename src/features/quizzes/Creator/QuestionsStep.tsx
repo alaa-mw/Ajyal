@@ -40,8 +40,14 @@ export const QuestionsStep = forwardRef<QuestionsStepRef | undefined>(
     const handleQuestionSave = (path: number[]) => {
       return new Promise<void>((resolve, reject) => {
         const question = findQuestion(quiz.questions, path);
-        if (!question || !quiz.id) resolve();
-
+        if (!question || !quiz.id) {
+           showSnackbar("لا سؤال","info");
+          resolve()}
+          ;
+        if( question?.isChange == false){// now
+          showSnackbar("لا تغيير على السؤال","info");
+           resolve();
+        }
         if (question?.isChange && question.mode === "create") {
           createQuestion(
             {
@@ -50,6 +56,7 @@ export const QuestionsStep = forwardRef<QuestionsStepRef | undefined>(
             },
             {
               onSuccess: (response) => {
+                console.log("createRes",response.data);
                 showSnackbar(response.message, "success");
                 dispatch(
                   setQuestionData({
@@ -60,6 +67,7 @@ export const QuestionsStep = forwardRef<QuestionsStepRef | undefined>(
                 resolve();
               },
               onError: (error) => {
+              console.log("erroooooor");
                 showSnackbar(error.message, "error");
                 reject(error);
               },
@@ -68,6 +76,7 @@ export const QuestionsStep = forwardRef<QuestionsStepRef | undefined>(
         } else if (question?.isChange && question.mode === "edit") {
           updateQuestion(prepareQuestionData(question), {
             onSuccess: (response) => {
+                console.log("updateRes",response.data);
               showSnackbar(response.message, "success");
               dispatch(
                 setQuestionData({
@@ -78,12 +87,14 @@ export const QuestionsStep = forwardRef<QuestionsStepRef | undefined>(
               resolve();
             },
             onError: (error) => {
+              console.log("erroooooor");
               showSnackbar(error.message, "error");
               reject(error);
             },
           });
         }
-        resolve();
+        showSnackbar("النهاية","info");
+        // resolve();
       });
     };
 

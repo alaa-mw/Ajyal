@@ -36,9 +36,9 @@ const QuizDetailsViewer = () => {
     `/quiz/all_questions/${quizId}`,
     quizId
   );
-
+  
   const quiz = response?.data;
-
+console.log("quiz",response)
   const handleNextQuestion = () => {
     if (
       quiz &&
@@ -145,7 +145,7 @@ const QuizDetailsViewer = () => {
             </Typography>
             {viewMode === "slider" && (
               <Typography variant="caption">
-                {currentQuestion.mark} نقاط
+                {currentQuestion?.mark} نقاط
               </Typography>
             )}
           </Box>

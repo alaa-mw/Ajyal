@@ -216,7 +216,7 @@ const QuestionSelected = ({ path = [] }: QuestionSelectedProps) => {
           )}
         </Box>
 
-        {question.choices.length !== 0 && (
+        {question?.choices?.length !== 0 && (
           <>
             <TextField
               fullWidth

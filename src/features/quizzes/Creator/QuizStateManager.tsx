@@ -20,10 +20,10 @@ export const useQuizStateManager = () => {
   } = useFetchDataId<Quiz>(`/quiz/all_questions/${quizId}`, quizId);
 
   useEffect(() => {
-    console.log("fetchedQuiz", fetchedQuiz); // have 9 questions
+    console.log("**************fetchedQuiz", fetchedQuiz); // have 9 questions
     if (quiz.mode == 'create') {
       dispatch(resetQuiz());
-      return;
+      return; 
     }
 
     if (fetchedQuiz) { // edit
@@ -35,7 +35,7 @@ export const useQuizStateManager = () => {
       }
     }
     dispatch(printQuizState());
-  }, [quizId, fetchedQuiz, dispatch, showSnackbar]);
+  }, [quizId, fetchedQuiz, dispatch]);
 
   return { error, isLoading };
 };

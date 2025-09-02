@@ -56,10 +56,10 @@ export const QuizCreator = ({ mode = "create" }: QuizCreatorProps) => {
       await quizStepRef.current?.saveQuiz();
     } else if (activeStep === 1 && questionsStepRef.current) {
       await questionsStepRef.current?.saveLastQuestion();
-    } else if (activeStep === 2 && reviewStepRef.current) {
-      await reviewStepRef.current.done();
+    } else if (activeStep === 2 && reviewStepRef.current && direction == "next") {
+      await reviewStepRef.current?.done();
     }
-
+    console.log("stepChange") // want no access to here until above done 
     setActiveStep((prev) => (direction === "next" ? prev + 1 : prev - 1));
   };
   const handleDraftSave = () => {

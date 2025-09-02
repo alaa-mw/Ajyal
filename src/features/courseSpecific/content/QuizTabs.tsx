@@ -61,10 +61,10 @@ const QuizTabs = () => {
               <Tab label="الاختبارات المنجزة" value="2" />
             </Tabs>
           </Box>
-          <TabPanel value="1" sx={{ py: 2, minHeight:500 }}>
+          <TabPanel value="1" sx={{ py: 2, minHeight:300 }}>
             <QuizList quizzes={quizzes?.data.without_results} />
           </TabPanel>
-          <TabPanel value="2" sx={{ py: 2, minHeight:500 }}>
+          <TabPanel value="2" sx={{ py: 2, minHeight:300 }}>
             <QuizList quizzes={quizzes?.data.with_results} />
           </TabPanel>
         </TabContext>

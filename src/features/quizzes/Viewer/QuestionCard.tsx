@@ -11,6 +11,7 @@ import {
 import ImageIcon from "@mui/icons-material/Image";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { Question } from "../../../interfaces/Quiz";
+import getImageUrl from "../../../services/image-url";
 
 interface Props {
   question: Question;
@@ -18,20 +19,20 @@ interface Props {
 }
 const QuestionCard = ({ question, index }: Props) => {
   return (
-    <Paper elevation={2} sx={{ p: 3, mb: 3 }} key={question.id}>
+    <Paper elevation={2} sx={{ p: 3, mb: 3 }} key={question?.id}>
       {/* Question Header */}
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="subtitle1">السؤال {index + 1}</Typography>
-        <Typography variant="caption">{question.mark} نقاط</Typography>
+        <Typography variant="caption">{question?.mark} نقاط</Typography>
       </Box>
 
       {/* Question Image */}
-      {question.image && (
+      {question?.image && (
         <Box sx={{ mb: 3, textAlign: "center" }}>
           <Avatar
             variant="rounded"
-            src={`https://example.com/storage/${question.image.path}`}
-            sx={{ width: "100%", height: "auto", maxHeight: 300 }}
+            src={ getImageUrl(question.image.path)}
+            sx={{ width: "20%", height: "auto", maxHeight: 300 }}
           >
             <ImageIcon />
           </Avatar>
@@ -40,11 +41,11 @@ const QuestionCard = ({ question, index }: Props) => {
 
       {/* Question Text */}
       <Typography variant="h6" component="h2" gutterBottom>
-        {question.question_text}
+        {question?.question_text}
       </Typography>
 
       {/* Hint */}
-      {question.hint && (
+      {question?.hint && (
         <Alert
           icon={<HelpOutlineIcon sx={{ ml: 1 }} />}
           severity="info"
@@ -55,7 +56,7 @@ const QuestionCard = ({ question, index }: Props) => {
       )}
 
       {/* Display choices (read-only) */}
-      {question.choices && question.choices.length > 0 && (
+      {question?.choices && question.choices.length > 0 && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="subtitle1" gutterBottom>
             الخيارات:
@@ -84,7 +85,7 @@ const QuestionCard = ({ question, index }: Props) => {
       )}
 
       {/* Display sub-questions (read-only) */}
-      {question.children && question.children.length > 0 && (
+      {question?.children && question?.children.length > 0 && (
         <Box sx={{ mt: 3 }}>
           <Typography variant="subtitle1" gutterBottom>
             الأسئلة الفرعية:

@@ -60,7 +60,20 @@ const PaymentsNotification = () => {
               </Avatar>
             </ListItemAvatar>
             <ListItemText
-              primary={`قام ${notification.student_name} بتسديد دفعة جديدة بقيمة ${notification.invoice_value} ريال`}
+              primary={
+                <Box component="span">
+                  قام{" "}
+                  <Box
+                    component="span"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {notification.student_name}
+                  </Box>{" "}
+                  بتسديد دفعة جديدة بقيمة {notification.invoice_value} $
+                </Box>
+              }
               secondary={timeAgo(notification.payment_date)}
             />
           </ListItem>

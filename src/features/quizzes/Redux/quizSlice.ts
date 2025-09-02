@@ -225,6 +225,7 @@ export const quizSlice = createSlice({
         ...question,
         isChange: false,
         mode:'edit',
+
         choices: question?.choices?.map(choice =>({
           ...choice,
 
@@ -234,7 +235,8 @@ export const quizSlice = createSlice({
           ...child,
           isChange: false,
           mode:'edit',
-          choices: question?.choices?.map(choice =>({
+          
+          choices: child?.choices?.map(choice =>({
           ...choice,
 
         })),
