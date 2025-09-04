@@ -6,6 +6,7 @@ export interface Student {
   address?: string; 
   father_name?: string; 
   mother_name?: string; 
+  birthdate:string;
   access_code?: string;
   created_at?: string | Date;
   updated_at?: string | Date;

@@ -1,31 +1,32 @@
-// Community Interface
-// export interface Community {
-//   Community_ID: string; 
-//   Curriculum_ID: string; 
-//   Title: string;
-//   created_at: Date;
-//   updated_at: Date;
-// }
+import { Image } from "./Image";
+
+export interface Author {
+  id: string;
+  name: string;
+}
 
 export interface Issue {
-  id: string; 
-  Community_ID: string; 
-  Student_DoTeacher_ID: string; // fix - back
-  Hashtag: string;
+  id: string;
+  community_id: number;
+  author_type: string;
+  author_id: number;
   body: string;
-  IsFOA: boolean;
-  file: string;
-  created_at: Date;
-  updated_at: Date;
+  is_fqa: boolean;
+  created_at: string;
+  updated_at: string;
+  image: Image | null;
+  author: Author;
+  replies:Reply[];
 }
 
 export interface Reply {
-  id: string; 
-  Issues_ID: string; 
-  Teacher_id: string; // fix - back
+  id: string;
+  issue_id: number;
+  author_type: string;
+  author_id: number;
   body: string;
-  file: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
+  image: Image | null;
+  author: Author;
 }
-

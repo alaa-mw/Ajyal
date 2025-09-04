@@ -5,7 +5,7 @@ import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
 import useFetchDataId from "../../../hooks/useFetchDataId";
 import useFetchData from "../../../hooks/useFetchData";
 import ActiveStudentsList from "./ActiveStudentsList";
-import RegisterStudentDialog from "./RegisterStudentDialog";
+import RegisterStudentDialog from "./registerDialog/RegisterStudentDialog";
 import { Course, CourseRegistrationsStudent } from "../../../interfaces/Course";
 import { Student } from "../../../interfaces/Student";
 import CourseStats from "./CourseStats";
@@ -128,7 +128,7 @@ const CourseRegisterPage = () => {
                 <Button
                   variant="contained"
                   onClick={() => setDrawerOpen(true)}
-                  startIcon={<Checklist sx={{ml:1}} />}
+                  startIcon={<Checklist sx={{ ml: 1 }} />}
                   disabled={isAbsence}
                 >
                   {isAbsence ? "تم التفقد" : "تفقد الحضور"}
@@ -136,7 +136,7 @@ const CourseRegisterPage = () => {
                 <ExcelDownloader />
                 <Button
                   variant="contained"
-                  startIcon={<Checklist sx={{ml:1}} />}
+                  startIcon={<Checklist sx={{ ml: 1 }} />}
                   onClick={() => setOpenPaperDialog(true)}
                   sx={{ mx: 1 }}
                 >

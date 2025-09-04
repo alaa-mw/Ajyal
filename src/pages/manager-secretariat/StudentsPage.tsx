@@ -5,16 +5,16 @@ import { useNavigate } from "react-router-dom";
 import StudentsList from "../../features/students/StudentsList";
 
 const StudentsPage = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleSearch = () => {
     console.log("Searching for:");
   };
 
-  const handleAddStudent = () => {
-    console.log("Add new student clicked");
-    navigate(`/manager/students/new`);
-  };
+  // const handleAddStudent = () => {
+  //   console.log("Add new student clicked");
+  //   navigate(`/manager/students/new`);
+  // };
 
   const [isNewestSelected, setIsNewestSelected] = React.useState(false);
   const handleSortNewest = () => {
@@ -36,7 +36,7 @@ const StudentsPage = () => {
       <EntityToolbar
         entityType="student"
         onSearch={handleSearch}
-        onAdd={handleAddStudent}
+        // onAdd={handleAddStudent}
         selectedNewest={isNewestSelected}
         onSortNewest={handleSortNewest}
       />

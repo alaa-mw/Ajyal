@@ -36,6 +36,7 @@ export interface Quiz {
   questions: Question[];
   max_degree?:string;
   student_quizzes?:StudentResult[];
+  available_to_watch:boolean;
 }
 
 export interface StudentResult{

@@ -53,7 +53,7 @@ const QuizList = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 1 }}>
+    <Container maxWidth="xl" sx={{ py: 1 }}>
       <Typography
         variant="h4"
         component="h1"
