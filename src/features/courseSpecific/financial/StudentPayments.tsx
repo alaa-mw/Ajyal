@@ -34,10 +34,11 @@ const StudentPayments = ({ studentId }) => {
   const { selectedCourseId } = useSelectedCourse();
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { data: studentPayments } = useFetchDataId<StudentInvoicesPaid>(
-    `/payment/students/${studentId}/courses/${selectedCourseId}/payments`,
-    studentId
-  );
+  const { data: studentPayments, refetch } =
+    useFetchDataId<StudentInvoicesPaid>(
+      `/payment/students/${studentId}/courses/${selectedCourseId}/payments`,
+      studentId
+    );
 
   const { mutate: payInvoice } = useSendData("/invoice/pay");
 
@@ -45,10 +46,13 @@ const StudentPayments = ({ studentId }) => {
     payInvoice(
       {
         invoice_id: paidInvoiceId,
-        studentId: studentId,
+        student_id: studentId,
       },
       {
-        onSuccess: (response) => showSnackbar(response.message, "success"),
+        onSuccess: (response) => {
+          showSnackbar(response.message, "success");
+          refetch();
+        },
         onError: (error) => showSnackbar(error.message, "error"),
       }
     );
@@ -119,6 +123,7 @@ const StudentPayments = ({ studentId }) => {
                     >
                       <TableCell component="th" scope="row">
                         <Chip
+                        sx={{px:1}}
                           icon={<EventIcon />}
                           label={invoice.payments.id}
                           size="small"
@@ -158,5 +163,3 @@ const StudentPayments = ({ studentId }) => {
 };
 
 export default StudentPayments;
-
-

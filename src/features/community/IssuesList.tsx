@@ -58,7 +58,7 @@ const IssuesList = ({ issues, onSelect }:props) => {
                     <Typography
                       variant="caption"
                       color="primary"
-                      sx={{ ml: 1, fontWeight: "bold" }}
+                      sx={{ mr: 1, fontWeight: "bold" }}
                     >
                       (FAQ)
                     </Typography>

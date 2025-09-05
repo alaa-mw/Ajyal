@@ -12,12 +12,11 @@ import { RootState } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
 import useFetchData from "../../../hooks/useFetchData";
 import { Curriculum } from "../../../interfaces/Curriculum";
-import { printQuizState, updateQuizField } from "../Redux/quizSlice";
+import { printQuizState, setQuizInfo, updateQuizField } from "../Redux/quizSlice";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Subject } from "../../../interfaces/Subject";
 import useFetchDataId from "../../../hooks/useFetchDataId";
 import useSendData from "../../../hooks/useSendData";
-import { setQuizData } from "../Redux/quizSlice";
 import { Quiz } from "../../../interfaces/Quiz";
 import { useSnackbar } from "../../../contexts/SnackbarContext";
 import { RTLTimeDatePicker } from "../../../components/common/RTLTimeDatePicker";
@@ -99,7 +98,7 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
               console.log(response.data);
               showSnackbar(response.message, "success");
               dispatch(
-                setQuizData({
+                setQuizInfo({
                   ...response.data,
                   isChange: false,
                 })
@@ -114,9 +113,10 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
         } else if (quiz.isChange && quiz.mode == "edit") {
           updateQuiz(prepareQuizData(), {
             onSuccess: (response) => {
+              console.log("updatRes", response.data);
               showSnackbar(response.message, "success");
               dispatch(
-                setQuizData({
+                setQuizInfo({
                   ...response.data,
                   isChange: false,
                 })

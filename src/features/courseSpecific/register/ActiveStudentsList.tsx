@@ -17,7 +17,6 @@ import {
 import { MoreVert } from "@mui/icons-material";
 import { formattedDate } from "../../../utils/formatedDate";
 import NoteDialog from "./NoteDialog";
-import { PaymentDialog } from "./PaymentDialog";
 import { Student } from "../../../interfaces/Student";
 import { getStudentName } from "../../../utils/getStudentName";
 import { StudentActionsMenu } from "./StudentActionsMenu";
@@ -37,7 +36,7 @@ const ActiveStudentsList = ({ activeStudents, isLoading }: Props) => {
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [isDraggingSelect, setIsDraggingSelect] = useState(false);
   const dragStartRef = useRef<number | null>(null);
-  const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+  // const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
   const [openNoteDialog, setOpenNoteDialog] = useState(false);
   const [openClassroomDialog, setOpenClassroomDialog] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -225,11 +224,11 @@ const ActiveStudentsList = ({ activeStudents, isLoading }: Props) => {
         onAddNote={handleAddNote}
       />
 
-      <PaymentDialog
+      {/* <PaymentDialog
         open={openPaymentDialog}
         student={currentStudent}
         onClose={() => setOpenPaymentDialog(false)}
-      />
+      /> */}
 
       <NoteDialog
         open={openNoteDialog}

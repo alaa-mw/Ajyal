@@ -1,4 +1,5 @@
 import { Curriculum } from "./Curriculum";
+import { Image } from "./Image";
 import { Student } from "./Student";
 
 export interface Course{
@@ -42,4 +43,13 @@ export interface QuizResult {
   start_time: string,
   duration: number,
   mean_result: number
+}
+
+
+export interface ScheduleCourse {
+  id: string;
+  course_id: string;
+  classroom_id: string;
+  capacity: number;
+  image: Image;
 }

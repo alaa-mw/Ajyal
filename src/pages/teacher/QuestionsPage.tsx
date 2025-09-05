@@ -33,32 +33,33 @@ const QuestionsPage = () => {
     cId
   );
   return (
-    <Container maxWidth="xl" sx={{ py: 1 }}>
+    <Container maxWidth="xl" sx={{ py: 1}}>
       <Typography
         variant="h4"
         component="h1"
         gutterBottom
-        sx={{ fontWeight: "bold", mb: 4 }}
+        sx={{ fontWeight: "bold", mb: 2 }}
       >
         الأسئلة
       </Typography>
-      <FormControl sx={{ width: 300, mb: 2, backgroundColor: "#fff" }}>
-        <InputLabel sx={{ mr: 2 }}>المنهج الدراسي</InputLabel>
-        <Select
-          name="curriculum_id"
-          value={cId || ""}
-          onChange={(e) => setCId(e.target.value)}
-        >
-          <MenuItem value="">اختر المنهج الدراسي</MenuItem>{" "}
-          {teacherCurriculum?.data.map((tc) => (
-            <MenuItem key={tc.id} value={tc.id}>
-              {`${tc.subject.name} - ${tc.course.name}`}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+
       <Grid container spacing={4}>
         <Grid size={{ s: 12, md: 3.5 }}>
+          <FormControl sx={{ width: 300, mb: 2, backgroundColor: "#fff" }}>
+            <InputLabel sx={{ mr: 2 }}>المنهج الدراسي</InputLabel>
+            <Select
+              name="curriculum_id"
+              value={cId || ""}
+              onChange={(e) => setCId(e.target.value)}
+            >
+              <MenuItem value="">اختر المنهج الدراسي</MenuItem>{" "}
+              {teacherCurriculum?.data.map((tc) => (
+                <MenuItem key={tc.id} value={tc.id}>
+                  {`${tc.subject.name} - ${tc.course.name}`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           {/* أزرار التبويب */}
           <Box
             sx={{

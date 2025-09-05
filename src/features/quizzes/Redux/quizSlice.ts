@@ -25,7 +25,7 @@ const initialState: Quiz = {
         hint: '',
         mark:"1",
         choices: [
-            { choice_text: "", is_correct: 0 },
+            { choice_text: "", is_correct: 1 },
             { choice_text: "", is_correct: 0 },
         ],
         children: [],
@@ -180,7 +180,7 @@ export const quizSlice = createSlice({
       // If last child was removed, restore default choices to parent
       if (parent?.children?.length === 0) {
         parent.choices = [
-          { choice_text: "", is_correct: 0 },
+          { choice_text: "", is_correct: 1 },
           { choice_text: "", is_correct: 0 },
         ];
       }
@@ -192,6 +192,32 @@ export const quizSlice = createSlice({
 
     resetQuiz: () => initialState,
 
+    setQuizInfo: (state: Draft<Quiz>, action: PayloadAction<Quiz>) => {
+      const {
+        id,
+        curriculum_id,
+        topic_id,
+        name,
+        type,
+        available,
+        duration,
+        start_time,
+        isChange = false,
+        mode = 'edit'
+      } = action.payload;
+
+      // Update top-level quiz fields
+      state.id = id;
+      state.curriculum_id = curriculum_id;
+      state.topic_id = topic_id;
+      state.name = name;
+      state.type = type;
+      state.available = available;
+      state.duration = duration;
+      state.start_time = start_time;
+      state.isChange = isChange;
+      state.mode = mode;
+    },
     // for response 
     setQuizData: (state: Draft<Quiz>, action: PayloadAction<Quiz>) => {
       const {
@@ -296,6 +322,7 @@ export const {
   removeQuestion,
   printQuizState,
   resetQuiz,
+  setQuizInfo,
   setQuizData,
   setQuestionData,
   updateQuizMode

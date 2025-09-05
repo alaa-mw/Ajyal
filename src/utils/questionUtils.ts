@@ -8,7 +8,7 @@ export const createNewQuestion = (parentId: string | null = null): Question => (
   hint:'',
   mark: "1",
   choices: [
-    { choice_text: '', is_correct: 0 },
+    { choice_text: '', is_correct: 1 },
     { choice_text: '', is_correct: 0 },
   ],
   children: [],

@@ -7,7 +7,7 @@ export const useFetchDataId = <TData>(
     id?: string
 ) => {
     const apiClient = new APIClient<TData>(endpoint); 
-    console.log("fetchId",id) 
+    // console.log("fetchId",id) 
     return useQuery<FetchResponse<TData>, Error>({
         queryKey: [endpoint, id], 
         queryFn: apiClient.get,

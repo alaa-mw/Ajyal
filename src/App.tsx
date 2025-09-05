@@ -29,7 +29,7 @@ import AuthPage from "./pages/AuthPage.tsx";
 import CourseFinancialPage from "./features/courseSpecific/financial/CourseFinancialPage.tsx";
 import InvoiceCreator from "./features/courseSpecific/financial/InvoiceCreator.tsx";
 import HomePage from "./pages/manager-secretariat/HomePage.tsx";
-
+import { getFirebaseToken } from "./firebase/firebaseConfig.ts";
 function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -47,6 +47,14 @@ function App() {
       navigate(`${rolesConfig[userRole].webPrefix}/`);
     }
   }, [userRole, userToken]);
+
+  useEffect(() => {
+    getFirebaseToken();
+    // notification sent from backeground service, public / firebase-messaging-sx.js
+    // onMessage(messaging, (payload) => {
+    //   console.log(payload);
+    // });
+  }, []);
 
   return (
     <ThemeProvider theme={arabicThem}>

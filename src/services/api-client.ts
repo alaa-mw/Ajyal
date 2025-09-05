@@ -3,7 +3,7 @@ import { logoutSuccess } from "../features/auth/Redux/authSlice";
 import store from "../store";
 export const baseUrl =  "http://127.0.0.1:8000/";
 
-// export const baseUrl =  "https://71c3a0641fef.ngrok-free.app/";
+// export const baseUrl =  "https://cfefe7d20356.ngrok-free.app/";
 const baseAxios = axios.create({
   baseURL:baseUrl+"api",
 });

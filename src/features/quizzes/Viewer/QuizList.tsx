@@ -18,11 +18,12 @@ import useFetchData from "../../../hooks/useFetchData";
 import { Curriculum } from "../../../interfaces/Curriculum";
 import { useState } from "react";
 import useSendData from "../../../hooks/useSendData";
+import QuizCardSkeleton from "./QuizCardSkeleton";
 
 const QuizList = () => {
   const navigate = useNavigate();
   const [cId, setCId] = useState<string>();
-  const { data: quizzes } = useFetchDataId<Quiz[]>(
+  const { data: quizzes, isLoading, refetch } = useFetchDataId<Quiz[]>(
     `/quiz/all_quizzes_for_curriculum/${cId}`,
     cId
   );
@@ -50,6 +51,7 @@ const QuizList = () => {
   };
   const handleQuizDelete = (quizId: string) => {
     deleteQuiz({ quiz_id: quizId });
+    refetch();
   };
 
   return (
@@ -58,7 +60,7 @@ const QuizList = () => {
         variant="h4"
         component="h1"
         gutterBottom
-        sx={{ fontWeight: "bold", mb: 4 }}
+        sx={{ fontWeight: "bold",mb: 2 }}
       >
         الاختبارات
       </Typography>
@@ -70,7 +72,7 @@ const QuizList = () => {
             value={cId || ""}
             onChange={(e) => setCId(e.target.value)}
           >
-            <MenuItem value="">اختر المنهج الدراسي</MenuItem>{" "}
+            <MenuItem value="">اختر مادة </MenuItem>{" "}
             {/* Default empty option */}
             {teacherCurriculum?.data.map((tc) => (
               <MenuItem key={tc.id} value={tc.id}>
@@ -95,16 +97,37 @@ const QuizList = () => {
           إضافة اختبار
         </Button>
       </Box>
-      <Grid container spacing={3}>
-        {quizzes?.data.map((quiz) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={quiz.id}>
-            <QuizCard
-              quiz={quiz}
-              onClick={handleQuizClick}
-              onDelete={handleQuizDelete}
-            />
-          </Grid>
-        ))}
+      <Grid
+        container
+        spacing={3}
+        alignItems={"center"}
+        justifyContent={"center"}
+      >
+        {isLoading ? (
+          [...Array(3)].map((_, index) => (
+            <Grid key={index} size={{ xs: 12, sm: 6, md: 4 }}>
+              <QuizCardSkeleton />
+            </Grid>
+          ))
+        ) : quizzes && quizzes.data.length > 0 ? (
+          quizzes?.data.map((quiz) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={quiz.id}>
+              <QuizCard
+                quiz={quiz}
+                onClick={handleQuizClick}
+                onDelete={handleQuizDelete}
+              />
+            </Grid>
+          ))
+        ) : cId ? (
+          <Typography color="gray" fontWeight="bold">
+            لا يوجد أية اختبارات
+          </Typography>
+        ) : (
+          <Typography color="gray" fontWeight="bold">
+            اختر مادة لعرض الاختبارات
+          </Typography>
+        )}
       </Grid>
     </Container>
   );

@@ -31,7 +31,7 @@ interface QuizCardProps {
 
 const QuizCard: React.FC<QuizCardProps> = ({ quiz, onClick, onDelete }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { data: studentResult } = useFetchDataId<Quiz>(
+  const { data: studentResult, isLoading:isResultLoading } = useFetchDataId<Quiz>(
     `/quiz/get-quiz-result/${quiz.id}`,
     quiz.id
   );
@@ -152,6 +152,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, onClick, onDelete }) => {
       <StudentResultsList
         totalResult={studentResult?.data?.max_degree}
         students={studentResult?.data.student_quizzes}
+        isLoading={isResultLoading}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
       />

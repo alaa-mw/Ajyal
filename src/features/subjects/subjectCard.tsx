@@ -30,7 +30,7 @@ const SubjectCard = ({
 
     // إنشاء كائن FormData جديد
     const formData = new FormData();
-    formData.append("curriculum_id", curr.id); //fix
+    formData.append("curriculum_id", curr.id); 
     formData.append("title", file.name.split(".").slice(0, -1).join("."));
     formData.append("file", file);
 

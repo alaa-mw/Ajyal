@@ -30,6 +30,7 @@ export const QuizCreator = ({ mode = "create" }: QuizCreatorProps) => {
   const dispatch = useDispatch();
   const { error, isLoading } = useQuizStateManager();
 
+
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["معلومات الاختبار", "الأسئلة والإجابات", "مراجعة"];
 
@@ -67,6 +68,9 @@ export const QuizCreator = ({ mode = "create" }: QuizCreatorProps) => {
     showSnackbar("تم حفظ الاختبار كمسودة", "success");
     navigate("/teacher/quizzes/");
   };
+  
+  // if(isWaiting) return <div>انتظر قليلا</div>;
+
   if (error) {
     showSnackbar("حدث خطأ أثناء جلب بيانات الاختبار", "error");
     return <div>حدث خطأ أثناء جلب بيانات الاختبار</div>;

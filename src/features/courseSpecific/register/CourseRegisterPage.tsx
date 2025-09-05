@@ -1,12 +1,16 @@
 import { getStudentName } from "../../../utils/getStudentName";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Typography, Container, Grid, Stack, Button, Box } from "@mui/material";
 import { useSelectedCourse } from "../../../contexts/SelectedCourseContext";
 import useFetchDataId from "../../../hooks/useFetchDataId";
 import useFetchData from "../../../hooks/useFetchData";
 import ActiveStudentsList from "./ActiveStudentsList";
 import RegisterStudentDialog from "./registerDialog/RegisterStudentDialog";
-import { Course, CourseRegistrationsStudent } from "../../../interfaces/Course";
+import {
+  Course,
+  CourseRegistrationsStudent,
+  ScheduleCourse,
+} from "../../../interfaces/Course";
 import { Student } from "../../../interfaces/Student";
 import CourseStats from "./CourseStats";
 import CourseActionsToolbar from "./CourseActionsToolbar";
@@ -17,6 +21,8 @@ import { Checklist } from "@mui/icons-material";
 import ExcelDownloader from "../content/ExcelDownloader";
 import PaperExamDialog from "./PaperExamDialog";
 import { TodayAbsence } from "../../../interfaces/TodayAbsence";
+import { useSnackbar } from "../../../contexts/SnackbarContext";
+import getImageUrl from '../../../services/image-url';
 
 const CourseRegisterPage = () => {
   const { selectedCourseId } = useSelectedCourse();
@@ -61,6 +67,35 @@ const CourseRegisterPage = () => {
   const isAbsence = todayAbsence?.data.classrooms_with_absence.some(
     (cls) => cls.classroom_id === selectedClassroom
   );
+
+  const { data: Schedules } = useFetchDataId<ScheduleCourse[]>(
+    `/course/all-schedule/course/${selectedCourseId}`,
+    selectedCourseId as string | undefined
+  );
+  const selectedSchedule = Schedules?.data.find(
+    (cls) => cls.classroom_id === selectedClassroom
+  );
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showSnackbar } = useSnackbar();
+  const { mutate: storeFile } = useSendData(
+    "/course/add-schedule-to-classroom-at-course"
+  );
+
+  const handleUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("classroom_course_id", selectedClassroom); //fix
+    formData.append("schedule", file);
+
+    storeFile(formData, {
+      onSuccess: (response) => showSnackbar(response.message, "success"),
+      onError: (error) => showSnackbar(error.message, "error"),
+    });
+  };
+
   // This effect updates the student list based on the main data source
   useEffect(() => {
     setStudentList(allStudentsInCourseData?.data || []);
@@ -136,12 +171,37 @@ const CourseRegisterPage = () => {
                 <ExcelDownloader />
                 <Button
                   variant="contained"
-                  startIcon={<Checklist sx={{ ml: 1 }} />}
                   onClick={() => setOpenPaperDialog(true)}
                   sx={{ mx: 1 }}
                 >
                   رفع العلامات
                 </Button>
+                {selectedSchedule?.image ? (
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      window.open(getImageUrl(selectedSchedule.image.path), "_blank")
+                    }
+                    sx={{ mx: 1 }}
+                  >
+                    عرض جدول الدوام
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    onClick={() => fileInputRef.current?.click()}
+                    sx={{ mx: 1 }}
+                  >
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      style={{ display: "none" }}
+                      onChange={handleUpload}
+                      accept="image/*"
+                    />
+                    رفع جدول الدوام
+                  </Button>
+                )}
               </Box>
             )}
             <ActiveStudentsList

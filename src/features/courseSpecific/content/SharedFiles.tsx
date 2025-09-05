@@ -1,8 +1,4 @@
-import {
-  Box,
-  Button,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { grey } from "@mui/material/colors";
 import theme from "../../../styles/mainThem";
@@ -25,13 +21,18 @@ const SharedFiles = () => {
   };
 
   const handleDownload = (pdf) => {
-    const link = document.createElement("a");
-    link.href = getPdfUrl(pdf.file_path);
-    link.download = `${pdf.title}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const url = getPdfUrl(pdf.file_path);
+    window.open(url, "_blank");
   };
+
+  // const handleDownload = (pdf) => {
+  //   const link = document.createElement("a");
+  //   link.href = getPdfUrl(pdf.file_path);
+  //   link.download = `${pdf.title}.pdf`;
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  // };
 
   return (
     <Box
