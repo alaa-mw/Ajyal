@@ -13,7 +13,6 @@ import CoursesPage from "./pages/manager-secretariat/CoursesPage.tsx";
 import NewCourse from "./features/courses/NewCourse";
 import NewAd from "./features/ads/AdForm.tsx";
 import ProtectedRoute from "./pages/ProtectedRoute";
-import { SnackbarProvider } from "./contexts/SnackbarContext.tsx";
 import CourseScientificContentPage from "./features/courseSpecific/content/courseScientificContentPage.tsx";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -31,6 +30,8 @@ import InvoiceCreator from "./features/courseSpecific/financial/InvoiceCreator.t
 import HomePage from "./pages/manager-secretariat/HomePage.tsx";
 import { getFirebaseToken, messaging } from "./firebase/firebaseConfig.ts";
 import { onMessage } from "firebase/messaging";
+import { SnackbarProvider } from "./contexts/SnackbarContext.tsx";
+
 function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -54,8 +55,23 @@ function App() {
     // notification sent from backeground service, public / firebase-messaging-sx.js
     onMessage(messaging, (payload) => {
       console.log("payload", payload);
+     
     });
   }, []);
+
+   useEffect(() => {
+    getFirebaseToken();
+    onMessage(messaging, (payload) => {
+      console.log("payload", payload);
+       if (payload.notification) {
+        // Construct a readable message from the payload
+        const messageTitle = payload.notification.title || 'New Notification';
+        const messageBody = payload.notification.body || 'You have a new message.';
+        
+        // Show the alert
+        alert(`${messageTitle}\n\n${messageBody}`);
+      }
+    })},[]);
 
   return (
     <ThemeProvider theme={arabicThem}>
