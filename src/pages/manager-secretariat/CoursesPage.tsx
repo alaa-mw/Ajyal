@@ -131,7 +131,7 @@ const CoursesPage = () => {
             p: 2,
           }}
         >
-          {isLoading && [...Array(4)].map(() => <CourseCardSkeleton />)}
+          {isLoading && [...Array(4)].map((_,index) => <CourseCardSkeleton key={index} />)}
           {courses?.data.map((item) => (
             <CourseCard
               key={item.id}

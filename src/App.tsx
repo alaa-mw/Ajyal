@@ -29,7 +29,8 @@ import AuthPage from "./pages/AuthPage.tsx";
 import CourseFinancialPage from "./features/courseSpecific/financial/CourseFinancialPage.tsx";
 import InvoiceCreator from "./features/courseSpecific/financial/InvoiceCreator.tsx";
 import HomePage from "./pages/manager-secretariat/HomePage.tsx";
-import { getFirebaseToken } from "./firebase/firebaseConfig.ts";
+import { getFirebaseToken, messaging } from "./firebase/firebaseConfig.ts";
+import { onMessage } from "firebase/messaging";
 function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -51,9 +52,9 @@ function App() {
   useEffect(() => {
     getFirebaseToken();
     // notification sent from backeground service, public / firebase-messaging-sx.js
-    // onMessage(messaging, (payload) => {
-    //   console.log(payload);
-    // });
+    onMessage(messaging, (payload) => {
+      console.log("payload", payload);
+    });
   }, []);
 
   return (
@@ -106,7 +107,7 @@ function App() {
 
             <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
               <Route path="/teacher" element={<TeacherDashboard />}>
-                <Route index element={<div>home</div>} />
+                {/* <Route index element={<div>home</div>} /> */}
                 <Route path="quizzes">
                   <Route index element={<QuizList />} />
                   <Route path=":quizId" element={<QuizDetails />} />

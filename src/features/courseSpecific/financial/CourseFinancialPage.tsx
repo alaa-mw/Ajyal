@@ -22,10 +22,12 @@ const CourseFinancialPage = () => {
           {/* <Stack spacing={3}> */}
             <InvoiceTimeline />
           {/* </Stack> */}
+          
           {studentId && <StudentPayments studentId={studentId} />}
         </Grid>
         <Grid size={{ s: 12, md: 3.1 }}>
           <PaymentsNotification />
+
         </Grid>
       </Grid>
     </Container>

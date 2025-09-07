@@ -55,11 +55,11 @@ export const SidebarData = {
 
 export const SidebarDataTeacher = {
     mainItems:[ 
-        {
-        title: 'الرئيسية',
-        path: "/",
-        icon: HomeIcon 
-        },
+        // {
+        // title: 'الرئيسية',
+        // path: "/",
+        // icon: HomeIcon 
+        // },
         {
         title: 'الاختبارات',
         path: "/quizzes",

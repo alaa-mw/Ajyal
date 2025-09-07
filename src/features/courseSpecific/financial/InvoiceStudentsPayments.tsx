@@ -1,7 +1,8 @@
 import React from "react";
 import useFetchData from "../../../hooks/useFetchData";
-import { Grid, List, ListItem, ListItemText, Typography } from "@mui/material";
+import { Grid, IconButton, List, ListItem, ListItemText, Stack, Tooltip, Typography } from "@mui/material";
 import { InvoiceStudentPayments } from "../../../interfaces/Invoice";
+import PaidIcon from '@mui/icons-material/Paid';
 
 interface Props {
   invoiceId: string;
@@ -15,29 +16,39 @@ const InvoiceStudentsPayments = ({ invoiceId }: Props) => {
     <Grid container spacing={2} sx={{m:1}}>
       <Grid size={{ xs: 12, md: 6 }}>
         <StudentList
-          title="الطلاب الدافعة"
+          title="المدفوعات من قبل: "
           students={studentPayments?.data.paid_students}
           bgColor="#e8f5e9"
         />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <StudentList
-          title="الطلاب الغير دافعة"
+          title="المدفوعات المتبقية من قبل:"
           students={studentPayments?.data.unpaid_students}
           bgColor="#ffebee"
+      
         />
       </Grid>
     </Grid>
-  ); // make here a list of students names behind other
+  ); 
 };
 
 export default InvoiceStudentsPayments;
 
 const StudentList = ({ title, students, bgColor }) => {
+  const handleSendFinancialAlert =()=>{
+
+  }
   return (
     <>
-      <Typography variant="h6">{title}</Typography>
-      <List sx={{ gap: 2 }}>
+    <Stack direction={"row"}> <Typography variant="body1" fontWeight={"bold"}>{title}</Typography>
+      <Tooltip title="ارسال تنبيه مالي">
+      <IconButton onClick={handleSendFinancialAlert}>
+        <PaidIcon />
+      </IconButton>
+    </Tooltip></Stack>
+     
+      <List>
         {students?.length === 0 && <Typography>لا يوجد طلاب </Typography>}
         {students?.map((student) => (
           <ListItem

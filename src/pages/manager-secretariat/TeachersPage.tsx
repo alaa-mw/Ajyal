@@ -61,7 +61,7 @@ const TeachersPage = () => {
           p: 2,
         }}
       >
-        {isLoading && [...Array(4)].map(() => (<TeacherCardSkeleton />))}
+        {isLoading && [...Array(4)].map((_,index) => (<TeacherCardSkeleton key={index}/>))}
         {teachers?.data?.map((teacher) => (
           <TeacherCard key={teacher.id} teacher={teacher} />
         ))}

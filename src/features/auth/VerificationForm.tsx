@@ -1,12 +1,7 @@
-import {
-  TextField,
-  Button,
-  Box,
-  Typography,
-} from "@mui/material";
+import { TextField, Button, Box, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import theme from "../../styles/mainThem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useSendDataNoToken from "../../hooks/useSendDataNoToken";
 import { loginFailure, loginSuccess } from "./Redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,6 +9,7 @@ import { useSnackbar } from "../../contexts/SnackbarContext";
 import { RootState } from "../../store";
 import { rolesConfig } from "../../rolesConfig";
 import { useNavigate } from "react-router-dom";
+import { getFcmTokenAsString } from "../../firebase/firebaseConfig";
 
 const VerificationForm = () => {
   const { mutate: verify } = useSendDataNoToken<{ token: string }>( // fix
@@ -28,8 +24,19 @@ const VerificationForm = () => {
   const [formData, setFormData] = useState({
     teacher_id: userId,
     verifyCode: "",
-    role:"teacher"
+    role: "teacher",
+    fcm_token: "", // start empty
   });
+
+  useEffect(() => {
+    const fetchFcmToken = async () => {
+      const token = await getFcmTokenAsString();
+      setFormData((prev) => ({ ...prev, fcm_token: token }));
+    };
+
+    fetchFcmToken();
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e);
     const { name, value } = e.target;
@@ -103,8 +110,8 @@ const VerificationForm = () => {
             // disabled={isLoading}
           >
             {/* {isLoading ? <CircularProgress size={24} color="inherit" />: */}
-             تأكيد
-             {/* } */}
+            تأكيد
+            {/* } */}
           </Button>
 
           <Typography variant="body2" sx={{ textAlign: "center", mt: 2 }}>

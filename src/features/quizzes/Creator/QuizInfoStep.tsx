@@ -215,7 +215,7 @@ export const QuizInfoStep = forwardRef<QuizStepRef | undefined>(
             onChange={(e) => handleQuizFieldChange("type", e.target.value)}
           >
             <MenuItem value="Timed">اختبار محدود الوقت</MenuItem>
-            <MenuItem value="worksheet">ورقة عمل</MenuItem>
+            {/* <MenuItem value="worksheet">ورقة عمل</MenuItem> */}
           </Select>
         </FormControl>
 

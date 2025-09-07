@@ -76,7 +76,7 @@ export function ClassroomAssignmentDialog({
             >
               <ListItemText
                 primary={classroom.class_number}
-                secondary={`السعة: ${classroom.capacity}`}
+                secondary={`السعة: ${classroom.remaining_capacity}`}
               />
             </ListItemButton>
           ))}

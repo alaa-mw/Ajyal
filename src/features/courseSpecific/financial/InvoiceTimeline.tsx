@@ -18,10 +18,12 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import InvoiceCard from "./InvoiceCard";
 import { formattedDate } from "../../../utils/formatedDate";
-import InvoiceStudentsPayments from "./InvoiceStudentsPayments";
+// import InvoiceStudentsPayments from "./InvoiceStudentsPayments";
+import InvoiceStudentsPaymentsDrawer from "./InvoiceStudentsPaymentsDrawer";
 
 const InvoiceTimeline = () => {
   const theme = useTheme();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
   const navigate = useNavigate();
   const { selectedCourseId } = useSelectedCourse();
@@ -37,6 +39,7 @@ const InvoiceTimeline = () => {
   // Updated handler: any invoice can be selected now.
   const handleInvoiceClick = (invoiceId) => {
     setSelectedInvoiceId((prevId) => (prevId === invoiceId ? null : invoiceId));
+      setDrawerOpen(true);
   };
 
   return (
@@ -185,9 +188,16 @@ const InvoiceTimeline = () => {
         الجدول الزمني للفواتير
       </Typography>
       <Divider />
-      {selectedInvoiceId && (
-        <InvoiceStudentsPayments invoiceId={selectedInvoiceId} />
+       {selectedInvoiceId && (
+        <InvoiceStudentsPaymentsDrawer 
+          open={drawerOpen}
+          onClose={()=>  setDrawerOpen(false)}
+          invoiceId={selectedInvoiceId}
+        />
       )}
+      {/* {selectedInvoiceId && (
+        <InvoiceStudentsPayments invoiceId={selectedInvoiceId} />
+      )} */}
     </Box>
   );
 };

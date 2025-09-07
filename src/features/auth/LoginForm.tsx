@@ -16,7 +16,7 @@ import theme from "../../styles/mainThem";
 import { motion } from "framer-motion";
 import SchoolIcon from "@mui/icons-material/School";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import PersonIcon from '@mui/icons-material/Person';
+import PersonIcon from "@mui/icons-material/Person";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import useSendDataNoToken from "../../hooks/useSendDataNoToken";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,6 +30,7 @@ import {
 } from "./Redux/authSlice";
 import { RootState } from "../../store";
 import { Auth } from "../../interfaces/Auth";
+import { getFcmTokenAsString } from "../../firebase/firebaseConfig";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
@@ -42,13 +43,22 @@ const LoginForm = () => {
     email: "",
     password: "",
     role: "manager",
+    fcm_token: "", // start empty
   });
 
   useEffect(() => {
+    const fetchFcmToken = async () => {
+      const token = await getFcmTokenAsString();
+      setFormData((prev) => ({ ...prev, fcm_token: token }));
+    };
+
+    fetchFcmToken();
+  }, []);
+
+  console.log("formData", formData);
+  useEffect(() => {
     setFinalEndpoint(
-      formData.role == "teacher"
-        ? `/teacher/teacherLogin`
-        : `/admin/login`
+      formData.role == "teacher" ? `/teacher/teacherLogin` : `/admin/login`
     );
     console.log("role", formData.role);
   }, [formData.role]);
@@ -190,7 +200,7 @@ const LoginForm = () => {
                 aria-label="Secretariat"
                 sx={{ width: 90 }}
               >
-                <PersonIcon sx={{ ml:0.5 }} />
+                <PersonIcon sx={{ ml: 0.5 }} />
                 سكرتاريا
               </ToggleButton>
             </ToggleButtonGroup>

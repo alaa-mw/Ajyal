@@ -79,7 +79,7 @@ const StudentResultsList: React.FC<StudentResultsListProps> = ({
       <Box sx={{ flex: 1, overflow: "auto" }}>
         <List dense>
           {isLoading ? (
-            [...Array(4)].map((index) => (
+            [...Array(4)].map((_,index) => (
               <ListItem
                 key={index}
                 sx={{
