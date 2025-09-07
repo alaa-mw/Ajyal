@@ -69,7 +69,7 @@ const NotificationsList = () => {
             </Typography>
           </Box>
           <Grid container spacing={1}>
-            {notificationsData?.data.map((notification) => (
+            {notificationsData?.data?.map((notification) => (
               <Grid size={{ xs: 12 }} key={notification.id}>
                 <Card
                   sx={{

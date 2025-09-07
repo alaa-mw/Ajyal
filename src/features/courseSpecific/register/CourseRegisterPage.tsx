@@ -22,7 +22,7 @@ import ExcelDownloader from "../content/ExcelDownloader";
 import PaperExamDialog from "./PaperExamDialog";
 import { TodayAbsence } from "../../../interfaces/TodayAbsence";
 import { useSnackbar } from "../../../contexts/SnackbarContext";
-import getImageUrl from '../../../services/image-url';
+import getImageUrl from "../../../services/image-url";
 
 const CourseRegisterPage = () => {
   const { selectedCourseId } = useSelectedCourse();
@@ -105,19 +105,23 @@ const CourseRegisterPage = () => {
     CourseRegistrationsStudent[]
   >([]);
 
+  const [isIsStLoading,setIsStLoading ] = useState(false);
   // 1. جلب البيانات عند تغيير الصف
   useEffect(() => {
+    setIsStLoading(true);
     if (selectedClassroom !== "all") {
       getStudentsAtClass(
         { courseId: selectedCourseId, classroomCourseId: selectedClassroom },
         {
           onSuccess: (response) => {
             setStudentsByClass([...response.data]); // تحديث الحالة
+            setIsStLoading(false);
           },
         }
       );
     } else {
       setStudentsByClass([...studentList]); // عرض كل الطلاب
+      setIsStLoading(false);
     }
   }, [selectedClassroom, selectedCourseId, studentList]);
 
@@ -180,7 +184,10 @@ const CourseRegisterPage = () => {
                   <Button
                     variant="contained"
                     onClick={() =>
-                      window.open(getImageUrl(selectedSchedule.image.path), "_blank")
+                      window.open(
+                        getImageUrl(selectedSchedule.image.path),
+                        "_blank"
+                      )
                     }
                     sx={{ mx: 1 }}
                   >
@@ -206,7 +213,7 @@ const CourseRegisterPage = () => {
             )}
             <ActiveStudentsList
               activeStudents={displayedStudents}
-              isLoading={isLoading}
+              isLoading={isLoading || isIsStLoading}
             />
           </Stack>
         </Grid>

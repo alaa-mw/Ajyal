@@ -147,7 +147,7 @@ const Subjects = () => {
                   pb: 4,
                 }}
               >
-                {subjects.data?.[key] && subjects.data[key].length > 0 ? (
+                {subjects?.data?.[key] && subjects.data[key].length > 0 ? (
                   subjects?.data[key]?.map((subject: Subject) => {
                     const isExpanded = expandedSubjectId === subject.id;
 
@@ -173,7 +173,7 @@ const Subjects = () => {
                   </Typography>
                 )}
                 {archivedSubjects?.data?.[key] &&
-                subjects?.data[key].length > 0 ? (
+                subjects?.data[key]?.length > 0 ? (
                   archivedSubjects?.data[key]?.map((subject: Subject) => {
                     const isExpanded = expandedSubjectId === subject.id;
 

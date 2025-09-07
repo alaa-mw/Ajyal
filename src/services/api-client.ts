@@ -1,9 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 import { logoutSuccess } from "../features/auth/Redux/authSlice";
 import store from "../store";
-export const baseUrl =  "http://127.0.0.1:8000/";
+// export const baseUrl =  "http://127.0.0.1:8000/";
 
-// export const baseUrl =  "https://cfefe7d20356.ngrok-free.app/";
+export const baseUrl =  "https://fac07acfe2d9.ngrok-free.app/";
 const baseAxios = axios.create({
   baseURL:baseUrl+"api",
 });
